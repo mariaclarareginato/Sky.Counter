@@ -5,6 +5,8 @@
 
 ## Objetivo do Projeto
 
+Para venda
+
 Facilitar a emissão e calculo dos valores de passagens aéreas utilizando milhas, oferecendo ferramentas práticas para calcular valores, parcelamentos e gerar PDFs com todos os dados da viagem.
 
 ## Tecnologias Utilizadas

@@ -23,6 +23,7 @@ export function AppSidebar({ ...props }) {
     navegacao: [
       { name: "Ida/volta", url: "/ida.volta" },
       { name: "Parcelamento", url: "/parcelamento" },
+      { name: "Histórico", url: "/historico" },
     ],
   }
 

@@ -197,7 +197,6 @@ export default function IdaVoltaPage() {
       return null;
     }
   };
-
 const gerarPDF = async () => {
   try {
     const doc = new jsPDF({ unit: "pt", format: "a4" });
@@ -237,13 +236,13 @@ const gerarPDF = async () => {
     const serial = stored + 1;
     localStorage.setItem(serialKey, serial);
 
-    const serialFormatted = `${String(serial).padStart(4, "0")}-${currentYear}`;
+    const serialFormatted = `${String(serial).padStart(4, "0")}/${currentYear}`;
 
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
     doc.text(`Número de série: `, margin, y);
     doc.setFont("helvetica", "bold");
-    doc.text(serialFormatted, margin + 100, y);
+    doc.text(serialFormatted, margin + 80, y);
     y += 20;
 
     //  Função padrão para escrita organizada
@@ -322,7 +321,14 @@ const gerarPDF = async () => {
     doc.setFontSize(18);
     doc.setFont("helvetica", "bold");
     doc.text(`TOTAL GERAL: R$ ${totalGeral.toFixed(2)}`, pageWidth / 2, y, { align: "center" });
-    y += 20;
+    y += 40;
+
+
+  doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.text("Atenção: Nenhuma emissão foi efetuada até o momento. Este documento é apenas um orçamento.", pageWidth / 2, y, {
+      align: "center",
+    });
 
     //  Observações
     y += 40;
@@ -333,6 +339,23 @@ const gerarPDF = async () => {
     doc.text(obsLines, margin, y);
 
     doc.save(`informacoes.orcamento_${serialFormatted}.pdf`);
+
+    // **Salvar histórico**
+    const historico = JSON.parse(localStorage.getItem("historicoCotacoes")) || [];
+
+    const registro = {
+      id: serialFormatted,
+      data: new Date().toLocaleString("pt-BR"),
+      classificacao: flight.classificacao,
+      tipo: flight.tipoviagem,
+      passageiros: totalPaxEx,
+      total: Number(totalGeral.toFixed(2)),
+      flightData: flight
+    };
+
+    historico.unshift(registro); // mais recente primeiro
+    localStorage.setItem("historicoCotacoes", JSON.stringify(historico));
+
   } catch (err) {
     console.error("Erro ao gerar PDF:", err);
   }

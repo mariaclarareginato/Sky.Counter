@@ -236,7 +236,7 @@ const gerarPDF = async () => {
     };
 
     const writeLine = (label, value) => {
-      doc.setFontSize(14);
+      doc.setFontSize(10);
       doc.setFont(FONT, "normal");
       doc.text(`${label}:`, margin, y);
 
@@ -326,18 +326,22 @@ const gerarPDF = async () => {
     // =====================
     // OBS
     // =====================
-    y += 10;
-     doc.setFontSize(10);
-    const obs = `
-Aviso importante sobre preços dinâmicos:
-Os valores apresentados neste orçamento estão sujeitos à variação de acordo com disponibilidade, demanda, políticas das companhias aéreas e hotéis, além de possíveis alterações cambiais.
-O valor final só será confirmado no momento da emissão da passagem ou da reserva da hospedagem.
-Recomendamos confirmar a compra o quanto antes para garantir os valores informados.
-`.trim();
 
-    doc.setFont(FONT, "normal");
+    y += 10
+
+  doc.setFont(FONT, "bold");
+    doc.setFontSize(12);
+    doc.text("Atenção: Nenhuma emissão foi efetuada até o momento. Este documento é apenas um orçamento.", pageWidth / 2, y, {
+      align: "center",
+    });
+
+     y += 20;
+
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "normal");
+    const obs = "Aviso importante sobre preços dinâmicos: Os valores apresentados neste orçamento estão sujeitos à variação de acordo com disponibilidade, demanda, políticas das companhias aéreas e hotéis, além de possíveis alterações cambiais. Como se tratam de preços dinâmicos, o valor final somente será confirmado no momento da emissão da passagem aérea ou da reserva da hospedagem. Recomenda-se confirmar a compra o quanto antes para garantir as tarifas informadas.";
     const obsLines = doc.splitTextToSize(obs, pageWidth - margin * 2);
-    doc.text(obsLines, pageWidth / 2, y, { align: "center" });
+    doc.text(obsLines, margin, y);
 
     // =====================
     // SALVAR

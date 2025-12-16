@@ -5,7 +5,7 @@
 
 ## Objetivo do Projeto
 
-Facilitar a emissão de passagens aéreas utilizando milhas, oferecendo ferramentas práticas para calcular valores, parcelamentos e gerar PDFs com todos os dados da viagem.
+Facilitar a emissão e calculo dos valores de passagens aéreas utilizando milhas, oferecendo ferramentas práticas para calcular valores, parcelamentos e gerar PDFs com todos os dados da viagem.
 
 ## Tecnologias Utilizadas
 
@@ -20,6 +20,8 @@ Página para cálculo completo da viagem, incluindo valor total e detalhes.
 Página exclusiva para parcelamento.
 
 Geração de PDFs em ambas as páginas (resumo da viagem e opções de pagamento).
+
+Página de histórico das cotações/orçamentos.
 
 ## Como Executar o Projeto Localmente
 

@@ -1,6 +1,6 @@
 <div align="center">
-<h1>R10 Viagens</h1>
-<img width="532" height="235" alt="image" src="https://github.com/user-attachments/assets/8a392379-92f2-451f-84cc-23a7de805753" /> 
+<h1>Sky Counter</h1>
+<img width="353" height="306" alt="logo" src="https://github.com/user-attachments/assets/686467a8-2928-406d-af14-ff335bfb57c6" />
 </div>
 
 ## Objetivo do Projeto
@@ -30,13 +30,13 @@ Página de histórico das cotações/orçamentos.
 1. Clone o repositório
    
 ```bash
-git clone https://github.com/mariaclarareginato/R10.git
+git clone https://github.com/mariaclarareginato/sky.counter.git
 ```
 
 2. Acesse a pasta do projeto
    
 ```bash
-cd C:\Users\Windows\Downloads\R10viagens/R10
+cd C:\Users\Windows\Downloads\Sky.Counter/sky.counter
 ```
 
 3. Instale as dependências

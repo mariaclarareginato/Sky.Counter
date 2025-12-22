@@ -1,6 +1,9 @@
 <div align="center">
 <h1>Sky Counter</h1>
+
+
 <img width="353" height="306" alt="logo" src="https://github.com/user-attachments/assets/686467a8-2928-406d-af14-ff335bfb57c6" />
+
 </div>
 
 ## Objetivo do Projeto

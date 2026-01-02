@@ -2,34 +2,36 @@
 
 import { Button } from "./components/ui/button";
 import { Navigation } from "lucide-react";
+import { SiteFooter } from "./components/site-footer";
 import { useRouter } from "next/navigation";
 
 export default function NotFound() {
   const router = useRouter();
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen text-center px-6 bg-background text-foreground">
-      {/* Imagem */}
-      <img
-        src="/logo.png"
-        alt="Logo da empresa"
-        className="w-32 h-auto m-10 rounded"
-      />
-
+    <div>
+    <div className="flex flex-col items-center justify-center h-screen text-center p-6 bg-background text-foreground">
+    
+     
       {/* Texto principal */}
-      <h1 className="text-9xl font-extrabold drop-shadow-lg animate-bounce">404</h1>
-      <h2 className="text-2xl font-semibold mt-4">Página não encontrada</h2>
-      <p className="mt-2 font-bold">
+      <h1 className="mt-10 text-9xl font-extrabold drop-shadow-lg animate-bounce">404</h1>
+      <h2 className="text-4xl font-bold mt-4">Página não encontrada</h2>
+      <p className="mt-10 text-2xl font-semibold">
         Poxa! Parece que você se perdeu, ou não tem acesso a essa página.
       </p>
 
       {/* Botão de voltar */}
       <Button
         onClick={() => router.push("/")}
-        className="mt-6 px-6 p-6 py-3 rounded-2xl text-lg font-semibold hover:bg-blue-600 transition-colors duration-200"
+        className="m-10 p-10 rounded-2xl text-lg font-semibold transition-colors duration-200"
       >
-        <p className="p-5">Voltar para a página inicial</p>
+        <p className="text-xl font-bold">Voltar para a página inicial</p>
       </Button>
+     
     </div>
+
+    <SiteFooter></SiteFooter>
+    </div>
+     
   );
 }

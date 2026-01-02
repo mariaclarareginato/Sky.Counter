@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "R10 Viagens",
-  description: "Sistema para a R10: cálculo de preço",
+  title: "Sky Count",
+  description: "Sistema para cálculo de preço/cotações de viagens com milhas.",
 };
 
 export default function RootLayout({children}) {

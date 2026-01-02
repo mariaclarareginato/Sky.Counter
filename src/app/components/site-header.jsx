@@ -32,14 +32,13 @@ export function SiteHeader() {
     <SidebarTrigger />
   </div>
 
-  {/* Área central: logo */}
-  <div className="flex-1 flex justify-center">
-    <img
-      className="h-20 w-[120px] rounded-[20px] m-5"
-      src="/logo.png"
-      alt="Logo"
-    />
-  </div>
+  {/* Área central */}
+<div className="flex-1 flex justify-center">
+  <h1 className="text-5xl font-extrabold m-5 text-center leading-tight">
+    <span className="block mr-25">. Sky</span>
+    <span className="block ml-10">Count .</span>
+  </h1>
+</div>
 
   {/* Área direita: dropdown de tema */}
   <div className="flex items-center justify-end">

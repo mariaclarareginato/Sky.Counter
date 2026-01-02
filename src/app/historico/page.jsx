@@ -23,14 +23,15 @@ export default function HistoricoPage() {
   };
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-6">
-      <h1 className="text-4xl font-extrabold text-center">
-        Histórico de Cotações 📄
-      </h1>
-      <p className="text-lg font-bold">A cotação/orçamento só é salva depois da geração de PDF.</p>
+    <div className="p-10 max-w-5xl mx-auto space-y-6">
+      <h1 className="text-4xl font-extrabold text-center"> Histórico de Cotações</h1>
+
+      <p className="mt-10 m-15 text-xl font-bold">A cotação/orçamento só é salva depois da geração de PDF.</p>
 
       {historico.length === 0 && (
-        <p className="text-center text-lg">Nenhuma cotação salva.</p>
+        <div className="p-6 max-w-4xl mx-auto space-y-8 rounded-xl shadow-lg">
+        <p className="text-center m-10 font-extrabold text-3xl">Nenhuma cotação salva.</p>
+        </div>
       )}
 
       <div className="space-y-4">
@@ -41,6 +42,7 @@ export default function HistoricoPage() {
           >
             <div>
               <p className="font-bold text-3xl">Cotação #{item.id}</p>
+              <br></br>
               <p className="text-lg">Data: {item.data}</p>
               <p className="text-lg">
                 {item.classificacao} • {item.tipo}
@@ -48,6 +50,7 @@ export default function HistoricoPage() {
               <p className="text-lg">
                 Passageiros: {item.passageiros}
               </p>
+              <br></br>
               <p className="font-extrabold text-2xl mt-1">
                 R$ {item.total.toFixed(2)}
               </p>

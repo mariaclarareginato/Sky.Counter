@@ -376,7 +376,7 @@ const gerarPDF = async () => {
         }
       `}</style>
 
-      <h1 className="text-4xl font-extrabold text-center mb-6">Orçamento de Viagem ✈️</h1>
+      <h1 className="text-4xl font-extrabold text-center mb-6">Orçamento de Viagem</h1>
 
       {/* Passageiros e Trecho */}
       <div>

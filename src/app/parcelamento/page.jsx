@@ -361,23 +361,31 @@ const gerarPDF = async () => {
 
 
   return (
-    <div className="p-6 max-w-3xl mx-auto rounded-xl space-y-5">
-      <h2 className="text-3xl md:text-4xl font-bold p-5">Parcelamento $</h2>
+    <div className="p-10 w-full mx-auto rounded-xl space-y-5">
+      <h2 className="text-4xl font-extrabold text-center mb-15">Parcelamento</h2>
 
-      <p className="text-lg font-semibold">
-        Valor total: <strong className="font-extrabold text-2xl">R$ {total.toFixed(2)}</strong>
+<div className="p-6 w-full mx-auto space-y-8 rounded-xl shadow-lg">
+      <p className="text-xl font-semibold">
+        Valor total: 
+        <br></br>
+        <br></br>
+        <strong className="font-extrabold text-3xl">R$ {total.toFixed(2)}</strong>
       </p>
 
-      <div className="space-y-2">
-        <label className="text-lg font-semibold">Método de Pagamento:</label>
+      <div className="space-y-2 mt-10">
+        <label className="text-xl font-semibold">Método de Pagamento:</label>
+        <br></br>
+        <br></br>
         <select className="p-2 text-2xl font-extrabold rounded" value={metodo} onChange={(e) => setMetodo(e.target.value)}>
           <option className="bg-gray-400 text-gray-900 text-lg font-bold" value="link">Link</option>
           <option className="bg-gray-400 text-gray-900 text-lg font-bold" value="maquina">Maquininha</option>
         </select>
       </div>
 
-      <div className="space-y-2">
-        <label className="text-lg font-semibold">Parcelas:</label>
+      <div className="space-y-2 mt-10">
+        <label className="text-xl font-semibold">Parcelas:</label>
+        <br></br>
+        <br></br>
         <select className="p-2 text-2xl font-extrabold rounded" value={parcelas} onChange={(e) => setParcelas(Number(e.target.value))}>
           {taxas.map((t) => (
             <option className="bg-gray-400 text-gray-900 text-lg font-bold" key={t.p} value={t.p}>
@@ -388,14 +396,20 @@ const gerarPDF = async () => {
       </div>
 
       <div className="border p-4 rounded space-y-1">
-        <p className="text-lg font-semibold">
-          Taxa: <strong className="text-2xl font-extrabold">{percentual}%</strong>
+        <p className="text-xl font-semibold">
+          Taxa: 
+          <br></br>
+          <strong className="text-2xl font-extrabold">{percentual}%</strong>
         </p>
-        <p className="text-lg font-semibold">
-          Total com taxa: <strong className="text-2xl font-extrabold">R$ {valorComTaxa.toFixed(2)}</strong>
+        <p className="text-xl font-semibold mt-10">
+          Total com taxa: <strong className="text-2xl font-extrabold">
+            <br></br>
+            R$ {valorComTaxa.toFixed(2)}</strong>
         </p>
-        <p className="text-lg font-semibold">
-          Parcela escolhida: <strong className="text-2xl font-extrabold">R$ {valorParcela.toFixed(2)}</strong>
+        <p className="text-xl font-semibold mt-10">
+          Parcela escolhida: <strong className="text-2xl font-extrabold">
+            <br></br>
+            R$ {valorParcela.toFixed(2)}</strong>
         </p>
       </div>
 
@@ -403,6 +417,7 @@ const gerarPDF = async () => {
         <Button className="p-7" onClick={gerarPDF}>
           <p className="font-extrabold text-xl">Gerar PDF</p>
         </Button>
+      </div>
       </div>
     </div>
   );

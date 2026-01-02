@@ -32,10 +32,12 @@ export function AppSidebar({ ...props }) {
       {/* Header */}
       <SidebarHeader className="hover:bg-transparent transition-none">
          <SidebarHeader>
-        <div className="flex w-full items-center justify-center p-5">
-          <h1 className="text-3xl font-extrabold text-center leading-tight">
-            R10 Viagens
-          </h1>
+        <div className="flex w-full items-center justify-center">
+         <img
+      className="h-40 w-[170px] rounded-[20px]"
+      src="/logo.png"
+      alt="Logo"
+    />
         </div>
         </SidebarHeader>
       </SidebarHeader>

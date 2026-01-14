@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import jsPDF from "jspdf";
 import { Button } from "../components/ui/button.jsx";
 import logo from "../../../public/logo.png";
+import { Input } from "../components/ui/input.jsx";
 
 export default function ParcelamentoPage() {
   // Taxas tabela
@@ -27,6 +28,13 @@ export default function ParcelamentoPage() {
   const [flight, setFlight] = useState(null);
   const [total, setTotal] = useState(0);
 
+  const [nomeAgencia, setNomeAgencia] = useState("");
+  const [telefoneAgencia, setTelefoneAgencia] = useState("");
+  const [redesAgencia, setRedesAgencia] = useState("");
+  const [userLogo, setUserLogo] = useState(null);
+
+
+
   // Carrega flightData e valorTotal ao abrir
   useEffect(() => {
     const savedFlight = localStorage.getItem("flightData");
@@ -45,6 +53,13 @@ export default function ParcelamentoPage() {
     } else {
       setTotal(0);
     }
+    
+  setNomeAgencia(localStorage.getItem("agencia_nome") || "");
+  setTelefoneAgencia(localStorage.getItem("agencia_telefone") || "");
+  setRedesAgencia(localStorage.getItem("agencia_redes") || "");
+  setUserLogo(localStorage.getItem("agencia_logo") || null);
+
+
   }, []);
 
   // calcula percentuais a partir das taxas
@@ -65,6 +80,18 @@ export default function ParcelamentoPage() {
       reader.readAsDataURL(blob);
     });
   };
+
+  const handleLogoUpload = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onloadend = () => {
+    setUserLogo(reader.result);
+  };
+  reader.readAsDataURL(file);
+};
+
 
   // Funções de formatação (usadas no PDF)
   const toBRDate = (d) => {
@@ -183,12 +210,12 @@ const gerarPDF = async () => {
     // =====================
     let logoBase64 = null;
     try {
-      const candidate = (logo && (logo.src || logo)) || "/logo.png";
+      const candidate = userLogo || (logo && (logo.src || logo)) || "/logo.png";
       logoBase64 = await toBase64(candidate);
     } catch (err) {}
 
     if (logoBase64) {
-      const w = 65, h = 50;
+      const w = 65, h = 60;
       doc.addImage(logoBase64, "PNG", (pageWidth - w) / 2, y, w, h);
       y += h + 14;
     }
@@ -232,7 +259,7 @@ const gerarPDF = async () => {
     const title = (text) => {
       y += SECTION_GAP;
       doc.setFont(FONT, "bold");
-      doc.setFontSize(14);
+      doc.setFontSize(10);
       doc.text(text, margin, y);
       y += 10;
       separator();
@@ -240,7 +267,7 @@ const gerarPDF = async () => {
     };
 
     const writeLine = (label, value) => {
-      doc.setFontSize(10);
+      doc.setFontSize(9);
       doc.setFont(FONT, "normal");
       doc.text(`${label}:`, margin, y);
 
@@ -254,7 +281,7 @@ const gerarPDF = async () => {
     // TÍTULO PRINCIPAL
     // =====================
     doc.setFont(FONT, "bold");
-    doc.setFontSize(16);
+    doc.setFontSize(15);
     doc.text("Orçamento e informações da Viagem", pageWidth / 2, y, {
       align: "center",
     });
@@ -300,7 +327,7 @@ const gerarPDF = async () => {
 
       title("Trecho: VOLTA");
 
-      y += 8
+      y += 5
 
       writeLine("Data", toBRDate(flight.voltaData));
       writeLine("Horário do embarque", flight.voltaEmbarqueHora);
@@ -331,21 +358,33 @@ const gerarPDF = async () => {
     // OBS
     // =====================
 
-    y += 10
+    y += 5
 
   doc.setFont(FONT, "bold");
-    doc.setFontSize(12);
+    doc.setFontSize(10);
     doc.text("Atenção: Nenhuma emissão foi efetuada até o momento. Este documento é apenas um orçamento.", pageWidth / 2, y, {
       align: "center",
     });
 
-     y += 20;
+     y += 15;
 
     doc.setFontSize(8);
     doc.setFont("helvetica", "normal");
     const obs = "Aviso importante sobre preços dinâmicos: Os valores apresentados neste orçamento estão sujeitos à variação de acordo com disponibilidade, demanda, políticas das companhias aéreas e hotéis, além de possíveis alterações cambiais. Como se tratam de preços dinâmicos, o valor final somente será confirmado no momento da emissão da passagem aérea ou da reserva da hospedagem. Recomenda-se confirmar a compra o quanto antes para garantir as tarifas informadas.";
     const obsLines = doc.splitTextToSize(obs, pageWidth - margin * 2);
     doc.text(obsLines, margin, y);
+
+     y += 45;
+
+doc.setFontSize(9);
+doc.setFont(FONT, "bold");
+
+const infoAgencia = `Agência: ${nomeAgencia || "-"}   |   Telefone: ${telefoneAgencia || "-"}   |   Redes sociais: ${redesAgencia || "-"}`;
+
+doc.text(infoAgencia, pageWidth / 2, y, { align: "center" });
+
+y += LINE_GAP;
+
 
     // =====================
     // SALVAR
@@ -413,12 +452,11 @@ const gerarPDF = async () => {
         </p>
       </div>
 
-      <div className="pt-2">
-        <Button className="p-7" onClick={gerarPDF}>
+         </div>
+        <Button className="mt-10 p-7" onClick={gerarPDF}>
           <p className="font-extrabold text-xl">Gerar PDF</p>
         </Button>
       </div>
-      </div>
-    </div>
+
   );
 }

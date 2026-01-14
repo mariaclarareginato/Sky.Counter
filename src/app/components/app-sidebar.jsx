@@ -21,9 +21,10 @@ export function AppSidebar({ ...props }) {
 
   const data = {
     navegacao: [
-      { name: "Ida/volta", url: "/ida.volta" },
+      { name: "Perfil", url: "/perfil" },
+      { name: "Cotações", url: "/cotacao" },
       { name: "Parcelamento", url: "/parcelamento" },
-      { name: "Histórico", url: "/historico" },
+      { name: "Histórico de cotações", url: "/historico" },
     ],
   }
 

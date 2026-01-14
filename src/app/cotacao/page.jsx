@@ -47,6 +47,12 @@ export default function IdaVoltaPage() {
     precoMilheiroVolta: 0,
   });
 
+const [nomeAgencia, setNomeAgencia] = useState("");
+const [telefoneAgencia, setTelefoneAgencia] = useState("");
+const [redesAgencia, setRedesAgencia] = useState("");
+const [userLogo, setUserLogo] = useState(null);
+
+
   const [airportRates] = useState([
   
   { code: "BEL", nacional: 25, internacional: 90 },
@@ -167,6 +173,12 @@ export default function IdaVoltaPage() {
       // ignore parse errors
     }
     setLoaded(true);
+
+  setNomeAgencia(localStorage.getItem("agencia_nome") || "");
+  setTelefoneAgencia(localStorage.getItem("agencia_telefone") || "");
+  setRedesAgencia(localStorage.getItem("agencia_redes") || "");
+  setUserLogo(localStorage.getItem("agencia_logo") || null);
+
   }, []);
 
   // Salva os dados do voo sempre que mudar, mas SOMENTE após carregar primeiro
@@ -197,6 +209,19 @@ export default function IdaVoltaPage() {
       return null;
     }
   };
+
+    const handleLogoUpload = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onloadend = () => {
+    setUserLogo(reader.result);
+  };
+  reader.readAsDataURL(file);
+};
+
+
 const gerarPDF = async () => {
   try {
     const doc = new jsPDF({ unit: "pt", format: "a4" });
@@ -209,7 +234,7 @@ const gerarPDF = async () => {
     // -- Conversão do logo --
     let logoBase64 = null;
     try {
-      const candidate = (logo && (logo.src || logo)) || "/logo.png";
+      const candidate = userLogo || (logo && (logo.src || logo)) || "/logo.png";
       logoBase64 = await toBase64(candidate);
     } catch (err) {
       console.warn("Erro ao converter logo:", err);
@@ -331,12 +356,25 @@ const gerarPDF = async () => {
     });
 
     //  Observações
-    y += 40;
+    y += 20;
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
     const obs = "Aviso importante sobre preços dinâmicos: Os valores apresentados neste orçamento estão sujeitos à variação de acordo com disponibilidade, demanda, políticas das companhias aéreas e hotéis, além de possíveis alterações cambiais. Como se tratam de preços dinâmicos, o valor final somente será confirmado no momento da emissão da passagem aérea ou da reserva da hospedagem. Recomenda-se confirmar a compra o quanto antes para garantir as tarifas informadas.";
     const obsLines = doc.splitTextToSize(obs, pageWidth - margin * 2);
     doc.text(obsLines, margin, y);
+
+    
+     y += 70;
+
+     doc.setFontSize(11);
+     doc.setFont("helvetica", "bold");
+
+     const infoAgencia = `Agência: ${nomeAgencia || "-"}   |   Telefone: ${telefoneAgencia || "-"}   |   Redes sociais: ${redesAgencia || "-"}`;
+
+     doc.text(infoAgencia, pageWidth / 2, y, { align: "center" });
+
+     
+
 
     doc.save(`informacoes.orcamento_${serialFormatted}.pdf`);
 

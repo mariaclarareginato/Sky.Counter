@@ -26,7 +26,7 @@ export default function HistoricoPage() {
     <div className="p-10 max-w-5xl mx-auto space-y-6">
       <h1 className="text-4xl font-extrabold text-center"> Histórico de Cotações</h1>
 
-      <p className="mt-10 m-15 text-xl font-bold">A cotação/orçamento só é salva depois da geração de PDF.</p>
+      <p className="mt-10 m-15 text-xl font-bold">A cotação só é salva depois da geração do PDF da mesma.</p>
 
       {historico.length === 0 && (
         <div className="p-6 max-w-4xl mx-auto space-y-8 rounded-xl shadow-lg">

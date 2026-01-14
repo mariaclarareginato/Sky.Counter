@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Sky Count",
+  title: "Sky Counter",
   description: "Sistema para cálculo de preço/cotações de viagens com milhas.",
 };
 

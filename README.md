@@ -33,13 +33,13 @@ Página de histórico das cotações/orçamentos.
 1. Clone o repositório
    
 ```bash
-git clone https://github.com/mariaclarareginato/sky.count.git
+git clone https://github.com/mariaclarareginato/sky.counter.git
 ```
 
 2. Acesse a pasta do projeto
    
 ```bash
-cd C:\Users\Windows\Downloads\Sky.Counter/sky.count
+cd C:\Users\Windows\Downloads\Sky.Counter/sky.counter
 ```
 
 3. Instale as dependências

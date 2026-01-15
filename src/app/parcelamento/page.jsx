@@ -32,35 +32,45 @@ export default function ParcelamentoPage() {
   const [telefoneAgencia, setTelefoneAgencia] = useState("");
   const [redesAgencia, setRedesAgencia] = useState("");
   const [userLogo, setUserLogo] = useState(null);
+  const [cnpj, setCnpj] = useState("");
+  const [cadastur, setCadastur] = useState("");
+  const [pdfFields, setPdfFields] = useState({});
 
 
 
   // Carrega flightData e valorTotal ao abrir
+
   useEffect(() => {
-    const savedFlight = localStorage.getItem("flightData");
-    const savedTotal = localStorage.getItem("valorTotal");
+  const savedFlight = localStorage.getItem("flightData");
+  const savedTotal = localStorage.getItem("valorTotal");
 
-    if (savedFlight) {
-      try {
-        setFlight(JSON.parse(savedFlight));
-      } catch (err) {
-        console.warn("Erro parse flightData", err);
-      }
+  if (savedFlight) {
+    try {
+      setFlight(JSON.parse(savedFlight));
+    } catch (err) {
+      console.warn("Erro parse flightData", err);
     }
+  }
 
-    if (savedTotal) {
-      setTotal(parseFloat(savedTotal));
-    } else {
-      setTotal(0);
-    }
-    
+  if (savedTotal) {
+    setTotal(parseFloat(savedTotal));
+  }
+
+  // CARREGAR CAMPOS DA AGÊNCIA
   setNomeAgencia(localStorage.getItem("agencia_nome") || "");
   setTelefoneAgencia(localStorage.getItem("agencia_telefone") || "");
   setRedesAgencia(localStorage.getItem("agencia_redes") || "");
   setUserLogo(localStorage.getItem("agencia_logo") || null);
+  setCnpj(localStorage.getItem("agencia_cnpj") || "");
+  setCadastur(localStorage.getItem("agencia_cadastur") || "");
 
+  // CHECKBOXES (perfil)
+  const savedFields = localStorage.getItem("agencia_pdf_fields");
+  if (savedFields) {
+    setPdfFields(JSON.parse(savedFields));
+  }
+}, []);
 
-  }, []);
 
   // calcula percentuais a partir das taxas
   const taxaSelecionada = taxas.find((t) => t.p === parcelas);
@@ -94,9 +104,9 @@ export default function ParcelamentoPage() {
 
 
   // Funções de formatação (usadas no PDF)
+
   const toBRDate = (d) => {
     if (!d) return "-";
-    // se já estiver no formato YYYY-MM-DD
     const parts = String(d).split("-");
     if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
     // fallback
@@ -198,6 +208,19 @@ const gerarPDF = async () => {
     const margin = 26;
     let y = margin;
 
+    const formatEscalas = (qtd, e1, e2) => {
+    const n = Number(qtd || 0);
+
+  if (n === 0) return "VOO DIRETO";
+
+  const lista = [];
+  if (n >= 1 && e1) lista.push(e1.toUpperCase());
+  if (n === 2 && e2) lista.push(e2.toUpperCase());
+
+  return lista.length ? lista.join(" | ") : "Voo direto";
+   };
+
+
     // Utilitários
     const up = (txt) => (txt ? String(txt).toUpperCase() : "-");
     const money = (n) => `R$ ${(Number(n) || 0).toFixed(2)}`;
@@ -208,16 +231,17 @@ const gerarPDF = async () => {
     // =====================
     // LOGO
     // =====================
-    let logoBase64 = null;
-    try {
-      const candidate = userLogo || (logo && (logo.src || logo)) || "/logo.png";
-      logoBase64 = await toBase64(candidate);
-    } catch (err) {}
+     let logoBase64 = null;
+
+     if (pdfFields.logo) {
+     const candidate = userLogo || (logo && (logo.src || logo)) || "";
+     logoBase64 = await toBase64(candidate);
+     }
 
     if (logoBase64) {
-      const w = 65, h = 60;
+      const w = 70, h = 60;
       doc.addImage(logoBase64, "PNG", (pageWidth - w) / 2, y, w, h);
-      y += h + 14;
+      y += h + 10;
     }
 
     // =====================
@@ -240,15 +264,15 @@ const gerarPDF = async () => {
       align: "right",
     });
 
-    y += 22;
+    y += 10;
 
     // =====================
     // CONFIG PADRÃO
     // =====================
     const FONT = "helvetica";
     const LABEL_WIDTH = 170;
-    const LINE_GAP = 20;
-    const SECTION_GAP = 20;
+    const LINE_GAP = 15;
+    const SECTION_GAP = 15;
 
     const separator = () => {
       doc.setDrawColor(185);
@@ -281,7 +305,7 @@ const gerarPDF = async () => {
     // TÍTULO PRINCIPAL
     // =====================
     doc.setFont(FONT, "bold");
-    doc.setFontSize(15);
+    doc.setFontSize(13);
     doc.text("Orçamento e informações da Viagem", pageWidth / 2, y, {
       align: "center",
     });
@@ -293,7 +317,7 @@ const gerarPDF = async () => {
     // =====================
     title("Informações gerais do Voo");
 
-    y += 8
+    y += 5
 
     writeLine("Classificação", up(flight.classificacao));
     writeLine("Tipo de viagem", flight.tipoviagem);
@@ -307,9 +331,19 @@ const gerarPDF = async () => {
 
     title("Trecho: IDA");
 
-     y += 8
+     y += 5
 
     writeLine("Data", toBRDate(flight.idaData));
+
+     let escalasIdaTexto = "Voo direto";
+     if (Number(flight.idaEscalas) === 1) {
+     escalasIdaTexto = flight.idaEscala1?.toUpperCase()  || "-";
+     }
+     if (Number(flight.idaEscalas) === 2) {
+     escalasIdaTexto = `1- ${flight.idaEscala1?.toUpperCase() || "-"}  || 2 - ${flight.idaEscala2?.toUpperCase() || "-"}`;
+     }
+
+    writeLine("Escalas", escalasIdaTexto);
     writeLine("Horário do embarque", flight.idaEmbarqueHora);
     writeLine("Horário da chegada", flight.idaChegadaHora);
     writeLine("Aeroporto de origem", up(flight.idaAeroporto));
@@ -330,6 +364,18 @@ const gerarPDF = async () => {
       y += 5
 
       writeLine("Data", toBRDate(flight.voltaData));
+
+      let escalasVoltaTexto = "Voo direto";
+
+   if (Number(flight.voltaEscalas) === 1) {
+  escalasVoltaTexto = flight.voltaEscala1?.toUpperCase() || "-";
+   }
+
+   if (Number(flight.voltaEscalas) === 2) {
+   escalasVoltaTexto = `${flight.voltaEscala1?.toUpperCase() || "-"}  ||  ${flight.voltaEscala2?.toUpperCase() || "-"}`;
+   }
+
+      writeLine("Escalas", escalasVoltaTexto);
       writeLine("Horário do embarque", flight.voltaEmbarqueHora);
       writeLine("Horário da chegada", flight.voltaChegadaHora);
       writeLine("Aeroporto de origem", up(flight.voltaAeroporto));
@@ -348,7 +394,7 @@ const gerarPDF = async () => {
     // =====================
     title("Resumo financeiro");
 
-    y += 8
+    y += 5
 
     writeLine("Valor Total (R$)", money(valorComTaxa));
     writeLine("Parcelas", `${parcelas}x`);
@@ -358,7 +404,7 @@ const gerarPDF = async () => {
     // OBS
     // =====================
 
-    y += 5
+    y += 45
 
   doc.setFont(FONT, "bold");
     doc.setFontSize(10);
@@ -366,37 +412,83 @@ const gerarPDF = async () => {
       align: "center",
     });
 
-     y += 15;
+     y += 30;
 
-    doc.setFontSize(8);
+    doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
     const obs = "Aviso importante sobre preços dinâmicos: Os valores apresentados neste orçamento estão sujeitos à variação de acordo com disponibilidade, demanda, políticas das companhias aéreas e hotéis, além de possíveis alterações cambiais. Como se tratam de preços dinâmicos, o valor final somente será confirmado no momento da emissão da passagem aérea ou da reserva da hospedagem. Recomenda-se confirmar a compra o quanto antes para garantir as tarifas informadas.";
     const obsLines = doc.splitTextToSize(obs, pageWidth - margin * 2);
     doc.text(obsLines, margin, y);
 
-     y += 45;
+     y += 70;
 
-doc.setFontSize(9);
-doc.setFont(FONT, "bold");
+const agenciaInfo = [];
 
-const infoAgencia = `Agência: ${nomeAgencia || "-"}   |   Telefone: ${telefoneAgencia || "-"}   |   Redes sociais: ${redesAgencia || "-"}`;
+if (pdfFields.nome && nomeAgencia) {
+  agenciaInfo.push(`Agência: ${nomeAgencia}`);
+}
 
-doc.text(infoAgencia, pageWidth / 2, y, { align: "center" });
+if (pdfFields.telefone && telefoneAgencia) {
+  agenciaInfo.push(`Telefone: ${telefoneAgencia}`);
+}
 
-y += LINE_GAP;
+if (pdfFields.redes && redesAgencia) {
+  agenciaInfo.push(`Redes sociais: ${redesAgencia}`);
+}
 
+if (pdfFields.cnpj && cnpj) {
+  agenciaInfo.push(`CNPJ: ${cnpj}`);
+}
+
+if (pdfFields.cadastur && cadastur) {
+  agenciaInfo.push(`Cadastur: ${cadastur}`);
+}
+
+ if (agenciaInfo.length > 0) {
+  doc.setFontSize(8);
+  doc.setFont("helvetica", "bold");
+
+  // Junta os itens com separador visual
+  const textoFinal = agenciaInfo.join("  |  ");
+
+  const textWidth = doc.getTextWidth(textoFinal);
+  const x = (pageWidth - textWidth) / 2;
+
+  doc.text(textoFinal, x, y);
+
+  y += LINE_GAP;
+}
 
     // =====================
     // SALVAR
     // =====================
-    const fileName = `orcamento_viagem_${serialFormatted}.pdf`;
+    const fileName = `informacoes.orcamento_${serialFormatted}.pdf`;
     doc.save(fileName);
+
+      // **Salvar histórico**
+    const historico = JSON.parse(localStorage.getItem("historicoCotacoes")) || [];
+
+    const registro = {
+  id: serialFormatted,
+  data: new Date().toLocaleString("pt-BR"),
+  classificacao: flight.classificacao,
+  tipo: flight.tipoviagem,
+  passageiros: details?.totalPax || 
+    Number(flight.adultos || 0) +
+    Number(flight.criancas || 0) +
+    Number(flight.bebes || 0),
+  total: Number(valorComTaxa || 0),
+  flightData: flight
+ };
+
+
+    historico.unshift(registro); 
+    localStorage.setItem("historicoCotacoes", JSON.stringify(historico));
 
   } catch (err) {
     console.error("Erro ao gerar PDF:", err);
   }
 };
-
 
 
   return (

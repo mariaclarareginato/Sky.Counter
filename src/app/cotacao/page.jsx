@@ -45,13 +45,26 @@ export default function IdaVoltaPage() {
     programaVolta: "Latam",
     milhasPorPassageiroVolta: 0,
     precoMilheiroVolta: 0,
+
+    // Escalas IDA
+      idaEscalas: 0,
+      idaEscala1: "",
+      idaEscala2: "",
+
+    // Escalas VOLTA
+     voltaEscalas: 0,
+     voltaEscala1: "",
+     voltaEscala2: "",
+
   });
 
 const [nomeAgencia, setNomeAgencia] = useState("");
 const [telefoneAgencia, setTelefoneAgencia] = useState("");
 const [redesAgencia, setRedesAgencia] = useState("");
 const [userLogo, setUserLogo] = useState(null);
-
+const [cnpj, setCnpj] = useState("");
+const [cadastur, setCadastur] = useState("");
+const [pdfFields, setPdfFields] = useState({});
 
   const [airportRates] = useState([
   
@@ -151,11 +164,12 @@ const [userLogo, setUserLogo] = useState(null);
   const totalGeral = totalIda + totalVolta;
 
   // Sempre salva o total (para rápido acesso)
+
   useEffect(() => {
     try {
       localStorage.setItem("valorTotal", String(totalGeral));
     } catch (e) {
-      // ignore
+      
     }
   }, [totalGeral]);
 
@@ -163,23 +177,30 @@ const [userLogo, setUserLogo] = useState(null);
   const [loaded, setLoaded] = useState(false);
 
   // Carrega dados salvos quando a página abre
-  useEffect(() => {
-    try {
-      const savedData = localStorage.getItem("flightData");
-      if (savedData) {
-        setFlight((prev) => ({ ...prev, ...JSON.parse(savedData) }));
-      }
-    } catch (e) {
-      // ignore parse errors
+ useEffect(() => {
+  try {
+    const savedData = localStorage.getItem("flightData");
+    if (savedData) {
+      setFlight((prev) => ({ ...prev, ...JSON.parse(savedData) }));
     }
-    setLoaded(true);
+  } catch (e) {}
 
+  setLoaded(true);
+
+  setUserLogo(localStorage.getItem("agencia_logo") || null);
   setNomeAgencia(localStorage.getItem("agencia_nome") || "");
   setTelefoneAgencia(localStorage.getItem("agencia_telefone") || "");
   setRedesAgencia(localStorage.getItem("agencia_redes") || "");
-  setUserLogo(localStorage.getItem("agencia_logo") || null);
+  setCnpj(localStorage.getItem("agencia_cnpj") || "");
+  setCadastur(localStorage.getItem("agencia_cadastur") || "");
 
-  }, []);
+  const savedFields = localStorage.getItem("agencia_pdf_fields");
+  if (savedFields) {
+    setPdfFields(JSON.parse(savedFields));
+  }
+
+}, []);
+
 
   // Salva os dados do voo sempre que mudar, mas SOMENTE após carregar primeiro
   useEffect(() => {
@@ -194,23 +215,21 @@ const [userLogo, setUserLogo] = useState(null);
   // ========================
   // Helpers para o PDF
   // ========================
-  const toBase64 = async (path) => {
-    const url = path || "/logo.png";
-    try {
-      const res = await fetch(url);
-      const blob = await res.blob();
-      return await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onerror = reject;
-        reader.onloadend = () => resolve(reader.result);
-        reader.readAsDataURL(blob);
-      });
-    } catch (e) {
-      return null;
-    }
+
+    const toBase64 = async (path) => {
+      if (!path) return null;
+      const url = path;
+     const res = await fetch(url);
+     const blob = await res.blob();
+    return await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = reject;
+      reader.onloadend = () => resolve(reader.result);
+      reader.readAsDataURL(blob);
+    });
   };
 
-    const handleLogoUpload = (e) => {
+  const handleLogoUpload = (e) => {
   const file = e.target.files[0];
   if (!file) return;
 
@@ -222,6 +241,22 @@ const [userLogo, setUserLogo] = useState(null);
 };
 
 
+  // Funções de formatação (usadas no PDF)
+
+  const toBRDate = (d) => {
+    if (!d) return "-";
+    const parts = String(d).split("-");
+    if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    // fallback
+    try {
+      const dt = new Date(d);
+      return dt.toLocaleDateString("pt-BR");
+    } catch {
+      return d;
+    }
+  };
+
+
 const gerarPDF = async () => {
   try {
     const doc = new jsPDF({ unit: "pt", format: "a4" });
@@ -231,21 +266,22 @@ const gerarPDF = async () => {
     const maxY = pageHeight - margin;
     let y = margin;
 
-    // -- Conversão do logo --
-    let logoBase64 = null;
-    try {
-      const candidate = userLogo || (logo && (logo.src || logo)) || "/logo.png";
-      logoBase64 = await toBase64(candidate);
-    } catch (err) {
-      console.warn("Erro ao converter logo:", err);
-    }
+    // logo 
+
+     let logoBase64 = null;
+
+     if (pdfFields.logo) {
+     const candidate = userLogo || (logo && (logo.src || logo));
+     logoBase64 = await toBase64(candidate);
+     }
 
     if (logoBase64) {
-      const imgW = 90;
-      const imgH = 60;
-      doc.addImage(logoBase64, "PNG", (pageWidth - imgW) / 2, y, imgW, imgH);
-      y += imgH + 20;
+      const w = 70, h = 60;
+      doc.addImage(logoBase64, "PNG", (pageWidth - w) / 2, y, w, h);
+      y += h + 14;
     }
+
+    y += 10
 
     // -- Título --
     doc.setFont("helvetica", "bold");
@@ -313,6 +349,16 @@ const gerarPDF = async () => {
     y += 18;
 
     write("Data", flight.idaData ? flight.idaData.split("-").reverse().join("/") : "-");
+
+    let escalasIdaTexto = "Voo direto";
+    if (Number(flight.idaEscalas) === 1) {
+    escalasIdaTexto = flight.idaEscala1?.toUpperCase()  || "-";
+    }
+    if (Number(flight.idaEscalas) === 2) {
+   escalasIdaTexto = `1- ${flight.idaEscala1?.toUpperCase() || "-"}  || 2 - ${flight.idaEscala2?.toUpperCase() || "-"}`;
+   }
+
+    write("Escalas", escalasIdaTexto);
     write("Horário do embarque", flight.idaEmbarqueHora);
     write("Horário da chegada", flight.idaChegadaHora);
     write("Aeroporto de origem", flight.idaAeroporto?.toUpperCase());
@@ -331,6 +377,18 @@ const gerarPDF = async () => {
       y += 18;
 
       write("Data", flight.voltaData ? flight.voltaData.split("-").reverse().join("/") : "-");
+
+      let escalasVoltaTexto = "Voo direto";
+
+      if (Number(flight.voltaEscalas) === 1) {
+      escalasVoltaTexto = flight.voltaEscala1?.toUpperCase() || "-";
+      }
+
+      if (Number(flight.voltaEscalas) === 2) {
+      escalasVoltaTexto = `${flight.voltaEscala1?.toUpperCase() || "-"}  ||  ${flight.voltaEscala2?.toUpperCase() || "-"}`;
+      }
+
+      write("Escalas", escalasVoltaTexto);
       write("Horário do embarque", flight.voltaEmbarqueHora);
       write("Horário da chegada", flight.voltaChegadaHora);
       write("Aeroporto de origem", flight.voltaAeroporto?.toUpperCase());
@@ -346,34 +404,63 @@ const gerarPDF = async () => {
     doc.setFontSize(18);
     doc.setFont("helvetica", "bold");
     doc.text(`TOTAL GERAL: R$ ${totalGeral.toFixed(2)}`, pageWidth / 2, y, { align: "center" });
-    y += 40;
 
+    y += 20;
 
   doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
+    doc.setFontSize(10);
     doc.text("Atenção: Nenhuma emissão foi efetuada até o momento. Este documento é apenas um orçamento.", pageWidth / 2, y, {
       align: "center",
     });
 
     //  Observações
-    y += 20;
-    doc.setFontSize(10);
+    y += 15;
+    doc.setFontSize(8);
     doc.setFont("helvetica", "normal");
     const obs = "Aviso importante sobre preços dinâmicos: Os valores apresentados neste orçamento estão sujeitos à variação de acordo com disponibilidade, demanda, políticas das companhias aéreas e hotéis, além de possíveis alterações cambiais. Como se tratam de preços dinâmicos, o valor final somente será confirmado no momento da emissão da passagem aérea ou da reserva da hospedagem. Recomenda-se confirmar a compra o quanto antes para garantir as tarifas informadas.";
     const obsLines = doc.splitTextToSize(obs, pageWidth - margin * 2);
     doc.text(obsLines, margin, y);
 
     
-     y += 70;
+     y += 55;
 
-     doc.setFontSize(11);
-     doc.setFont("helvetica", "bold");
+    const agenciaInfo = [];
 
-     const infoAgencia = `Agência: ${nomeAgencia || "-"}   |   Telefone: ${telefoneAgencia || "-"}   |   Redes sociais: ${redesAgencia || "-"}`;
+    if (pdfFields.nome && nomeAgencia) {
+  agenciaInfo.push(`Agência: ${nomeAgencia}`);
+   }
 
-     doc.text(infoAgencia, pageWidth / 2, y, { align: "center" });
+   if (pdfFields.telefone && telefoneAgencia) {
+   agenciaInfo.push(`Telefone: ${telefoneAgencia}`);
+  }
 
-     
+   if (pdfFields.redes && redesAgencia) {
+  agenciaInfo.push(`Redes sociais: ${redesAgencia}`);
+  }
+
+   if (pdfFields.cnpj && cnpj) {
+  agenciaInfo.push(`CNPJ: ${cnpj}`);
+   }
+
+   if (pdfFields.cadastur && cadastur) {
+  agenciaInfo.push(`Cadastur: ${cadastur}`);
+   }
+
+  if (agenciaInfo.length > 0) {
+  doc.setFontSize(8);
+  doc.setFont("helvetica", "bold");
+
+  // Junta os itens com separador visual
+  const textoFinal = agenciaInfo.join("  |  ");
+
+  const textWidth = doc.getTextWidth(textoFinal);
+  const x = (pageWidth - textWidth) / 2;
+
+  doc.text(textoFinal, x, y);
+
+  y += 10;
+}
+
 
 
     doc.save(`informacoes.orcamento_${serialFormatted}.pdf`);
@@ -417,237 +504,636 @@ const gerarPDF = async () => {
       <h1 className="text-4xl font-extrabold text-center mb-6">Orçamento de Viagem</h1>
 
       {/* Passageiros e Trecho */}
-      <div>
-        <h2 className="text-2xl font-bold">Dados gerais</h2>
-      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-4 rounded-lg shadow">
-        <label className="flex flex-col text-lg font-semibold">
-          Classificação:
-          <select name="classificacao" value={flight.classificacao} onChange={handleChange} className="mt-1 p-2 rounded border">
-            <option className="font-bold text-lg bg-gray-400 text-gray-900" value="Nacional">Nacional</option>
-            <option className="font-bold text-lg bg-gray-400 text-gray-900" value="Internacional">Internacional</option>
-          </select>
-        </label>
+    <div className="p-6 rounded-xl shadow-md border space-y-6">
 
-        <label className="flex flex-col text-lg font-semibold">
-          Trecho:
-          <select name="tipoviagem" value={flight.tipoviagem} onChange={handleChange} className="mt-1 p-2 rounded border">
-            <option className="font-bold text-lg bg-gray-400 text-gray-900" value="Ida">Somente ida</option>
-            <option className="font-bold text-lg bg-gray-400 text-gray-900" value="Ida e Volta">Ida e volta</option>
-          </select>
-        </label>
+  <h2 className="text-2xl font-extrabold text-center">
+    Detalhes da Viagem
+  </h2>
 
-        <div className="flex flex-col justify-center">
-          <span className="font-semibold text-lg mb-1">Total de passageiros</span>
-          <div className="text-xl font-bold">{totalPaxEx}</div>
-        </div>
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 rounded-lg">
 
-        <label className="flex flex-col text-lg font-semibold">
-          Adultos:
-          <select name="adultos" value={flight.adultos} onChange={handleChange} className="mt-1 p-2 rounded border">
-            {Array.from({ length: 10 }, (_, i) => i).map((n) => (
-              <option className="font-bold text-lg bg-gray-400 text-gray-900" key={n} value={n}>
-                {n}
-              </option>
-            ))}
-          </select>
-        </label>
+    <label className="flex flex-col text-lg font-semibold">
+      Classificação:
+      <select
+        name="classificacao"
+        value={flight.classificacao}
+        onChange={handleChange}
+        className="mt-1 p-2 rounded border text-center"
+      >
+        <option className="bg-gray-400 text-gray-900 font-semibold" value="Nacional">Nacional</option>
+        <option className="bg-gray-400 text-gray-900 font-semibold" value="Internacional">Internacional</option>
+      </select>
+    </label>
 
-        <label className="flex flex-col text-lg font-semibold">
-          Crianças (2-11):
-          <select name="criancas" value={flight.criancas} onChange={handleChange} className="mt-1 p-2 rounded border">
-            {Array.from({ length: 10 }, (_, i) => i).map((n) => (
-              <option className="font-bold text-lg bg-gray-400 text-gray-900" key={n} value={n}>
-                {n}
-              </option>
-            ))}
-          </select>
-        </label>
+    <label className="flex flex-col text-lg font-semibold">
+      Tipo de viagem:
+      <select
+        name="tipoviagem"
+        value={flight.tipoviagem}
+        onChange={handleChange}
+        className="mt-1 p-2 rounded border text-center"
+      >
+        <option className="bg-gray-400 text-gray-900 font-semibold" value="Ida">Somente ida</option>
+        <option className="bg-gray-400 text-gray-900 font-semibold" value="Ida e Volta">Ida e volta</option>
+      </select>
+    </label>
 
-        <label className="flex flex-col text-lg font-semibold">
-          Bebês (0-2):
-          <select name="bebes" value={flight.bebes} onChange={handleChange} className="mt-1 p-2 rounded border">
-            {Array.from({ length: 4 }, (_, i) => i).map((n) => (
-              <option className="font-bold text-lg bg-gray-400 text-gray-900" key={n} value={n}>
-                {n}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
+  </div>
+
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 rounded-lg">
+
+    <label className="flex flex-col text-lg font-semibold">
+      Adultos:
+      <select
+        name="adultos"
+        value={flight.adultos}
+        onChange={handleChange}
+        className="mt-1 p-2 rounded border text-center"
+      >
+        {Array.from({ length: 10 }, (_, i) => i).map((n) => (
+          <option className="bg-gray-400 text-gray-900 font-semibold" key={n} value={n}>
+            {n}
+          </option>
+        ))}
+      </select>
+    </label>
+
+    <label className="flex flex-col text-lg font-semibold">
+      Crianças (2-11):
+      <select
+        name="criancas"
+        value={flight.criancas}
+        onChange={handleChange}
+        className="mt-1 p-2 rounded border text-center"
+      >
+        {Array.from({ length: 10 }, (_, i) => i).map((n) => (
+          <option className="bg-gray-400 text-gray-900 font-semibold" key={n} value={n}>
+            {n}
+          </option>
+        ))}
+      </select>
+    </label>
+
+    <label className="flex flex-col text-lg font-semibold">
+      Bebês (0-2):
+      <select
+        name="bebes"
+        value={flight.bebes}
+        onChange={handleChange}
+        className="mt-1 p-2 rounded border text-center"
+      >
+        {Array.from({ length: 4 }, (_, i) => i).map((n) => (
+          <option className="bg-gray-400 text-gray-900 font-semibold" key={n} value={n}>
+            {n}
+          </option>
+        ))}
+      </select>
+    </label>
+
+  </div>
+
+  {/* TOTAL DE PASSAGEIROS */}
+  <div className="p-4 rounded-lg flex flex-col items-center">
+    <span className="text-lg font-semibold">
+      Total de passageiros:
+    </span>
+
+    <span className="text-3xl font-extrabold">
+      {totalPaxEx}
+    </span>
+  </div>
+
+</div>
+
 
       {/* Ida */}
-      <div>
-        <h2 className="text-2xl font-bold">Dados ida</h2>
+
+       <div className="p-6 rounded-xl shadow-md border space-y-6">
+
+  <h2 className="text-2xl font-extrabold text-center">
+     Dados do voo – Ida
+  </h2>
+
+  {/* ESCALAS */}
+
+     <div className="p-4 rounded-lg space-y-4">
+
+     <label className="flex flex-col text-lg font-bold">
+    Escalas:
+    <select
+      name="idaEscalas"
+      value={flight.idaEscalas}
+      onChange={handleChange}
+      className="mt-1 p-2 rounded border text-center"
+    >
+      <option className="bg-gray-400 text-gray-900 font-semibold" value={0}>Voo direto</option>
+      <option className="bg-gray-400 text-gray-900 font-semibold" value={1}>1 escala</option>
+      <option className="bg-gray-400 text-gray-900 font-semibold" value={2}>2 escalas</option>
+    </select>
+  </label>
+
+</div>
+
+
+{Number(flight.idaEscalas) >= 1 && (
+<div>
+  <h1 className="flex flex-col text-lg m-5 font-bold">(Formato: GRU - 12:00 PM | 14:00 PM)</h1>
+
+  <div className="p-4 rounded-lg border">
+    <label className="flex flex-col text-lg font-bold">
+      Escala 1 
+      <input
+        type="text"
+        name="idaEscala1"
+        value={flight.idaEscala1}
+        onChange={handleChange}
+        className="mt-1 p-2 rounded border text-center uppercase"
+      />
+    </label>
+   </div>
+  </div>
+)}
+
+{Number(flight.idaEscalas) === 2 && (
+  <div className="p-4 rounded-lg border">
+
+    <label className="flex flex-col text-lg font-bold">
+      Escala 2 
+      <input
+        type="text"
+        name="idaEscala2"
+        value={flight.idaEscala2}
+        onChange={handleChange}
+        className="mt-1 p-2 rounded border text-center uppercase"
+      />
+    </label>
+
+  </div>
+)}
+
+
+  {/* HORÁRIOS */}
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 rounded-lg">
+    <label className="flex flex-col text-lg font-bold">
+      Data:
+      <input
+        type="date"
+        name="idaData"
+        value={flight.idaData}
+        onChange={handleChange}
+        className="mt-1 p-2 rounded border text-center"
+      />
+    </label>
+
+    <label className="flex flex-col text-lg font-bold">
+      Horário embarque:
+      <input
+        type="time"
+        name="idaEmbarqueHora"
+        value={flight.idaEmbarqueHora}
+        onChange={handleChange}
+        className="mt-1 p-2 rounded border text-center"
+      />
+    </label>
+
+    <label className="flex flex-col text-lg font-bold">
+      Horário chegada:
+      <input
+        type="time"
+        name="idaChegadaHora"
+        value={flight.idaChegadaHora}
+        onChange={handleChange}
+        className="mt-1 p-2 rounded border text-center"
+      />
+    </label>
+  </div>
+
+  {/* AEROPORTOS */}
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-lg">
+    <label className="flex flex-col text-lg font-bold">
+      Aeroporto origem:
+      <input
+        type="text"
+        maxLength={3}
+        name="idaAeroporto"
+        value={flight.idaAeroporto}
+        onChange={handleChange}
+        className="mt-1 p-2 rounded text-center border uppercase"
+      />
+    </label>
+
+    <label className="flex flex-col text-lg font-bold">
+      Aeroporto destino:
+      <input
+        type="text"
+        maxLength={3}
+        name="idaChegadaAeroporto"
+        value={flight.idaChegadaAeroporto}
+        onChange={handleChange}
+        className="mt-1 p-2 rounded text-center border uppercase"
+      />
+    </label>
+  </div>
+
+  {/* TAXA */}
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-lg items-center">
+
+     <label className="flex flex-col text-lg font-bold">
+      Taxa de embarque (manual):
+      <input
+        type="number"
+        name="idaTaxaManual"
+        value={flight.idaTaxaManual}
+        onChange={handleChange}
+        className="mt-1 p-2 rounded text-center border"
+      />
+    </label>
+
+    <div className="text-lg font-bold text-center">
+      Taxa de embarque (automática):
+      <div className="text-2xl font-extrabold">
+        R$ {getAirportTax(flight.idaAeroporto, "", flight.classificacao).toFixed(2)}
       </div>
+    </div>
+  </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 p-4 rounded-lg shadow">
-        <div className="flex flex-col">
-          <label className="text-lg font-bold ">Data (ida):</label>
-          <input type="date" name="idaData" value={flight.idaData} onChange={handleChange} className="mt-1 p-2 font-bold text-lg rounded border" />
+  {/* BAGAGENS */}
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 rounded-lg">
 
-          <label className="mt-3 font-bold text-lg">Horário embarque (ida):</label>
-          <input type="time" name="idaEmbarqueHora" value={flight.idaEmbarqueHora} onChange={handleChange} className="mt-1 p-2 text-lg font-bold rounded border" />
+    <label className="flex flex-col text-lg font-bold">
+      Quantidade de bagagens:
+      <select
+        name="bagagemQuantidadeIda"
+        value={flight.bagagemQuantidadeIda}
+        onChange={handleChange}
+        className="mt-1 p-2 rounded border text-center"
+      >
+        {Array.from({ length: 11 }, (_, i) => i).map((n) => (
+          <option className="bg-gray-400 text-gray-900 font-semibold text-lg" key={n} value={n}>
+            {n}
+          </option>
+        ))}
+      </select>
+    </label>
 
-          <label className="mt-3 font-bold text-lg">Horário chegada (ida):</label>
-          <input type="time" name="idaChegadaHora" value={flight.idaChegadaHora} onChange={handleChange} className="mt-1 p-2 text-lg font-bold rounded border" />
-        </div>
+    <label className="flex flex-col text-lg font-bold">
+      Valor unitário:
+      <input
+        type="number"
+        name="bagagemPrecoIda"
+        value={flight.bagagemPrecoIda}
+        onChange={handleChange}
+        className="mt-1 p-2 rounded border text-center"
+      />
+    </label>
 
-        <label className="flex flex-col text-lg font-bold">
-          Aeroporto origem (ida):
-          <input type="text" maxLength={3} name="idaAeroporto" value={flight.idaAeroporto} onChange={handleChange} className="mt-1 p-2 rounded text-center border uppercase" />
-        </label>
+    <div className="flex flex-col justify-center items-center text-lg font-bold">
+      Total bagagens:
+      <span className="text-2xl font-extrabold">
+        R$ {totalBagagemIda.toFixed(2)}
+      </span>
+    </div>
 
-        <label className="flex flex-col font-bold text-lg">
-          Aeroporto destino (ida):
-          <input type="text" maxLength={3} name="idaChegadaAeroporto" value={flight.idaChegadaAeroporto} onChange={handleChange} className="mt-1 p-2 rounded text-center border uppercase" />
-        </label>
+  </div>
 
-        <label className="flex flex-col text-lg font-bold">
-          Taxa (ida):
-          <input type="number" name="idaTaxaManual" value={flight.idaTaxaManual} onChange={handleChange} className="mt-1 p-2 rounded text-center border" />
-          <span className="text-lg mt-1">Valor automático: 
-            <br></br>
-            R$ {getAirportTax(flight.idaAeroporto, "", flight.classificacao).toFixed(2)}</span>
-        </label>
 
-        <label className="flex text-lg font-bold flex-col">
-          Quantidade de bagagens (ida):
-          <select name="bagagemQuantidadeIda" value={flight.bagagemQuantidadeIda} onChange={handleChange} className="mt-1 p-2 rounded border">
-            {Array.from({ length: 11 }, (_, i) => i).map((n) => (
-              <option className="font-bold text-gray-900 bg-gray-400" key={n} value={n}>
-                {n}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label className="flex flex-col text-lg font-bold">
-          Valor unitário bagagem (ida):
-          <input type="number" name="bagagemPrecoIda" value={flight.bagagemPrecoIda} onChange={handleChange} className="mt-1 p-2 rounded border" />
-        </label>
-
-        <div className="flex flex-col text-lg font-bold justify-end">
-          Total bagagem (ida): <strong className="text-xl font-extrabold">R$ {totalBagagemIda.toFixed(2)}</strong>
-        </div>
-      </div>
 
       {/* Programa / Milhas - IDA */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-lg font-bold p-4 rounded-lg shadow">
-        <label className="flex flex-col">
-          Programa (ida):
-          <select name="programaIda" value={flight.programaIda} onChange={handleChange} className="mt-1 p-2 rounded border">
-            {["Latam", "Smiles", "Azul", "Iberia", "American Airlines", "British", "Qatar"].map((p) => (
-              <option className="text-lg font-bold bg-gray-400 text-gray-900" key={p} value={p}>
-                {p}
-              </option>
-            ))}
-          </select>
-        </label>
+     
 
-        <label className="flex flex-col">
-          Milhas por passageiro (ida):
-          <input type="number" step="1" name="milhasPorPassageiroIda" value={flight.milhasPorPassageiroIda} onChange={handleChange} className="mt-1 p-2 rounded border" />
-        </label>
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 rounded-lg">
 
-        <label className="flex flex-col">
-          Preço do milheiro (ida):
-          <input type="number" step="0.01" name="precoMilheiroIda" value={flight.precoMilheiroIda} onChange={handleChange} className="mt-1 p-2 rounded border" />
-        </label>
+    <label className="flex flex-col text-lg font-bold">
+      Programa:
+      <select
+        name="programaIda"
+        value={flight.programaIda}
+        onChange={handleChange}
+        className="mt-1 p-2 rounded border text-center"
+      >
+        {[
+          "Latam",
+          "Smiles",
+          "Azul",
+          "Iberia",
+          "American Airlines",
+          "British",
+          "Qatar",
+        ].map((p) => (
+          <option key={p} value={p}>
+            {p}
+          </option>
+        ))}
+      </select>
+    </label>
 
-        <div className="flex flex-col justify-end">
-          Total (ida): <strong className="text-2xl font-extrabold">R$ {totalIda.toFixed(2)}</strong>
-        </div>
+    <label className="flex flex-col text-lg font-bold">
+      Milhas por passageiro:
+      <input
+        type="number"
+        step="1"
+        name="milhasPorPassageiroIda"
+        value={flight.milhasPorPassageiroIda}
+        onChange={handleChange}
+        className="mt-1 p-2 rounded border text-center"
+      />
+    </label>
+
+    <label className="flex flex-col text-lg font-bold">
+      Preço do milheiro:
+      <input
+        type="number"
+        step="0.01"
+        name="precoMilheiroIda"
+        value={flight.precoMilheiroIda}
+        onChange={handleChange}
+        className="mt-1 p-2 rounded border text-center"
+      />
+    </label>
+
+
+  </div>
+
+  {/* TOTAL EM DESTAQUE */}
+  <div className="p-4 rounded-lg flex flex-col items-center justify-center">
+    <span className="text-lg font-bold">Total do trecho:</span>
+
+    <span className="sm:text-3xl text-2xl font-extrabold">
+      R$ {totalIda.toFixed(2)}
+    </span>
+  </div>
+
+</div>
+
+
+         
+        
+       {/* Volta */}
+       
+   {flight.tipoviagem === "Ida e Volta" && (
+
+   <div className="p-6 rounded-xl shadow-md border space-y-6">
+
+   <h2 className="text-2xl font-extrabold text-center">
+     Dados do voo – Volta
+   </h2>
+
+   {/* ESCALAS */}
+  
+    <div className="p-4 rounded-lg space-y-4">
+
+  <label className="flex flex-col text-lg font-bold">
+    Escalas:
+    <select
+      name="voltaEscalas"
+      value={flight.voltaEscalas}
+      onChange={handleChange}
+      className="mt-1 p-2 rounded border text-center"
+    >
+      <option className="bg-gray-400 text-gray-900 font-semibold" value={0}>
+        Voo direto
+      </option>
+      <option className="bg-gray-400 text-gray-900 font-semibold" value={1}>
+        1 escala
+      </option>
+      <option className="bg-gray-400 text-gray-900 font-semibold" value={2}>
+        2 escalas
+      </option>
+    </select>
+  </label>
+
+  {Number(flight.voltaEscalas) >= 1 && (
+    <div className="space-y-4">
+      <p className="text-lg font-semibold">
+        Formato: GRU - 12:00 PM | 14:00 PM
+      </p>
+
+      <div className="p-4 rounded-lg border">
+        <label className="flex flex-col text-lg font-bold">
+          Escala 1 
+          <input
+            type="text"
+            name="voltaEscala1"
+            value={flight.voltaEscala1}
+            onChange={handleChange}
+            className="mt-1 p-2 rounded border text-center uppercase"
+            
+          />
+        </label>
       </div>
+    </div>
+  )}
 
-      {/* Volta */}
-      {flight.tipoviagem === "Ida e Volta" && (
-        <>
-          <div>
-            <h2 className="text-2xl font-bold">Dados volta</h2>
-          </div>
+  {Number(flight.voltaEscalas) === 2 && (
+    <div className="p-4 rounded-lg border">
+      <label className="flex flex-col text-lg font-bold">
+        Escala 2 
+        <input
+          type="text"
+          name="voltaEscala2"
+          value={flight.voltaEscala2}
+          onChange={handleChange}
+          className="mt-1 p-2 rounded border text-center uppercase"
+          
+        />
+      </label>
+    </div>
+  )}
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 p-4 rounded-lg shadow">
-            <div className="flex text-lg font-bold flex-col">
-              <label>Data (volta):</label>
-              <input type="date" name="voltaData" value={flight.voltaData} onChange={handleChange} className="mt-1 p-2 rounded border" />
+</div>
 
-              <label className="mt-3">Horário embarque (volta):</label>
-              <input type="time" name="voltaEmbarqueHora" value={flight.voltaEmbarqueHora} onChange={handleChange} className="mt-1 p-2 rounded border" />
 
-              <label className="mt-3">Horário chegada (volta):</label>
-              <input type="time" name="voltaChegadaHora" value={flight.voltaChegadaHora} onChange={handleChange} className="mt-1 p-2 rounded border" />
-            </div>
 
-            <label className="flex text-lg font-bold flex-col">
-              Aeroporto origem (volta):
-              <input type="text" maxLength={3} name="voltaAeroporto" value={flight.voltaAeroporto} onChange={handleChange} className="mt-1 p-2 rounded text-center border uppercase" />
-            </label>
+  {/* HORÁRIOS */}
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 rounded-lg">
+    <label className="flex flex-col text-lg font-bold">
+      Data:
+      <input
+        type="date"
+        name="voltaData"
+        value={flight.voltaData}
+        onChange={handleChange}
+        className="mt-1 p-2 rounded border text-center"
+      />
+    </label>
 
-            <label className="flex text-lg font-bold flex-col">
-              Aeroporto destino (volta):
-              <input type="text" maxLength={3} name="voltaChegadaAeroporto" value={flight.voltaChegadaAeroporto} onChange={handleChange} className="mt-1 p-2 rounded text-center border uppercase" />
-            </label>
+    <label className="flex flex-col text-lg font-bold">
+      Horário embarque:
+      <input
+        type="time"
+        name="voltaEmbarqueHora"
+        value={flight.voltaEmbarqueHora}
+        onChange={handleChange}
+        className="mt-1 p-2 rounded border text-center"
+      />
+    </label>
 
-            <label className="flex text-lg font-bold flex-col">
-              Taxa (volta):
-              <input type="number" name="voltaTaxaManual" value={flight.voltaTaxaManual} onChange={handleChange} className="mt-1 p-2 rounded text-center border" />
-              <span className="text-lg font-bold mt-1">Valor automático: 
-                <br></br>
-                R$ {getAirportTax(flight.voltaAeroporto, "", flight.classificacao).toFixed(2)}</span>
-            </label>
+    <label className="flex flex-col text-lg font-bold">
+      Horário chegada:
+      <input
+        type="time"
+        name="voltaChegadaHora"
+        value={flight.voltaChegadaHora}
+        onChange={handleChange}
+        className="mt-1 p-2 rounded border text-center"
+      />
+    </label>
+  </div>
 
-            <label className="flex text-lg font-bold  flex-col">
-              Quantidade de bagagens (volta):
-              <select name="bagagemQuantidadeVolta" value={flight.bagagemQuantidadeVolta} onChange={handleChange} className="mt-1 p-2 rounded border">
-                {Array.from({ length: 11 }, (_, i) => i).map((n) => (
-                  <option className="bg-gray-400 text-lg font-bold text-gray-900" key={n} value={n}>
-                    {n}
-                  </option>
-                ))}
-              </select>
-            </label>
+  {/* AEROPORTOS */}
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-lg">
+    <label className="flex flex-col text-lg font-bold">
+      Aeroporto origem:
+      <input
+        type="text"
+        maxLength={3}
+        name="voltaAeroporto"
+        value={flight.voltaAeroporto}
+        onChange={handleChange}
+        className="mt-1 p-2 rounded text-center border uppercase"
+      />
+    </label>
 
-            <label className="flex text-lg font-bold flex-col">
-              Valor unitário bagagem (volta):
-              <input type="number" name="bagagemPrecoVolta" value={flight.bagagemPrecoVolta} onChange={handleChange} className="mt-1 p-2 rounded border" />
-            </label>
+    <label className="flex flex-col text-lg font-bold">
+      Aeroporto destino:
+      <input
+        type="text"
+        maxLength={3}
+        name="voltaChegadaAeroporto"
+        value={flight.voltaChegadaAeroporto}
+        onChange={handleChange}
+        className="mt-1 p-2 rounded text-center border uppercase"
+      />
+    </label>
+  </div>
 
-            <div className="flex flex-col text-lg font-bold justify-end">
-              Total bagagem (volta): <strong className="text-xl font-extrabold">R$ {totalBagagemVolta.toFixed(2)}</strong>
-            </div>
-          </div>
+  {/* TAXA */}
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-lg items-center">
 
-          {/* Programa / Milhas - VOLTA */}
-          <div className="grid text-lg font-bold grid-cols-1 md:grid-cols-4 gap-6 p-4 rounded-lg shadow">
-            <label className="flex flex-col">
-              Programa (volta):
-              <select name="programaVolta" value={flight.programaVolta} onChange={handleChange} className="mt-1 p-2 rounded border">
-                {["Latam", "Smiles", "Azul", "Iberia", "American Airlines", "British", "Qatar"].map((p) => (
-                  <option className="text-lg font-bold bg-gray-400 text-gray-900" key={p} value={p}>
-                    {p}
-                  </option>
-                ))}
-              </select>
-            </label>
+         <label className="flex flex-col text-lg font-bold">
+      Taxa de embarque (manual):
+      <input
+        type="number"
+        name="voltaTaxaManual"
+        value={flight.voltaTaxaManual}
+        onChange={handleChange}
+        className="mt-1 p-2 rounded text-center border"
+      />
+    </label>
 
-            <label className="flex flex-col">
-              Milhas por passageiro (volta):
-              <input type="number" step="1" name="milhasPorPassageiroVolta" value={flight.milhasPorPassageiroVolta} onChange={handleChange} className="mt-1 p-2 rounded border" />
-            </label>
+    <div className="text-lg font-bold text-center">
+      Taxa de embarque (automática):
+      <div className="text-2xl font-extrabold">
+        R$ {getAirportTax(flight.voltaAeroporto, "", flight.classificacao).toFixed(2)}
+      </div>
+    </div>
+  </div>
 
-            <label className="flex flex-col">
-              Preço do milheiro (volta):
-              <input type="number" step="0.01" name="precoMilheiroVolta" value={flight.precoMilheiroVolta} onChange={handleChange} className="mt-1 p-2 rounded border" />
-            </label>
+  {/* BAGAGENS */}
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 rounded-lg">
 
-            <div className="flex flex-col text-lg font-bold justify-end">
-              Total (volta): <strong className="text-2xl font-extrabold">R$ {totalVolta.toFixed(2)}</strong>
-            </div>
-          </div>
-        </>
-      )}
+    <label className="flex flex-col text-lg font-bold">
+      Quantidade de bagagens:
+      <select
+        name="bagagemQuantidadeVolta"
+        value={flight.bagagemQuantidadeVolta}
+        onChange={handleChange}
+        className="mt-1 p-2 rounded border text-center"
+      >
+        {Array.from({ length: 11 }, (_, i) => i).map((n) => (
+          <option className="bg-gray-400 text-gray-900 font-semibold" key={n} value={n}>
+            {n}
+          </option>
+        ))}
+      </select>
+    </label>
+
+    <label className="flex flex-col text-lg font-bold">
+      Valor unitário:
+      <input
+        type="number"
+        name="bagagemPrecoVolta"
+        value={flight.bagagemPrecoVolta}
+        onChange={handleChange}
+        className="mt-1 p-2 rounded border text-center"
+      />
+    </label>
+
+    <div className="flex flex-col justify-center items-center text-lg font-bold">
+      Total bagagens:
+      <span className="text-2xl font-extrabold">
+        R$ {totalBagagemVolta.toFixed(2)}
+      </span>
+    </div>
+
+  </div>
+
+  {/* Programa / Milhas - VOLTA */}
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 rounded-lg">
+
+    <label className="flex flex-col text-lg font-bold">
+      Programa:
+      <select
+        name="programaVolta"
+        value={flight.programaVolta}
+        onChange={handleChange}
+        className="mt-1 p-2 rounded border text-center"
+      >
+        {[
+          "Latam",
+          "Smiles",
+          "Azul",
+          "Iberia",
+          "American Airlines",
+          "British",
+          "Qatar",
+        ].map((p) => (
+          <option  className="bg-gray-400 text-gray-900 font-semibold" key={p} value={p}>
+            {p}
+          </option>
+        ))}
+      </select>
+    </label>
+
+    <label className="flex flex-col text-lg font-bold">
+      Milhas por passageiro:
+      <input
+        type="number"
+        step="1"
+        name="milhasPorPassageiroVolta"
+        value={flight.milhasPorPassageiroVolta}
+        onChange={handleChange}
+        className="mt-1 p-2 rounded border text-center"
+      />
+    </label>
+
+    <label className="flex flex-col text-lg font-bold">
+      Preço do milheiro:
+      <input
+        type="number"
+        step="0.01"
+        name="precoMilheiroVolta"
+        value={flight.precoMilheiroVolta}
+        onChange={handleChange}
+        className="mt-1 p-2 rounded border text-center"
+      />
+    </label>
+
+  </div>
+
+  {/* TOTAL EM DESTAQUE */}
+  <div className="p-4 rounded-lg flex flex-col items-center justify-center">
+    <span className="text-lg font-bold">Total do trecho:</span>
+
+    <span className="sm:text-3xl text-2xl font-extrabold">
+      R$ {totalVolta.toFixed(2)}
+    </span>
+  </div>
+
+</div>
+
+)}
 
       <div className="flex flex-col justify-end text-xl font-bold">
         Valor total: <h1 className="text-3xl font-extrabold">R$ {totalGeral.toFixed(2)}</h1>

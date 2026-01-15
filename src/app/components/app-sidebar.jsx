@@ -22,7 +22,7 @@ export function AppSidebar({ ...props }) {
   const data = {
     navegacao: [
       { name: "Perfil", url: "/perfil" },
-      { name: "Cotações", url: "/cotacao" },
+      { name: "Cotação", url: "/cotacao" },
       { name: "Parcelamento", url: "/parcelamento" },
       { name: "Histórico de cotações", url: "/historico" },
     ],

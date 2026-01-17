@@ -487,6 +487,52 @@ const gerarPDF = async () => {
 };
 
 
+const formatEscalaInput = (valor) => {
+  // Remove tudo que não for letra ou número
+  let v = valor.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+
+  // Limita ao tamanho máximo esperado: GRU12001700 (11 caracteres)
+  v = v.slice(0, 11);
+
+  let resultado = "";
+
+  // Letras do aeroporto
+  if (v.length >= 3) {
+    resultado += v.slice(0, 3) + " - ";
+  } else {
+    return v;
+  }
+
+  // Hora início
+  if (v.length >= 7) {
+    resultado += v.slice(3, 5) + ":" + v.slice(5, 7) + " | ";
+  } else if (v.length > 3) {
+    resultado += v.slice(3);
+    return resultado;
+  }
+
+  // Hora final
+  if (v.length >= 11) {
+    resultado += v.slice(7, 9) + ":" + v.slice(9, 11);
+  } else if (v.length > 7) {
+    resultado += v.slice(7);
+  }
+
+  return resultado;
+};
+
+
+   const handleEscalaChange = (e) => {
+  const { name, value } = e.target;
+
+   setFlight((prev) => ({
+    ...prev,
+    [name]: formatEscalaInput(value),
+    }));
+    };
+
+
+
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-8 rounded-xl shadow-lg">
       <style jsx>{`
@@ -624,7 +670,7 @@ const gerarPDF = async () => {
     <select
       name="idaEscalas"
       value={flight.idaEscalas}
-      onChange={handleChange}
+      onChange={handleEscalaChange}
       className="mt-1 p-2 rounded border text-center"
     >
       <option className="bg-gray-400 text-gray-900 font-semibold" value={0}>Voo direto</option>
@@ -638,7 +684,7 @@ const gerarPDF = async () => {
 
 {Number(flight.idaEscalas) >= 1 && (
 <div>
-  <h1 className="flex flex-col text-lg m-5 font-bold">(Formato: GRU - 12:00 PM | 14:00 PM)</h1>
+  <h1 className="flex flex-col text-lg m-5 font-bold">(Formato: GRU - 23:00 | 24:00)</h1>
 
   <div className="p-4 rounded-lg border">
     <label className="flex flex-col text-lg font-bold">
@@ -647,7 +693,7 @@ const gerarPDF = async () => {
         type="text"
         name="idaEscala1"
         value={flight.idaEscala1}
-        onChange={handleChange}
+        onChange={handleEscalaChange}
         className="mt-1 p-2 rounded border text-center uppercase"
       />
     </label>
@@ -664,7 +710,7 @@ const gerarPDF = async () => {
         type="text"
         name="idaEscala2"
         value={flight.idaEscala2}
-        onChange={handleChange}
+        onChange={handleEscalaChange}
         className="mt-1 p-2 rounded border text-center uppercase"
       />
     </label>
@@ -888,7 +934,7 @@ const gerarPDF = async () => {
     <select
       name="voltaEscalas"
       value={flight.voltaEscalas}
-      onChange={handleChange}
+      onChange={handleEscalaChange}
       className="mt-1 p-2 rounded border text-center"
     >
       <option className="bg-gray-400 text-gray-900 font-semibold" value={0}>
@@ -906,7 +952,7 @@ const gerarPDF = async () => {
   {Number(flight.voltaEscalas) >= 1 && (
     <div className="space-y-4">
       <p className="text-lg font-semibold">
-        Formato: GRU - 12:00 PM | 14:00 PM
+        Formato: GRU - 12:00 | 14:00 
       </p>
 
       <div className="p-4 rounded-lg border">
@@ -916,7 +962,7 @@ const gerarPDF = async () => {
             type="text"
             name="voltaEscala1"
             value={flight.voltaEscala1}
-            onChange={handleChange}
+            onChange={handleEscalaChange}
             className="mt-1 p-2 rounded border text-center uppercase"
             
           />
@@ -933,7 +979,7 @@ const gerarPDF = async () => {
           type="text"
           name="voltaEscala2"
           value={flight.voltaEscala2}
-          onChange={handleChange}
+          onChange={handleEscalaChange}
           className="mt-1 p-2 rounded border text-center uppercase"
           
         />

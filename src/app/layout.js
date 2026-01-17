@@ -2,6 +2,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
+import { SiteFooter } from "./components/site-footer";
 
 
 const geistSans = Geist({
@@ -31,6 +32,7 @@ export default function RootLayout({children}) {
           disableTransitionOnChange
         >
         {children}
+        <SiteFooter></SiteFooter>
          </ThemeProvider>
       </body>
     </html>

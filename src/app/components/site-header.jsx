@@ -6,6 +6,8 @@ import { Separator } from "../components/ui/separator";
 import { SidebarTrigger } from "../components/ui/sidebar";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
+import Link from "next/link";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,12 +35,14 @@ export function SiteHeader() {
   </div>
 
   {/* Área central */}
-<div className="flex-1 flex justify-center">
-  <h1 className="text-5xl font-extrabold m-5 text-center leading-tight">
-    <span className="block mr-25">.Sky</span>
-    <span className="block ml-10">Counter.</span>
-  </h1>
-</div>
+   <div className="flex-1 flex justify-center">
+  <Link href="/" className="m-5 text-center leading-tight">
+    <h1 className="text-5xl font-extrabold">
+      <span className="block mr-25">.Sky</span>
+      <span className="block ml-10">Counter.</span>
+    </h1>
+   </Link>
+   </div>
 
   {/* Área direita: dropdown de tema */}
   <div className="flex items-center justify-end">

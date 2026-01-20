@@ -3,7 +3,7 @@ import { SiteHeader } from "../components/site-header"
 import { SidebarInset, SidebarProvider } from "../components/ui/sidebar"
 import { SiteFooter } from "../components/site-footer"
  
-export default function Layout({ children }) {
+export default function ParcelamentoLayout({ children }) {
   return (
     <SidebarProvider
       style={{

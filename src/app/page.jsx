@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Button } from "./components/ui/button";
+import { SiteFooter } from "./components/site-footer";
 
 export default function HomePage() {
   const router = useRouter();
@@ -18,47 +19,61 @@ export default function HomePage() {
           muted
           playsInline
           disablePictureInPicture
+          preload="auto"
           className="w-full h-full object-cover"
         />
+
+        <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-primary animate-bounce opacity-70">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-8 w-8 text-white"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+  </svg>
+</div>
+
       </div>
 
       {/* SEÇÃO PRINCIPAL */}
-      <section className="flex flex-col items-center text-center px-6 py-20 bg-gradient-to-b from-background to-accent/20">
+      
+       <section className="flex flex-col items-center text-center px-6 py-20 bg-gradient-to-b from-background to-accent/20">
 
-        <h1 className="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight">
-          Bem-vindo(a) ao Sky Counter 
-        </h1>
+  <h1 className="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight animate-fade-in">
+    Bem-vindo(a) ao Sky Counter
+  </h1>
 
-        <p className="text-xl md:text-xl max-w-3xl leading-relaxed mb-10 text-muted-foreground">
-          O Sky Counter foi criado para transformar a rotina de <strong>agentes de viagens.</strong>  
-          <br></br>
-          <br></br>
-          Realize cotações de passagens por milhas de forma rápida, organizada 
-          <br></br>
-          e profissional, gerando orçamentos completos em poucos cliques.
-        </p>
+  <h2 className="text-2xl max-w-3xl leading-relaxed mb-4 font-bold text-muted-foreground animate-fade-in-delay">
+    Revolucione sua forma de trabalhar com milhas.
+  </h2>
 
-        <Button
-          className="text-2xl font-mono font-bold p-12 rounded-xl shadow-lg transition hover:scale-105"
-          onClick={() => router.push("/cotacao")}
-        >
-          Explorar Plataforma
-        </Button>
+  <p className="text-xl max-w-3xl font-semibold text-muted-foreground animate-fade-in-delay mb-10">
+    Realize cotações de passagens aéreas com milhas de forma rápida e crie orçamentos profissionais em segundos.
+  </p>
 
-      </section>
+  <Button
+    className="text-2xl font-mono font-bold px-4 py-12 rounded-xl shadow-lg transition hover:scale-105"
+    onClick={() => router.push("/cotacao")}
+  >
+    Explorar Plataforma
+  </Button>
+
+</section>
+
 
       {/* SEÇÃO FERRAMENTAS */}
+      
       <section className="flex flex-col items-center text-center px-6 py-20 bg-primary text-primary-foreground">
 
-        <h2 className="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight">
+        <h1 className="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight animate-fade-in">
           Ferramentas Disponíveis
-        </h2>
-           <div className="text-2xl p-4 md:text-2xl max-w-2xl leading-relaxed opacity-90 text-muted-foreground">
-    <p className="mb-7">
-    Sistema completo para agentes de viagens:
-   </p>
+        </h1>
 
-   <ul className="space-y-3 list-disc list-inside font-semibold">
+           <div className="text-2xl p-4 md:text-2xl max-w-2xl leading-relaxed opacity-90 animate-fade-in-delay">
+
+   <ul className="space-y-3 font-semibold list-disc list-inside text-xl animate-fade-in-delay">
     <li>Cotações inteligentes</li>
     <li>Simulação de parcelamento</li>
     <li>Geração automática de PDF</li>
@@ -69,7 +84,7 @@ export default function HomePage() {
 
       </section>
 
-
+<SiteFooter></SiteFooter>
     </div>
   );
 }

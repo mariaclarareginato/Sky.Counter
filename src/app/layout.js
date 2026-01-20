@@ -32,7 +32,7 @@ export default function RootLayout({children}) {
           disableTransitionOnChange
         >
         {children}
-        <SiteFooter></SiteFooter>
+      
          </ThemeProvider>
       </body>
     </html>

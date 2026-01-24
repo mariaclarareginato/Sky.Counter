@@ -182,7 +182,7 @@ const handleLogoUpload = (e) => {
   />
 
   {sucesso && (
-  <div className="p-4 text-green-900 dark:text-green-400 rounded text-center font-semibold">
+  <div className="p-4 text-green-900 dark:text-green-400 rounded text-center text-xl font-semibold">
     Perfil salvo com sucesso!
   </div>
 )}
@@ -194,7 +194,7 @@ const handleLogoUpload = (e) => {
   </div>
   <br></br>
   
-  <p className="text-lg font-semibold">As informações do perfil da sua agência serão utilizadas nos PDFs das suas cotações.</p>
+  <p className="text-lg font-semibold">As informações do perfil da sua agência serão utilizadas nos PDFs das suas cotações</p>
 
 <div className="border rounded-lg p-4 space-y-3">
   <p className="font-bold text-xl">

@@ -304,9 +304,11 @@ const gerarPDF = async () => {
     // =====================
     // TÍTULO PRINCIPAL
     // =====================
+    y += 10;
+
     doc.setFont(FONT, "bold");
     doc.setFontSize(13);
-    doc.text("Orçamento e informações da Viagem", pageWidth / 2, y, {
+    doc.text("Orçamento e Informações da Viagem", pageWidth / 2, y, {
       align: "center",
     });
 
@@ -340,13 +342,14 @@ const gerarPDF = async () => {
      escalasIdaTexto = flight.idaEscala1?.toUpperCase()  || "-";
      }
      if (Number(flight.idaEscalas) === 2) {
-     escalasIdaTexto = `1- ${flight.idaEscala1?.toUpperCase() || "-"}  || 2 - ${flight.idaEscala2?.toUpperCase() || "-"}`;
+     escalasIdaTexto = `${flight.idaEscala1?.toUpperCase() || "-"}  e  ${flight.idaEscala2?.toUpperCase() || "-"}`;
      }
 
-    writeLine("Escalas", escalasIdaTexto);
+    
     writeLine("Horário do embarque", flight.idaEmbarqueHora);
     writeLine("Horário da chegada", flight.idaChegadaHora);
     writeLine("Aeroporto de origem", up(flight.idaAeroporto));
+    writeLine("Escalas", escalasIdaTexto);
     writeLine("Aeroporto de destino", up(flight.idaChegadaAeroporto));
     writeLine("Taxa de embarque (R$)", money(details.taxaIda));
     writeLine(
@@ -372,13 +375,14 @@ const gerarPDF = async () => {
    }
 
    if (Number(flight.voltaEscalas) === 2) {
-   escalasVoltaTexto = `${flight.voltaEscala1?.toUpperCase() || "-"}  ||  ${flight.voltaEscala2?.toUpperCase() || "-"}`;
+   escalasVoltaTexto = `${flight.voltaEscala1?.toUpperCase() || "-"}  e  ${flight.voltaEscala2?.toUpperCase() || "-"}`;
    }
 
-      writeLine("Escalas", escalasVoltaTexto);
+      
       writeLine("Horário do embarque", flight.voltaEmbarqueHora);
       writeLine("Horário da chegada", flight.voltaChegadaHora);
       writeLine("Aeroporto de origem", up(flight.voltaAeroporto));
+      writeLine("Escalas", escalasVoltaTexto);
       writeLine("Aeroporto de destino", up(flight.voltaChegadaAeroporto));
       writeLine("Taxa de embarque (R$)", money(details.taxaVolta));
       writeLine(
@@ -445,7 +449,7 @@ if (pdfFields.cadastur && cadastur) {
 }
 
  if (agenciaInfo.length > 0) {
-  doc.setFontSize(8);
+  doc.setFontSize(8.5);
   doc.setFont("helvetica", "bold");
 
   // Junta os itens com separador visual

@@ -286,7 +286,7 @@ const gerarPDF = async () => {
     // -- Título --
     doc.setFont("helvetica", "bold");
     doc.setFontSize(16);
-    doc.text("Orçamento e informações da Viagem", pageWidth / 2, y, { align: "center" });
+    doc.text("Orçamento e Informações da Viagem", pageWidth / 2, y, { align: "center" });
     y += 30;
 
     // -- Número de série --
@@ -355,17 +355,18 @@ const gerarPDF = async () => {
     escalasIdaTexto = flight.idaEscala1?.toUpperCase()  || "-";
     }
     if (Number(flight.idaEscalas) === 2) {
-   escalasIdaTexto = `1- ${flight.idaEscala1?.toUpperCase() || "-"}  || 2 - ${flight.idaEscala2?.toUpperCase() || "-"}`;
+   escalasIdaTexto = `${flight.idaEscala1?.toUpperCase() || "-"}  e  ${flight.idaEscala2?.toUpperCase() || "-"}`;
    }
 
-    write("Escalas", escalasIdaTexto);
+   
     write("Horário do embarque", flight.idaEmbarqueHora);
     write("Horário da chegada", flight.idaChegadaHora);
     write("Aeroporto de origem", flight.idaAeroporto?.toUpperCase());
+    write("Escalas", escalasIdaTexto);
     write("Aeroporto de destino", flight.idaChegadaAeroporto?.toUpperCase());
     write("Taxa de embarque (R$)", Number(taxaIda || 0).toFixed(2));
     write("Bagagens", `${flight.bagagemQuantidadeIda} x R$ ${Number(flight.bagagemPrecoIda || 0).toFixed(2)}`);
-    write("Valor (R$)", valorMilhasIda.toFixed(2));
+    write("Preço da passagem (R$)", valorMilhasIda.toFixed(2));
     write("Total (R$)", totalIda.toFixed(2));
 
     //  VOLTA
@@ -385,17 +386,18 @@ const gerarPDF = async () => {
       }
 
       if (Number(flight.voltaEscalas) === 2) {
-      escalasVoltaTexto = `${flight.voltaEscala1?.toUpperCase() || "-"}  ||  ${flight.voltaEscala2?.toUpperCase() || "-"}`;
+      escalasVoltaTexto = `${flight.voltaEscala1?.toUpperCase() || "-"}  e  ${flight.voltaEscala2?.toUpperCase() || "-"}`;
       }
 
-      write("Escalas", escalasVoltaTexto);
+     
       write("Horário do embarque", flight.voltaEmbarqueHora);
       write("Horário da chegada", flight.voltaChegadaHora);
       write("Aeroporto de origem", flight.voltaAeroporto?.toUpperCase());
+      write("Escalas", escalasVoltaTexto);
       write("Aeroporto de destino", flight.voltaChegadaAeroporto?.toUpperCase());
       write("Taxa de embarque (R$)", Number(taxaVolta || 0).toFixed(2));
       write("Bagagens", `${flight.bagagemQuantidadeVolta} x R$ ${Number(flight.bagagemPrecoVolta || 0).toFixed(2)}`);
-      write("Valor (R$)", valorMilhasVolta.toFixed(2));
+      write("Preço da passagem (R$)", valorMilhasVolta.toFixed(2));
       write("Total (R$)", totalVolta.toFixed(2));
     }
 
@@ -415,7 +417,7 @@ const gerarPDF = async () => {
 
     //  Observações
     y += 15;
-    doc.setFontSize(8);
+    doc.setFontSize(9);
     doc.setFont("helvetica", "normal");
     const obs = "Aviso importante sobre preços dinâmicos: Os valores apresentados neste orçamento estão sujeitos à variação de acordo com disponibilidade, demanda, políticas das companhias aéreas e hotéis, além de possíveis alterações cambiais. Como se tratam de preços dinâmicos, o valor final somente será confirmado no momento da emissão da passagem aérea ou da reserva da hospedagem. Recomenda-se confirmar a compra o quanto antes para garantir as tarifas informadas.";
     const obsLines = doc.splitTextToSize(obs, pageWidth - margin * 2);
@@ -447,7 +449,7 @@ const gerarPDF = async () => {
    }
 
   if (agenciaInfo.length > 0) {
-  doc.setFontSize(8);
+  doc.setFontSize(8.5);
   doc.setFont("helvetica", "bold");
 
   // Junta os itens com separador visual
@@ -486,41 +488,75 @@ const gerarPDF = async () => {
   }
 };
 
+     
+   const formatEscalaInput = (valor) => {
 
-const formatEscalaInput = (valor) => {
-  // Remove tudo que não for letra ou número
-  let v = valor.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+  // Remove qualquer formatação anterior
+  const valorLimpo = valor.replace(/[-|:]/g, "");
 
-  // Limita ao tamanho máximo esperado: GRU12001700 (11 caracteres)
-  v = v.slice(0, 11);
+  const indexNumero = valorLimpo.search(/\d/);
 
-  let resultado = "";
-
-  // Letras do aeroporto
-  if (v.length >= 3) {
-    resultado += v.slice(0, 3) + " - ";
-  } else {
-    return v;
+  // Cidade
+  if (indexNumero === -1) {
+    return valorLimpo.toUpperCase();
   }
 
-  // Hora início
-  if (v.length >= 7) {
-    resultado += v.slice(3, 5) + ":" + v.slice(5, 7) + " | ";
-  } else if (v.length > 3) {
-    resultado += v.slice(3);
-    return resultado;
+  // Cidade (livre, só maiúscula)
+  const cidade = valorLimpo
+    .slice(0, indexNumero)
+    .replace(/\s+/g, " ")
+    .toUpperCase()
+    .trim();
+
+  // Só números (HHMMHHMM)
+  let numeros = valorLimpo.replace(/\D/g, "").slice(0, 8);
+
+  // Limites
+  const limitarHora = (hh) =>
+    hh.length < 2 ? hh : Math.min(Number(hh), 24).toString().padStart(2, "0");
+
+  const limitarMinuto = (mm) =>
+    mm.length < 2 ? mm : Math.min(Number(mm), 59).toString().padStart(2, "0");
+
+  // ⏱ Hora inicial
+  if (numeros.length >= 2) {
+    numeros = limitarHora(numeros.slice(0, 2)) + numeros.slice(2);
+  }
+  if (numeros.length >= 4) {
+    numeros =
+      numeros.slice(0, 2) +
+      limitarMinuto(numeros.slice(2, 4)) +
+      numeros.slice(4);
   }
 
-  // Hora final
-  if (v.length >= 11) {
-    resultado += v.slice(7, 9) + ":" + v.slice(9, 11);
-  } else if (v.length > 7) {
-    resultado += v.slice(7);
+  // ⏱ Hora final
+  if (numeros.length >= 6) {
+    numeros =
+      numeros.slice(0, 4) +
+      limitarHora(numeros.slice(4, 6)) +
+      numeros.slice(6);
+  }
+  if (numeros.length >= 8) {
+    numeros =
+      numeros.slice(0, 6) +
+      limitarMinuto(numeros.slice(6, 8));
+  }
+
+  // Montagem final (UMA vez só)
+  let resultado = `${cidade} - ${numeros.slice(0, 2)}`;
+
+  if (numeros.length >= 3) resultado += ":";
+  resultado += numeros.slice(2, 4);
+
+  if (numeros.length > 4) {
+    resultado += " | ";
+    resultado += numeros.slice(4, 6);
+    if (numeros.length >= 7) resultado += ":";
+    resultado += numeros.slice(6, 8);
   }
 
   return resultado;
-};
-
+   };
 
    const handleEscalaChange = (e) => {
   const { name, value } = e.target;
@@ -534,7 +570,10 @@ const formatEscalaInput = (valor) => {
 
 
   return (
-    <div className="p-6 max-w-4xl mx-auto space-y-8 rounded-xl shadow-lg">
+
+
+    <div className="max-w-4xl mx-auto space-y-8">
+        
       <style jsx>{`
         /* Remove as setas dos inputs numéricos */
         input[type="number"]::-webkit-inner-spin-button,
@@ -547,15 +586,19 @@ const formatEscalaInput = (valor) => {
         }
       `}</style>
 
-      <h1 className="text-4xl font-extrabold text-center mb-6">Orçamento de Viagem</h1>
-
       {/* Passageiros e Trecho */}
 
-    <div className="p-6 rounded-xl shadow-md border space-y-6">
+          <div>
+      <h1 className="text-4xl font-extrabold text-center mb-10">Orçamento de Viagem</h1>
+    </div>
 
+    <div className="p-6 rounded-xl shadow-md space-y-6">
+ 
+    
   <h2 className="text-2xl font-extrabold text-center">
-    Detalhes da Viagem
+     Informações gerais
   </h2>
+
 
   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 rounded-lg">
 
@@ -655,7 +698,7 @@ const formatEscalaInput = (valor) => {
 
       {/* Ida */}
 
-       <div className="p-6 rounded-xl shadow-md border space-y-6">
+       <div className="p-6 rounded-xl shadow-md space-y-6">
 
   <h2 className="text-2xl font-extrabold text-center">
      Dados do voo – Ida
@@ -670,7 +713,7 @@ const formatEscalaInput = (valor) => {
     <select
       name="idaEscalas"
       value={flight.idaEscalas}
-      onChange={handleEscalaChange}
+      onChange={handleChange}
       className="mt-1 p-2 rounded border text-center"
     >
       <option className="bg-gray-400 text-gray-900 font-semibold" value={0}>Voo direto</option>
@@ -684,7 +727,7 @@ const formatEscalaInput = (valor) => {
 
 {Number(flight.idaEscalas) >= 1 && (
 <div>
-  <h1 className="flex flex-col text-lg m-5 font-bold">(Formato: GRU - 23:00 | 24:00)</h1>
+  <h1 className="flex flex-col text-lg m-5 font-bold">(Formato: Cidade - Hora chegada | Hora partida)</h1>
 
   <div className="p-4 rounded-lg border">
     <label className="flex flex-col text-lg font-bold">
@@ -919,7 +962,7 @@ const formatEscalaInput = (valor) => {
        
    {flight.tipoviagem === "Ida e Volta" && (
 
-   <div className="p-6 rounded-xl shadow-md border space-y-6">
+   <div className="p-6 rounded-xl shadow-md space-y-6">
 
    <h2 className="text-2xl font-extrabold text-center">
      Dados do voo – Volta
@@ -934,7 +977,7 @@ const formatEscalaInput = (valor) => {
     <select
       name="voltaEscalas"
       value={flight.voltaEscalas}
-      onChange={handleEscalaChange}
+      onChange={handleChange}
       className="mt-1 p-2 rounded border text-center"
     >
       <option className="bg-gray-400 text-gray-900 font-semibold" value={0}>
@@ -951,9 +994,7 @@ const formatEscalaInput = (valor) => {
 
   {Number(flight.voltaEscalas) >= 1 && (
     <div className="space-y-4">
-      <p className="text-lg font-semibold">
-        Formato: GRU - 12:00 | 14:00 
-      </p>
+      <h1 className="text-lg font-semibold">(Formato: Cidade - Hora chegada | Hora partida)</h1>
 
       <div className="p-4 rounded-lg border">
         <label className="flex flex-col text-lg font-bold">
@@ -1181,12 +1222,18 @@ const formatEscalaInput = (valor) => {
 
 )}
 
-      <div className="flex flex-col justify-end text-xl font-bold">
-        Valor total: <h1 className="text-3xl font-extrabold">R$ {totalGeral.toFixed(2)}</h1>
+      <div className="flex flex-col justify-end m-7">
+
+         <h1 className="text-xl font-bold">Valor total:</h1>
+
+        <h1 className="text-4xl font-extrabold">
+         R$ {totalGeral.toFixed(2)}
+        </h1>
+
       </div>
 
       <div className="pt-2">
-        <Button className="p-7" onClick={gerarPDF}>
+        <Button className="p-7 m-7" onClick={gerarPDF}>
           <p className="font-extrabold text-xl">Gerar PDF</p>
         </Button>
       </div>

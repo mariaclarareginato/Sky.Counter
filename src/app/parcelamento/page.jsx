@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import jsPDF from "jspdf";
 import { Button } from "../components/ui/button.jsx";
 import logo from "../../../public/logo.png";
-import { Input } from "../components/ui/input.jsx";
 
-export default function ParcelamentoPage() {
+
+  export default function ParcelamentoPage() {
   // Taxas tabela
   const taxas = [
     { p: 1, link: 4.39, maquina: 3.26 },
@@ -72,13 +72,13 @@ export default function ParcelamentoPage() {
 }, []);
 
 
-  // calcula percentuais a partir das taxas
+    // calcula percentuais a partir das taxas
   const taxaSelecionada = taxas.find((t) => t.p === parcelas);
   const percentual = taxaSelecionada ? taxaSelecionada[metodo] : 0;
   const valorComTaxa = total + (total * percentual) / 100;
   const valorParcela = parcelas > 0 ? valorComTaxa / parcelas : valorComTaxa;
 
-  // Helpers
+    // Helpers
   const toBase64 = async (path) => {
     const url = path || "/logo.png";
     const res = await fetch(url);
@@ -91,34 +91,8 @@ export default function ParcelamentoPage() {
     });
   };
 
-  const handleLogoUpload = (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onloadend = () => {
-    setUserLogo(reader.result);
-  };
-  reader.readAsDataURL(file);
-};
 
 
-  // Funções de formatação (usadas no PDF)
-
-  const toBRDate = (d) => {
-    if (!d) return "-";
-    const parts = String(d).split("-");
-    if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
-    // fallback
-    try {
-      const dt = new Date(d);
-      return dt.toLocaleDateString("pt-BR");
-    } catch {
-      return d;
-    }
-  };
-  const up = (txt) => (txt ? String(txt).toUpperCase() : "-");
-  const money = (n) => `R$ ${Number(n || 0).toFixed(2)}`;
 
   // função que calcula valores detalhados novamente (garante consistência)
   const computeDetails = (f) => {
@@ -204,20 +178,19 @@ const gerarPDF = async () => {
   try {
     const doc = new jsPDF({ unit: "pt", format: "a4" });
     const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
     const margin = 26;
     let y = margin;
 
-    const formatEscalas = (qtd, e1, e2) => {
-    const n = Number(qtd || 0);
+    const formatarEscala = (cidade, chegada, partida) => {
+      if (!cidade) return "-";
 
-  if (n === 0) return "VOO DIRETO";
+     let texto = cidade.toUpperCase();
 
-  const lista = [];
-  if (n >= 1 && e1) lista.push(e1.toUpperCase());
-  if (n === 2 && e2) lista.push(e2.toUpperCase());
+    if (chegada) texto += ` - das ${chegada}`;
+    if (partida) texto += ` às ${partida}`;
 
-  return lista.length ? lista.join(" | ") : "Voo direto";
+    return texto;
+
    };
 
 
@@ -337,13 +310,30 @@ const gerarPDF = async () => {
 
     writeLine("Data", toBRDate(flight.idaData));
 
-     let escalasIdaTexto = "Voo direto";
-     if (Number(flight.idaEscalas) === 1) {
-     escalasIdaTexto = flight.idaEscala1?.toUpperCase()  || "-";
-     }
-     if (Number(flight.idaEscalas) === 2) {
-     escalasIdaTexto = `${flight.idaEscala1?.toUpperCase() || "-"}  e  ${flight.idaEscala2?.toUpperCase() || "-"}`;
-     }
+    let escalasIdaTexto = "Voo direto";
+
+    if (Number(flight.idaEscalas) === 1) {
+  escalasIdaTexto = formatarEscala(
+    flight.idaEscala1Cidade,
+    flight.idaEscala1Chegada,
+    flight.idaEscala1Partida
+     );
+    }
+
+    if (Number(flight.idaEscalas) === 2) {
+  escalasIdaTexto =
+    formatarEscala(
+      flight.idaEscala1Cidade,
+      flight.idaEscala1Chegada,
+      flight.idaEscala1Partida
+    ) +
+    "  e  " +
+    formatarEscala(
+      flight.idaEscala2Cidade,
+      flight.idaEscala2Chegada,
+      flight.idaEscala2Partida
+    );
+    }
 
     
     writeLine("Horário do embarque", flight.idaEmbarqueHora);
@@ -368,15 +358,31 @@ const gerarPDF = async () => {
 
       writeLine("Data", toBRDate(flight.voltaData));
 
-      let escalasVoltaTexto = "Voo direto";
+     
+         let escalasVoltaTexto = "Voo direto";
 
-   if (Number(flight.voltaEscalas) === 1) {
-  escalasVoltaTexto = flight.voltaEscala1?.toUpperCase() || "-";
-   }
+    if (Number(flight.voltaEscalas) === 1) {
+    escalasVoltaTexto = formatarEscala(
+    flight.voltaEscala1Cidade,
+    flight.voltaEscala1Chegada,
+    flight.voltaEscala1Partida
+     );
+    }
 
-   if (Number(flight.voltaEscalas) === 2) {
-   escalasVoltaTexto = `${flight.voltaEscala1?.toUpperCase() || "-"}  e  ${flight.voltaEscala2?.toUpperCase() || "-"}`;
-   }
+    if (Number(flight.voltaEscalas) === 2) {
+    escalasVoltaTexto =
+    formatarEscala(
+      flight.voltaEscala1Cidade,
+      flight.voltaEscala1Chegada,
+      flight.voltaEscala1Partida
+    ) +
+    "  e  " +
+    formatarEscala(
+      flight.voltaEscala2Cidade,
+      flight.voltaEscala2Chegada,
+      flight.voltaEscala2Partida
+    );
+    }
 
       
       writeLine("Horário do embarque", flight.voltaEmbarqueHora);
@@ -496,63 +502,88 @@ if (pdfFields.cadastur && cadastur) {
 
 
   return (
-    <div className="p-10 w-full mx-auto rounded-xl space-y-5">
-      <h2 className="text-4xl font-extrabold text-center mb-15">Parcelamento</h2>
+   <div className="p-10 w-full mx-auto rounded-xl space-y-5">
+  <h2 className="text-4xl font-extrabold text-center mb-15">Parcelamento</h2>
 
-<div className="p-6 w-full mx-auto space-y-8 rounded-xl shadow-lg">
-      <p className="text-xl font-semibold">
-        Valor total: 
-        <br></br>
-        <br></br>
-        <strong className="font-extrabold text-3xl">R$ {total.toFixed(2)}</strong>
-      </p>
+  <div className="p-6 w-full mx-auto space-y-8 rounded-xl shadow-lg">
 
-      <div className="space-y-2 mt-10">
-        <label className="text-xl font-semibold">Método de Pagamento:</label>
-        <br></br>
-        <br></br>
-        <select className="p-2 text-2xl font-extrabold rounded" value={metodo} onChange={(e) => setMetodo(e.target.value)}>
-          <option className="bg-gray-400 text-gray-900 text-lg font-bold" value="link">Link</option>
-          <option className="bg-gray-400 text-gray-900 text-lg font-bold" value="maquina">Maquininha</option>
-        </select>
+    <div>
+      <p className="text-xl font-semibold">Valor total da cotação:</p>
+      <strong className="font-extrabold text-3xl mt-2 block">
+        R$ {total.toFixed(2)}
+      </strong>
+    </div>
+
+    <div className="space-y-4 mt-10">
+      <label className="text-xl font-semibold block">
+        Método de pagamento:
+      </label>
+
+      <select
+        className="p-2 text-2xl font-extrabold rounded"
+        value={metodo}
+        onChange={(e) => setMetodo(e.target.value)}
+      >
+        <option className="bg-gray-400 text-gray-900 text-lg font-bold" value="link">
+          Link
+        </option>
+        <option className="bg-gray-400 text-gray-900 text-lg font-bold" value="maquina">
+          Maquininha
+        </option>
+      </select>
+    </div>
+
+    <div className="space-y-4 mt-10">
+      <label className="text-xl font-semibold block">
+        Parcelas:
+      </label>
+
+      <select
+        className="p-2 text-2xl font-extrabold rounded"
+        value={parcelas}
+        onChange={(e) => setParcelas(Number(e.target.value))}
+      >
+        {taxas.map((t) => (
+          <option
+            className="bg-gray-400 text-gray-900 text-lg font-bold"
+            key={t.p}
+            value={t.p}
+          >
+            {t.p}x
+          </option>
+        ))}
+      </select>
+    </div>
+
+    <div className="border p-4 rounded space-y-8">
+      <div>
+        <p className="text-xl font-semibold">Taxa:</p>
+        <strong className="text-2xl font-extrabold block mt-1">
+          {percentual}%
+        </strong>
       </div>
 
-      <div className="space-y-2 mt-10">
-        <label className="text-xl font-semibold">Parcelas:</label>
-        <br></br>
-        <br></br>
-        <select className="p-2 text-2xl font-extrabold rounded" value={parcelas} onChange={(e) => setParcelas(Number(e.target.value))}>
-          {taxas.map((t) => (
-            <option className="bg-gray-400 text-gray-900 text-lg font-bold" key={t.p} value={t.p}>
-              {t.p}x
-            </option>
-          ))}
-        </select>
+      <div>
+        <p className="text-xl font-semibold">Total com taxa:</p>
+        <strong className="text-2xl font-extrabold block mt-1">
+          R$ {valorComTaxa.toFixed(2)}
+        </strong>
       </div>
 
-      <div className="border p-4 rounded space-y-1">
-        <p className="text-xl font-semibold">
-          Taxa: 
-          <br></br>
-          <strong className="text-2xl font-extrabold">{percentual}%</strong>
-        </p>
-        <p className="text-xl font-semibold mt-10">
-          Total com taxa: <strong className="text-2xl font-extrabold">
-            <br></br>
-            R$ {valorComTaxa.toFixed(2)}</strong>
-        </p>
-        <p className="text-xl font-semibold mt-10">
-          Parcela escolhida: <strong className="text-2xl font-extrabold">
-            <br></br>
-            R$ {valorParcela.toFixed(2)}</strong>
-        </p>
+      <div>
+        <p className="text-xl font-semibold">Parcela escolhida:</p>
+        <strong className="text-2xl font-extrabold block mt-1">
+          R$ {valorParcela.toFixed(2)}
+        </strong>
       </div>
+    </div>
 
-         </div>
-        <Button className="mt-10 p-7" onClick={gerarPDF}>
-          <p className="font-extrabold text-xl">Gerar PDF</p>
-        </Button>
-      </div>
+  </div>
+
+  <Button className="mt-10 p-7" onClick={gerarPDF}>
+    <p className="font-extrabold text-xl">Gerar PDF</p>
+  </Button>
+  </div>
 
   );
 }

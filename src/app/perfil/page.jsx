@@ -74,12 +74,12 @@ const handleLogoUpload = (e) => {
 
 
   return (
-   <div className="p-10 max-w-3xl mx-auto space-y-6">
-  <h1 className="text-4xl font-extrabold text-center">
+   <div className="space-y-8">
+  <h1 className="text-4xl font-extrabold mt-3 text-center">
     Perfil da sua agência
   </h1>
 
-<div className="flex flex-col items-center justify-center gap-4">
+   <div className="flex flex-col items-center justify-center gap-5">
 
   <Input
     id="logoUpload"
@@ -132,7 +132,7 @@ const handleLogoUpload = (e) => {
 
 
   <Input
-    placeholder="Nome"
+    placeholder="Nome | EX: Tur10"
     value={nome}
     onChange={(e) => {
       setNome(e.target.value);
@@ -142,7 +142,7 @@ const handleLogoUpload = (e) => {
   />
 
   <Input
-    placeholder="Telefone"
+    placeholder="Telefone | EX: (11)11111-1111"
     value={telefone}
     onChange={(e) => {
       setTelefone(e.target.value);
@@ -152,7 +152,7 @@ const handleLogoUpload = (e) => {
   />
 
   <Input
-    placeholder="Redes sociais"
+    placeholder="Redes sociais | EX: @tur10.oficial"
     value={redes}
     onChange={(e) => {
       setRedes(e.target.value);
@@ -162,7 +162,7 @@ const handleLogoUpload = (e) => {
   />
 
    <Input
-    placeholder="CNPJ"
+    placeholder="CNPJ | EX: 11111111/1111-11"
     value={cnpj}
     onChange={(e) => {
       setCnpj(e.target.value);
@@ -172,7 +172,7 @@ const handleLogoUpload = (e) => {
   />
 
      <Input
-    placeholder="Cadastur"
+    placeholder="Cadastur | EX: 11111111/1111-11"
     value={cadastur}
     onChange={(e) => {
     setCadastur(e.target.value);
@@ -182,23 +182,22 @@ const handleLogoUpload = (e) => {
   />
 
   {sucesso && (
-  <div className="p-4 text-green-900 dark:text-green-400 rounded text-center text-xl font-semibold">
+  <div className="text-green-900 dark:text-green-500 mt-4 rounded text-center text-xl font-semibold">
     Perfil salvo com sucesso!
   </div>
 )}
 
   <div className="flex justify-center">
-    <Button onClick={salvarPerfil} className="px-6 py-6 text-lg font-bold">
+    <Button onClick={salvarPerfil} className="px-8 py-8 mt-1 text-xl font-bold">
       Salvar perfil
     </Button>
   </div>
-  <br></br>
   
-  <p className="text-lg font-semibold">As informações do perfil da sua agência serão utilizadas nos PDFs das suas cotações</p>
-
-<div className="border rounded-lg p-4 space-y-3">
+ 
+<div className="rounded-lg p-4 space-y-3 shadow-lg">
   <p className="font-bold text-xl">
-  Selecione abaixo quais dados você deseja que apareçam nos seus documentos:
+   As informações da sua agência serão usadas nos PDFs das cotações.
+   Selecione abaixo quais dados você deseja exibir nos documentos:
   </p>
 
   {[

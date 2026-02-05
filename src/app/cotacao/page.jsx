@@ -47,14 +47,30 @@ export default function IdaVoltaPage() {
     precoMilheiroVolta: 0,
 
     // Escalas IDA
-      idaEscalas: 0,
-      idaEscala1: "",
-      idaEscala2: "",
+       
+       voltaEscalas: 0,
+      
+      idaEscala1Cidade: "",
+      idaEscala1Chegada: "",
+      idaEscala1Partida: "",
+
+      idaEscala2Cidade: "",
+      idaEscala2Chegada: "",
+      idaEscala2Partida: "",
+
+    
 
     // Escalas VOLTA
      voltaEscalas: 0,
-     voltaEscala1: "",
-     voltaEscala2: "",
+
+      voltaEscala1Cidade: "",
+      voltaEscala1Chegada: "",
+      voltaEscala1Partida: "",
+
+      voltaEscala2Cidade: "",
+      voltaEscala2Chegada: "",
+      voltaEscala2Partida: "",
+
 
   });
 
@@ -264,7 +280,18 @@ const gerarPDF = async () => {
     const pageHeight = doc.internal.pageSize.getHeight();
     const margin = 40;
     const maxY = pageHeight - margin;
-    let y = margin;
+    const formatarEscala = (cidade, chegada, partida) => {
+    if (!cidade) return "-";
+
+     let texto = cidade.toUpperCase();
+
+    if (chegada) texto += ` - das ${chegada}`;
+    if (partida) texto += ` às ${partida}`;
+
+    return texto;
+    };
+
+     let y = margin;
 
     // logo 
 
@@ -350,13 +377,30 @@ const gerarPDF = async () => {
 
     write("Data", flight.idaData ? flight.idaData.split("-").reverse().join("/") : "-");
 
-    let escalasIdaTexto = "Voo direto";
+      let escalasIdaTexto = "Voo direto";
+
     if (Number(flight.idaEscalas) === 1) {
-    escalasIdaTexto = flight.idaEscala1?.toUpperCase()  || "-";
+  escalasIdaTexto = formatarEscala(
+    flight.idaEscala1Cidade,
+    flight.idaEscala1Chegada,
+    flight.idaEscala1Partida
+     );
     }
+
     if (Number(flight.idaEscalas) === 2) {
-   escalasIdaTexto = `${flight.idaEscala1?.toUpperCase() || "-"}  e  ${flight.idaEscala2?.toUpperCase() || "-"}`;
-   }
+  escalasIdaTexto =
+    formatarEscala(
+      flight.idaEscala1Cidade,
+      flight.idaEscala1Chegada,
+      flight.idaEscala1Partida
+    ) +
+    "  e  " +
+    formatarEscala(
+      flight.idaEscala2Cidade,
+      flight.idaEscala2Chegada,
+      flight.idaEscala2Partida
+    );
+    }
 
    
     write("Horário do embarque", flight.idaEmbarqueHora);
@@ -379,15 +423,30 @@ const gerarPDF = async () => {
 
       write("Data", flight.voltaData ? flight.voltaData.split("-").reverse().join("/") : "-");
 
-      let escalasVoltaTexto = "Voo direto";
+         let escalasVoltaTexto = "Voo direto";
 
-      if (Number(flight.voltaEscalas) === 1) {
-      escalasVoltaTexto = flight.voltaEscala1?.toUpperCase() || "-";
-      }
+    if (Number(flight.voltaEscalas) === 1) {
+  escalasVoltaTexto = formatarEscala(
+    flight.voltaEscala1Cidade,
+    flight.voltaEscala1Chegada,
+    flight.voltaEscala1Partida
+     );
+    }
 
-      if (Number(flight.voltaEscalas) === 2) {
-      escalasVoltaTexto = `${flight.voltaEscala1?.toUpperCase() || "-"}  e  ${flight.voltaEscala2?.toUpperCase() || "-"}`;
-      }
+    if (Number(flight.voltaEscalas) === 2) {
+  escalasVoltaTexto =
+    formatarEscala(
+      flight.voltaEscala1Cidade,
+      flight.voltaEscala1Chegada,
+      flight.voltaEscala1Partida
+    ) +
+    "  e  " +
+    formatarEscala(
+      flight.voltaEscala2Cidade,
+      flight.voltaEscala2Chegada,
+      flight.voltaEscala2Partida
+    );
+    }
 
      
       write("Horário do embarque", flight.voltaEmbarqueHora);
@@ -488,85 +547,7 @@ const gerarPDF = async () => {
   }
 };
 
-     
-   const formatEscalaInput = (valor) => {
-
-  // Remove qualquer formatação anterior
-  const valorLimpo = valor.replace(/[-|:]/g, "");
-
-  const indexNumero = valorLimpo.search(/\d/);
-
-  // Cidade
-  if (indexNumero === -1) {
-    return valorLimpo.toUpperCase();
-  }
-
-  // Cidade (livre, só maiúscula)
-  const cidade = valorLimpo
-    .slice(0, indexNumero)
-    .replace(/\s+/g, " ")
-    .toUpperCase()
-    .trim();
-
-  // Só números (HHMMHHMM)
-  let numeros = valorLimpo.replace(/\D/g, "").slice(0, 8);
-
-  // Limites
-  const limitarHora = (hh) =>
-    hh.length < 2 ? hh : Math.min(Number(hh), 24).toString().padStart(2, "0");
-
-  const limitarMinuto = (mm) =>
-    mm.length < 2 ? mm : Math.min(Number(mm), 59).toString().padStart(2, "0");
-
-  // ⏱ Hora inicial
-  if (numeros.length >= 2) {
-    numeros = limitarHora(numeros.slice(0, 2)) + numeros.slice(2);
-  }
-  if (numeros.length >= 4) {
-    numeros =
-      numeros.slice(0, 2) +
-      limitarMinuto(numeros.slice(2, 4)) +
-      numeros.slice(4);
-  }
-
-  // ⏱ Hora final
-  if (numeros.length >= 6) {
-    numeros =
-      numeros.slice(0, 4) +
-      limitarHora(numeros.slice(4, 6)) +
-      numeros.slice(6);
-  }
-  if (numeros.length >= 8) {
-    numeros =
-      numeros.slice(0, 6) +
-      limitarMinuto(numeros.slice(6, 8));
-  }
-
-  // Montagem final (UMA vez só)
-  let resultado = `${cidade} - ${numeros.slice(0, 2)}`;
-
-  if (numeros.length >= 3) resultado += ":";
-  resultado += numeros.slice(2, 4);
-
-  if (numeros.length > 4) {
-    resultado += " | ";
-    resultado += numeros.slice(4, 6);
-    if (numeros.length >= 7) resultado += ":";
-    resultado += numeros.slice(6, 8);
-  }
-
-  return resultado;
-   };
-
-   const handleEscalaChange = (e) => {
-  const { name, value } = e.target;
-
-   setFlight((prev) => ({
-    ...prev,
-    [name]: formatEscalaInput(value),
-    }));
-    };
-
+  
 
 
   return (
@@ -705,61 +686,109 @@ const gerarPDF = async () => {
   </h2>
 
   {/* ESCALAS */}
-
-     <div className="p-4 rounded-lg space-y-4">
-
-     <label className="flex flex-col text-lg font-bold">
-    Escalas:
+  <div className="p-4 rounded-lg space-y-4">
+  <label className="flex flex-col text-lg font-bold">
+    Escalas
     <select
       name="idaEscalas"
       value={flight.idaEscalas}
       onChange={handleChange}
-      className="mt-1 p-2 rounded border text-center"
+      className="mt-2 p-2 rounded border text-center"
     >
-      <option className="bg-gray-400 text-gray-900 font-semibold" value={0}>Voo direto</option>
-      <option className="bg-gray-400 text-gray-900 font-semibold" value={1}>1 escala</option>
-      <option className="bg-gray-400 text-gray-900 font-semibold" value={2}>2 escalas</option>
+      <option  className="bg-gray-400 text-gray-900 font-semibold text-lg" value={0}>Voo direto</option>
+      <option  className="bg-gray-400 text-gray-900 font-semibold text-lg" value={1}>1 escala</option>
+      <option   className="bg-gray-400 text-gray-900 font-semibold text-lg" value={2}>2 escalas</option>
     </select>
   </label>
-
 </div>
+  
 
-
-{Number(flight.idaEscalas) >= 1 && (
-<div>
-  <h1 className="flex flex-col text-lg m-5 font-bold">(Formato: Cidade - Hora chegada | Hora partida)</h1>
-
+  {Number(flight.idaEscalas) >= 1 && (
   <div className="p-4 rounded-lg border">
-    <label className="flex flex-col text-lg font-bold">
-      Escala 1 
-      <input
-        type="text"
-        name="idaEscala1"
-        value={flight.idaEscala1}
-        onChange={handleEscalaChange}
-        className="mt-1 p-2 rounded border text-center uppercase"
-      />
-    </label>
-   </div>
-  </div>
-)}
+    <h3 className="text-lg font-bold mb-3">Escala 1</h3>
 
-{Number(flight.idaEscalas) === 2 && (
-  <div className="p-4 rounded-lg border">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <label className="flex flex-col font-semibold">
+        Cidade
+        <input
+          type="text"
+          name="idaEscala1Cidade"
+          value={flight.idaEscala1Cidade}
+          onChange={handleChange}
+          placeholder="Ex: São Paulo"
+          className="mt-1 p-2 rounded border text-center uppercase"
+        />
+      </label>
 
-    <label className="flex flex-col text-lg font-bold">
-      Escala 2 
-      <input
-        type="text"
-        name="idaEscala2"
-        value={flight.idaEscala2}
-        onChange={handleEscalaChange}
-        className="mt-1 p-2 rounded border text-center uppercase"
-      />
-    </label>
+      <label className="flex flex-col font-semibold">
+        Chegada
+        <input
+          type="time"
+          name="idaEscala1Chegada"
+          value={flight.idaEscala1Chegada}
+          onChange={handleChange} 
+          className="mt-1 p-2 rounded border text-center"
+        />
+      </label>
 
-  </div>
-)}
+      <label className="flex flex-col font-semibold">
+        Partida
+        <input
+          type="time"
+          name="idaEscala1Partida"
+          value={flight.idaEscala1Partida}
+          onChange={handleChange}
+          className="mt-1 p-2 rounded border text-center"
+        />
+      </label>
+     </div>
+    </div>
+    )}
+
+
+     {Number(flight.idaEscalas) === 2 && (
+    <div className="p-4 rounded-lg border">
+    <h3 className="text-lg font-bold mb-3">Escala 2</h3>
+
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <label className="flex flex-col font-semibold">
+        Cidade
+        <input
+          type="text"
+          name="idaEscala2Cidade"
+          value={flight.idaEscala2Cidade}
+          onChange={handleChange}
+          placeholder="Ex: Recife"
+          className="mt-1 p-2 rounded border text-center uppercase"
+        />
+      </label>
+
+      <label className="flex flex-col font-semibold">
+        Chegada
+        <input
+          type="time"
+          name="idaEscala2Chegada"
+          value={flight.idaEscala2Chegada}
+          onChange={handleChange}
+          className="mt-1 p-2 rounded border text-center"
+        />
+      </label>
+
+      <label className="flex flex-col font-semibold">
+        Partida
+        <input
+          type="time"
+          name="idaEscala2Partida"
+          value={flight.idaEscala2Partida}
+          onChange={handleChange}
+          className="mt-1 p-2 rounded border text-center"
+        />
+      </label>
+     </div>
+    </div>
+   )}
+
+
 
 
   {/* HORÁRIOS */}
@@ -808,6 +837,7 @@ const gerarPDF = async () => {
         name="idaAeroporto"
         value={flight.idaAeroporto}
         onChange={handleChange}
+        placeholder="Ex: GRU"
         className="mt-1 p-2 rounded text-center border uppercase"
       />
     </label>
@@ -820,6 +850,7 @@ const gerarPDF = async () => {
         name="idaChegadaAeroporto"
         value={flight.idaChegadaAeroporto}
         onChange={handleChange}
+        placeholder="Ex: CGH"
         className="mt-1 p-2 rounded text-center border uppercase"
       />
     </label>
@@ -873,6 +904,7 @@ const gerarPDF = async () => {
         name="bagagemPrecoIda"
         value={flight.bagagemPrecoIda}
         onChange={handleChange}
+        placeholder="Ex: 100,00"
         className="mt-1 p-2 rounded border text-center"
       />
     </label>
@@ -910,7 +942,7 @@ const gerarPDF = async () => {
           "British",
           "Qatar",
         ].map((p) => (
-          <option key={p} value={p}>
+          <option  className="bg-gray-400 text-gray-900 font-semibold text-lg" key={p} value={p}>
             {p}
           </option>
         ))}
@@ -925,6 +957,7 @@ const gerarPDF = async () => {
         name="milhasPorPassageiroIda"
         value={flight.milhasPorPassageiroIda}
         onChange={handleChange}
+        placeholder="Ex: 200,00"
         className="mt-1 p-2 rounded border text-center"
       />
     </label>
@@ -937,6 +970,7 @@ const gerarPDF = async () => {
         name="precoMilheiroIda"
         value={flight.precoMilheiroIda}
         onChange={handleChange}
+        placeholder="Ex: 30,00"
         className="mt-1 p-2 rounded border text-center"
       />
     </label>
@@ -970,65 +1004,108 @@ const gerarPDF = async () => {
 
    {/* ESCALAS */}
   
-    <div className="p-4 rounded-lg space-y-4">
-
+             <div className="p-4 rounded-lg space-y-4">
   <label className="flex flex-col text-lg font-bold">
-    Escalas:
+    Escalas
     <select
       name="voltaEscalas"
       value={flight.voltaEscalas}
       onChange={handleChange}
-      className="mt-1 p-2 rounded border text-center"
+      className="mt-2 p-2 rounded border text-center"
     >
-      <option className="bg-gray-400 text-gray-900 font-semibold" value={0}>
-        Voo direto
-      </option>
-      <option className="bg-gray-400 text-gray-900 font-semibold" value={1}>
-        1 escala
-      </option>
-      <option className="bg-gray-400 text-gray-900 font-semibold" value={2}>
-        2 escalas
-      </option>
+      <option  className="bg-gray-400 text-gray-900 font-semibold text-lg" value={0}>Voo direto</option>
+      <option  className="bg-gray-400 text-gray-900 font-semibold text-lg" value={1}>1 escala</option>
+      <option   className="bg-gray-400 text-gray-900 font-semibold text-lg" value={2}>2 escalas</option>
     </select>
   </label>
+</div>
+  
 
   {Number(flight.voltaEscalas) >= 1 && (
-    <div className="space-y-4">
-      <h1 className="text-lg font-semibold">(Formato: Cidade - Hora chegada | Hora partida)</h1>
+  <div className="p-4 rounded-lg border">
+    <h3 className="text-lg font-bold mb-3">Escala 1</h3>
 
-      <div className="p-4 rounded-lg border">
-        <label className="flex flex-col text-lg font-bold">
-          Escala 1 
-          <input
-            type="text"
-            name="voltaEscala1"
-            value={flight.voltaEscala1}
-            onChange={handleEscalaChange}
-            className="mt-1 p-2 rounded border text-center uppercase"
-            
-          />
-        </label>
-      </div>
-    </div>
-  )}
-
-  {Number(flight.voltaEscalas) === 2 && (
-    <div className="p-4 rounded-lg border">
-      <label className="flex flex-col text-lg font-bold">
-        Escala 2 
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <label className="flex flex-col font-semibold">
+        Cidade
         <input
           type="text"
-          name="voltaEscala2"
-          value={flight.voltaEscala2}
-          onChange={handleEscalaChange}
+          name="voltaEscala1Cidade"
+          value={flight.voltaEscala1Cidade}
+          onChange={handleChange}
+          placeholder="Ex: São Paulo"
           className="mt-1 p-2 rounded border text-center uppercase"
-          
         />
       </label>
-    </div>
-  )}
 
-</div>
+      <label className="flex flex-col font-semibold">
+        Chegada
+        <input
+          type="time"
+          name="voltaEscala1Chegada"
+          value={flight.voltaEscala1Chegada}
+          onChange={handleChange}
+          className="mt-1 p-2 rounded border text-center"
+        />
+      </label>
+
+      <label className="flex flex-col font-semibold">
+        Partida
+        <input
+          type="time"
+          name="voltaEscala1Partida"
+          value={flight.voltaEscala1Partida}
+          onChange={handleChange}
+          className="mt-1 p-2 rounded border text-center"
+        />
+      </label>
+     </div>
+    </div>
+   )}
+
+
+   {Number(flight.voltaEscalas) === 2 && (
+  <div className="p-4 rounded-lg border">
+    <h3 className="text-lg font-bold mb-3">Escala 2</h3>
+
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <label className="flex flex-col font-semibold">
+        Cidade
+        <input
+          type="text"
+          name="voltaEscala2Cidade"
+          value={flight.voltaEscala2Cidade}
+          onChange={handleChange}
+          placeholder="Ex: Recife"
+          className="mt-1 p-2 rounded border text-center uppercase"
+        />
+      </label>
+
+      <label className="flex flex-col font-semibold">
+        Chegada
+        <input
+          type="time"
+          name="voltaEscala2Chegada"
+          value={flight.voltaEscala2Chegada}
+          onChange={handleChange}
+          className="mt-1 p-2 rounded border text-center"
+        />
+      </label>
+
+      <label className="flex flex-col font-semibold">
+        Partida
+        <input
+          type="time"
+          name="voltaEscala2Partida"
+          value={flight.voltaEscala2Partida}
+          onChange={handleChange}
+          className="mt-1 p-2 rounded border text-center"
+        />
+      </label>
+     </div>
+    </div>
+   )}
+
 
 
 
@@ -1078,6 +1155,7 @@ const gerarPDF = async () => {
         name="voltaAeroporto"
         value={flight.voltaAeroporto}
         onChange={handleChange}
+        placeholder="Ex: GRU"
         className="mt-1 p-2 rounded text-center border uppercase"
       />
     </label>
@@ -1090,6 +1168,7 @@ const gerarPDF = async () => {
         name="voltaChegadaAeroporto"
         value={flight.voltaChegadaAeroporto}
         onChange={handleChange}
+        placeholder="Ex: CGH"
         className="mt-1 p-2 rounded text-center border uppercase"
       />
     </label>
@@ -1143,6 +1222,7 @@ const gerarPDF = async () => {
         name="bagagemPrecoVolta"
         value={flight.bagagemPrecoVolta}
         onChange={handleChange}
+        placeholder="Ex: 100,00"
         className="mt-1 p-2 rounded border text-center"
       />
     </label>
@@ -1191,6 +1271,7 @@ const gerarPDF = async () => {
         name="milhasPorPassageiroVolta"
         value={flight.milhasPorPassageiroVolta}
         onChange={handleChange}
+        placeholder="Ex: 200,00"
         className="mt-1 p-2 rounded border text-center"
       />
     </label>
@@ -1203,6 +1284,7 @@ const gerarPDF = async () => {
         name="precoMilheiroVolta"
         value={flight.precoMilheiroVolta}
         onChange={handleChange}
+        placeholder="Ex: 30,00"
         className="mt-1 p-2 rounded border text-center"
       />
     </label>
@@ -1218,9 +1300,9 @@ const gerarPDF = async () => {
     </span>
   </div>
 
-</div>
+  </div>
 
-)}
+  )}
 
       <div className="flex flex-col justify-end m-7">
 

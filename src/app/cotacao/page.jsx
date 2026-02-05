@@ -483,7 +483,7 @@ const [pdfFields, setPdfFields] = useState({});
    }
 
   if (agenciaInfo.length > 0) {
-  doc.setFontSize(8.0);
+  doc.setFontSize(8.5);
   doc.setFont("helvetica", "bold");
 
   // Junta os itens com separador visual

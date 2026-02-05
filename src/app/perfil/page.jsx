@@ -131,58 +131,72 @@ const handleLogoUpload = (e) => {
 </div>
 
 
-  <Input
-    placeholder="Nome | EX: Tur10"
-    value={nome}
-    onChange={(e) => {
-      setNome(e.target.value);
-      localStorage.setItem("agencia_nome", e.target.value);
-    }}
-    className="text-lg font-semibold"
-  />
+<div className="space-y-5">
+ <input
+  placeholder="Nome da agência | Ex: Tur10"
+  value={nome}
+  onChange={(e) => {
+    setNome(e.target.value);
+    localStorage.setItem("agencia_nome", e.target.value);
+  }}
+  className="w-full p-4 text-lg font-semibold rounded-xl border border-darkblue-300 
+             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+             transition-all"
+/>
 
-  <Input
-    placeholder="Telefone | EX: (11)11111-1111"
-    value={telefone}
-    onChange={(e) => {
-      setTelefone(e.target.value);
-      localStorage.setItem("agencia_telefone", e.target.value);
-    }}
-    className="text-lg font-semibold"
-  />
+<input
+  placeholder="Telefone | Ex: (11) 91111-1111"
+  value={telefone}
+  onChange={(e) => {
+    setTelefone(e.target.value);
+    localStorage.setItem("agencia_telefone", e.target.value);
+  }}
+  className="w-full p-4 text-lg font-semibold rounded-xl border border-darkblue-300 
+             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+             transition-all"
+/>
 
-  <Input
-    placeholder="Redes sociais | EX: @tur10.oficial"
-    value={redes}
-    onChange={(e) => {
-      setRedes(e.target.value);
-      localStorage.setItem("agencia_redes", e.target.value);
-    }}
-    className="text-lg font-semibold"
-  />
+<input
+  placeholder="Redes sociais | Ex: @tur10.oficial"
+  value={redes}
+  onChange={(e) => {
+    setRedes(e.target.value);
+    localStorage.setItem("agencia_redes", e.target.value);
+  }}
+  className="w-full p-4 text-lg font-semibold rounded-xl border border-darkblue-300 
+             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+             transition-all"
+/>
 
-   <Input
-    placeholder="CNPJ | EX: 11111111/1111-11"
-    value={cnpj}
-    onChange={(e) => {
-      setCnpj(e.target.value);
-      localStorage.setItem("agencia_cnpj", e.target.value);
-    }}
-    className="text-lg font-semibold"
-  />
+<input
+  placeholder="CNPJ | Ex: 11.111.111/1111-11"
+  value={cnpj}
+  onChange={(e) => {
+    setCnpj(e.target.value);
+    localStorage.setItem("agencia_cnpj", e.target.value);
+  }}
+  className="w-full p-4 text-lg font-semibold rounded-xl border border-darkblue-300 
+             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+             transition-all"
+/>
 
-     <Input
-    placeholder="Cadastur | EX: 11111111/1111-11"
-    value={cadastur}
-    onChange={(e) => {
+<input
+  placeholder="Cadastur | Ex: 11.111.111/1111-11"
+  value={cadastur}
+  onChange={(e) => {
     setCadastur(e.target.value);
     localStorage.setItem("agencia_cadastur", e.target.value);
-    }}
-    className="text-lg font-semibold "
-  />
+  }}
+  className="w-full p-4 text-lg font-semibold rounded-xl border border-darkblue-300 
+             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+             transition-all"
+/>
+
+</div>
+
 
   {sucesso && (
-  <div className="text-green-900 dark:text-green-500 mt-4 rounded text-center text-xl font-semibold">
+  <div className="text-green-900 dark:text-green-500 mt-10 rounded text-center text-xl font-semibold">
     Perfil salvo com sucesso!
   </div>
 )}

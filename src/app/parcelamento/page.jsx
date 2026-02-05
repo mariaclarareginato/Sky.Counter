@@ -455,7 +455,7 @@ if (pdfFields.cadastur && cadastur) {
 }
 
  if (agenciaInfo.length > 0) {
-  doc.setFontSize(8.5);
+  doc.setFontSize(8.0);
   doc.setFont("helvetica", "bold");
 
   // Junta os itens com separador visual

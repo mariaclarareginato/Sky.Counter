@@ -245,35 +245,10 @@ const [pdfFields, setPdfFields] = useState({});
     });
   };
 
-  const handleLogoUpload = (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onloadend = () => {
-    setUserLogo(reader.result);
-  };
-  reader.readAsDataURL(file);
-};
+     
 
 
-  // Funções de formatação (usadas no PDF)
-
-  const toBRDate = (d) => {
-    if (!d) return "-";
-    const parts = String(d).split("-");
-    if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
-    // fallback
-    try {
-      const dt = new Date(d);
-      return dt.toLocaleDateString("pt-BR");
-    } catch {
-      return d;
-    }
-  };
-
-
-const gerarPDF = async () => {
+    const gerarPDF = async () => {
   try {
     const doc = new jsPDF({ unit: "pt", format: "a4" });
     const pageWidth = doc.internal.pageSize.getWidth();
@@ -508,7 +483,7 @@ const gerarPDF = async () => {
    }
 
   if (agenciaInfo.length > 0) {
-  doc.setFontSize(8.5);
+  doc.setFontSize(8.0);
   doc.setFont("helvetica", "bold");
 
   // Junta os itens com separador visual

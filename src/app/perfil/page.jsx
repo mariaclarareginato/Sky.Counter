@@ -178,7 +178,7 @@ const handleLogoUpload = (e) => {
     setCadastur(e.target.value);
     localStorage.setItem("agencia_cadastur", e.target.value);
     }}
-    className="text-lg font-semibold"
+    className="text-lg font-semibold "
   />
 
   {sucesso && (

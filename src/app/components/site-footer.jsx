@@ -1,5 +1,6 @@
 "use client";
  
+// Importações
 import React from "react";
  
 export function SiteFooter() {

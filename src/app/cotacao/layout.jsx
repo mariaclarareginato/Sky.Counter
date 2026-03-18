@@ -1,9 +1,11 @@
-import { AppSidebar } from "../components/app-sidebar"
-import { SiteHeader } from "../components/site-header"
-import { SidebarInset, SidebarProvider } from "../components/ui/sidebar"
-import { SiteFooter } from "../components/site-footer"
+
+ // Importações
+ import { AppSidebar } from "../components/app-sidebar"
+ import { SiteHeader } from "../components/site-header"
+ import { SidebarInset, SidebarProvider } from "../components/ui/sidebar"
+ import { SiteFooter } from "../components/site-footer"
  
-export default function CotacaoLayout({ children }) {
+ export default function CotacaoLayout({ children }) {
   return (
     <SidebarProvider
       style={{
@@ -21,5 +23,4 @@ export default function CotacaoLayout({ children }) {
       </SidebarInset>
     </SidebarProvider>
  
-  )
-}
+  )};

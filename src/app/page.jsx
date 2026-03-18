@@ -1,5 +1,6 @@
 "use client";
 
+// Importações
 import { useRouter } from "next/navigation";
 import { Button } from "./components/ui/button";
 import { SiteFooter } from "./components/site-footer";
@@ -10,7 +11,7 @@ export default function HomePage() {
   return (
     <div className="w-full flex flex-col">
 
-      {/* VIDEO NO TOPO */}
+      {/* Vídeo no topo */}
       <div className="w-full h-[100vh] overflow-hidden pointer-events-none select-none">
         <video
           src="/videobanner.mp4"
@@ -24,21 +25,19 @@ export default function HomePage() {
         />
 
         <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-primary animate-bounce opacity-70">
-  <svg
+   <svg
     xmlns="http://www.w3.org/2000/svg"
     className="h-8 w-8 text-white"
     fill="none"
     viewBox="0 0 24 24"
-    stroke="currentColor"
-  >
+    stroke="currentColor">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-  </svg>
-</div>
+   </svg>
+   </div>
 
       </div>
 
-      {/* SEÇÃO PRINCIPAL */}
-      
+      {/* Seção principal */}
        <section className="flex flex-col items-center text-center px-6 py-20 bg-gradient-to-b from-background to-accent/20">
 
   <h1 className="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight animate-fade-in">
@@ -60,10 +59,10 @@ export default function HomePage() {
     Explorar Plataforma
   </Button>
 
-</section>
+  </section>
 
 
-      {/* SEÇÃO FERRAMENTAS */}
+      {/* Seção ferramentas */}
       
       <section className="flex flex-col items-center text-center px-6 py-20 bg-primary text-primary-foreground">
 
@@ -73,7 +72,7 @@ export default function HomePage() {
 
            <div className="text-2xl p-4 md:text-2xl max-w-2xl leading-relaxed opacity-90 animate-fade-in-delay">
 
-   <ul className="space-y-3 font-semibold list-disc list-inside text-xl animate-fade-in-delay">
+    <ul className="space-y-3 font-semibold list-disc list-inside text-xl animate-fade-in-delay">
     <li>Cotações inteligentes</li>
     <li>Simulação de parcelamento</li>
     <li>Geração automática de PDF</li>
@@ -84,7 +83,7 @@ export default function HomePage() {
 
       </section>
 
-<SiteFooter></SiteFooter>
+  <SiteFooter></SiteFooter>
     </div>
   );
-}
+  }

@@ -1,27 +1,27 @@
 
+// Importações
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
-import { SiteFooter } from "./components/site-footer";
 
 
-const geistSans = Geist({
+ const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
-});
+ });
 
-const geistMono = Geist_Mono({
+  const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
-});
+ });
 
-export const metadata = {
+  export const metadata = {
   title: "Sky Counter",
   description: "Sistema para cálculo de preço/cotações de viagens com milhas.",
-};
+  };
 
-export default function RootLayout({children}) {
-
+  // Itens em todas as páginas
+  export default function RootLayout({children}) {
   return (
     <html lang="pt" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} ant ialiased`}>
@@ -36,5 +36,4 @@ export default function RootLayout({children}) {
          </ThemeProvider>
       </body>
     </html>
-  );
-}
+  )};

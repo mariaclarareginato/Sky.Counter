@@ -1,18 +1,19 @@
-"use client";
+ "use client";
 
-import { useState, useEffect } from "react";
-import { Button } from "../components/ui/button";
-import { SidebarTrigger } from "../components/ui/sidebar";
-import { Moon, Sun } from "lucide-react";
-import { useTheme } from "next-themes";
-import Link from "next/link";
+  // Importações
+  import { useState, useEffect } from "react";
+  import { Button } from "../components/ui/button";
+  import { SidebarTrigger } from "../components/ui/sidebar";
+  import { Moon, Sun } from "lucide-react";
+  import { useTheme } from "next-themes";
+  import Link from "next/link";
 
-import {
+ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "../components/ui/dropdown-menu";
+ } from "../components/ui/dropdown-menu";
 
 export function SiteHeader() {
   const { theme, setTheme, systemTheme } = useTheme();
@@ -64,7 +65,7 @@ export function SiteHeader() {
       </DropdownMenuContent>
     </DropdownMenu>
   </div>
-</header>
+ </header>
 
   );
-}
+  }

@@ -1,7 +1,8 @@
 "use client";
 
-import { Button } from "./components/ui/button";
-import { useRouter } from "next/navigation";
+  // Importações
+ import { Button } from "./components/ui/button";
+ import { useRouter } from "next/navigation";
 
 export default function NotFound() {
   const router = useRouter();
@@ -9,7 +10,7 @@ export default function NotFound() {
   return (
     <div className="min-h-screen p-5 relative flex items-center justify-center overflow-hidden">
 
-      {/* BACKGROUND */}
+      {/* Background */}
       <img
         src="/banner.png"
         alt="Fundo 404"
@@ -19,7 +20,7 @@ export default function NotFound() {
       {/* Overlay */}
       <div className="absolute inset-0 bg-black/20 -z-10" />
 
-      {/* CARD */}
+      {/* Card */}
       <div className="
         backdrop-blur-xl
         bg-blue/80 
@@ -41,7 +42,7 @@ export default function NotFound() {
           404
         </h1>
 
-        {/* TÍTULO */}
+        {/* Título */}
         <h2 className="
           text-3xl md:text-4xl
           font-bold
@@ -51,13 +52,13 @@ export default function NotFound() {
           Página não encontrada
         </h2>
 
-        {/* TEXTO */}
+        {/* Texto */}
         <p className="
           mt-6 text-xl text-white font-semibold dark:text-[#081427] max-w-md">
           Poxa… parece que você se perdeu no caminho ou tentou acessar uma página que não existe.
         </p>
 
-        {/* BOTÃO */}
+        {/* Botão */}
         <Button
           onClick={() => router.push("/")}
           className="

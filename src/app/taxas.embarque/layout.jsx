@@ -1,9 +1,11 @@
-import { AppSidebar } from "../components/app-sidebar"
-import { SiteHeader } from "../components/site-header"
-import { SidebarInset, SidebarProvider } from "../components/ui/sidebar"
-import { SiteFooter } from "../components/site-footer"
  
-export default function TaxasEmbarqueLayout({ children }) {
+ // Importações
+ import { AppSidebar } from "../components/app-sidebar"
+ import { SiteHeader } from "../components/site-header"
+ import { SidebarInset, SidebarProvider } from "../components/ui/sidebar"
+ import { SiteFooter } from "../components/site-footer"
+ 
+ export default function TaxasEmbarqueLayout({ children }) {
   return (
     <SidebarProvider
       style={{
@@ -21,5 +23,4 @@ export default function TaxasEmbarqueLayout({ children }) {
       </SidebarInset>
     </SidebarProvider>
  
-  )
-}
+  )};

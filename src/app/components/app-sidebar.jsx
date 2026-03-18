@@ -1,5 +1,6 @@
 "use client"
 
+// Importações
 import { useEffect, useState } from "react"
 import { NavMain } from "../components/nav-main"
 
@@ -10,7 +11,7 @@ import {
 } from "../components/ui/sidebar"
 
 export function AppSidebar({ ...props }) {
-  const [user, setUser] = useState({ name: "", email: "" })
+  const [setUser] = useState({ name: "", email: "" })
 
   useEffect(() => {
     const userData = sessionStorage.getItem("user")
@@ -18,17 +19,20 @@ export function AppSidebar({ ...props }) {
       setUser(JSON.parse(userData))
     }
   }, [])
-
+  
+  // Links
   const data = {
     navegacao: [
       { name: "Perfil", url: "/perfil" },
       { name: "Cotação", url: "/cotacao" },
       { name: "Parcelamento", url: "/parcelamento" },
-      { name: "Histórico de cotações", url: "/historico" },
+      { name: "Histórico de Cotações", url: "/historico" },
+      { name: "Taxas de Embarque", url: "/taxas.embarque" },
+      { name: "Taxas de Parcelamento", url: "/taxas.parcelamento" },
     ],
   }
 
-  return (
+  return ( 
     <Sidebar collapsible="offcanvas" {...props}>
       {/* Header */}
       <SidebarHeader className="hover:bg-transparent transition-none">

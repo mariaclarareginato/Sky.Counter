@@ -1,16 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import jsPDF from "jspdf";
-import { Button } from "../components/ui/button.jsx";
-import logo from "../../../public/logo.png";
+    // Importações
+   import { useEffect, useState } from "react";
+   import jsPDF from "jspdf";
+   import { Button } from "../components/ui/button.jsx";
+   import logo from "../../../public/logo.png";
+   import { useRouter } from "next/navigation";
 
-export default function IdaVoltaPage() {
-  const [flight, setFlight] = useState({
+
+  export default function IdaVoltaPage() {
+  
+     const router = useRouter();
+
+     const [flight, setFlight] = useState({
+
+
     // Dados gerais
     classificacao: "Nacional",
     tipoviagem: "Ida e Volta",
-    adultos: 1,
+    classe: "Econômica",
+    adultos: 0,
     criancas: 0,
     bebes: 0,
 
@@ -20,7 +29,7 @@ export default function IdaVoltaPage() {
     idaChegadaHora: "",
     idaAeroporto: "",
     idaChegadaAeroporto: "",
-    idaTaxaManual: "",
+    companhiaAereaIda: "",
 
     // Volta
     voltaData: "",
@@ -28,27 +37,34 @@ export default function IdaVoltaPage() {
     voltaChegadaHora: "",
     voltaAeroporto: "",
     voltaChegadaAeroporto: "",
-    voltaTaxaManual: "",
+    companhiaAereaVolta: "",
 
-    // Bagagens
+    // Bagagens IDA
     bagagemQuantidadeIda: 0,
-    bagagemPrecoIda: 0,
+    idaTipoBagagens: "",
+    bagagemPrecoIda: "",
+   
+
+
+    // Bagagens VOLTA
     bagagemQuantidadeVolta: 0,
-    bagagemPrecoVolta: 0,
+    voltaTipoBagagens: "",
+    bagagemPrecoVolta: "",
+   
 
     // Programa / milhas IDA
     programaIda: "Latam",
-    milhasPorPassageiroIda: 0,
-    precoMilheiroIda: 0,
+    milhasPorPassageiroIda: "",
+    precoMilheiroIda: "",
 
     // Programa / milhas VOLTA
     programaVolta: "Latam",
-    milhasPorPassageiroVolta: 0,
-    precoMilheiroVolta: 0,
+    milhasPorPassageiroVolta: "",
+    precoMilheiroVolta: "",
+
 
     // Escalas IDA
-       
-       voltaEscalas: 0,
+       idaEscalas: 0,
       
       idaEscala1Cidade: "",
       idaEscala1Chegada: "",
@@ -61,7 +77,7 @@ export default function IdaVoltaPage() {
     
 
     // Escalas VOLTA
-     voltaEscalas: 0,
+      voltaEscalas: 0,
 
       voltaEscala1Cidade: "",
       voltaEscala1Chegada: "",
@@ -74,93 +90,64 @@ export default function IdaVoltaPage() {
 
   });
 
-const [nomeAgencia, setNomeAgencia] = useState("");
-const [telefoneAgencia, setTelefoneAgencia] = useState("");
-const [redesAgencia, setRedesAgencia] = useState("");
-const [userLogo, setUserLogo] = useState(null);
-const [cnpj, setCnpj] = useState("");
-const [cadastur, setCadastur] = useState("");
-const [pdfFields, setPdfFields] = useState({});
+    // Use States
+     const [nomeAgencia, setNomeAgencia] = useState("");
+     const [telefoneAgencia, setTelefoneAgencia] = useState("");
+     const [redesAgencia, setRedesAgencia] = useState("");
+     const [userLogo, setUserLogo] = useState(null);
+     const [cnpj, setCnpj] = useState("");
+     const [cadastur, setCadastur] = useState("");
+     const [pdfFields, setPdfFields] = useState({});
+     const [airportRates, setAirportRates] = useState([]);
 
-  const [airportRates] = useState([
-  
-  { code: "BEL", nacional: 25, internacional: 90 },
-  { code: "BSB", nacional: 35, internacional: 110 },
-  { code: "CDG", nacional: 0, internacional: 320 },
-  { code: "CGB", nacional: 20, internacional: 80 },
-  { code: "CGH", nacional: 60.62, internacional: 120 },
-  { code: "CNF", nacional: 33.56, internacional: 120 },
-  { code: "CWB", nacional: 25, internacional: 90 },
-  { code: "DXB", nacional: 0, internacional: 400 },
-  { code: "EZE", nacional: 0, internacional: 270 },
-  { code: "FLN", nacional: 20, internacional: 80 },
-  { code: "FOR", nacional: 56.88, internacional: 305.58 },
-  { code: "FRA", nacional: 0, internacional: 330 },
-  { code: "GIG", nacional: 40, internacional: 120 },
-  { code: "GRU", nacional: 33.64, internacional: 59.54 },
-  { code: "HND", nacional: 0, internacional: 380 },
-  { code: "IGU", nacional: 42.10, internacional: 120 },
-  { code: "JFK", nacional: 0, internacional: 300 },
-  { code: "JOI", nacional: 20, internacional: 80 },
-  { code: "LHR", nacional: 0, internacional: 350 },
-  { code: "MAD", nacional: 0, internacional: 310 },
-  { code: "MAO", nacional: 20, internacional: 80 },
-  { code: "MCZ", nacional: 20, internacional: 80 },
-  { code: "MIA", nacional: 0, internacional: 300 },
-  { code: "NAT", nacional: 46.20, internacional: 294.74 },
-  { code: "POA", nacional: 25, internacional: 90 },
-  { code: "REC", nacional: 30, internacional: 100 },
-  { code: "SDU", nacional: 30, internacional: 100 },
-  { code: "SFO", nacional: 0, internacional: 300 },
-  { code: "SIN", nacional: 0, internacional: 380 },
-  { code: "SSA", nacional: 30, internacional: 100 },
-  { code: "VCP", nacional: 40, internacional: 120 },
-  { code: "VIX", nacional: 20, internacional: 80 },
-  { code: "YYZ", nacional: 0, internacional: 290 }
+   const handleChange = (e) => {
+     const { name, value, type } = e.target;
+
+   setFlight(prev => ({
+  ...prev,
+   [name]: type === "number" ? Number(value) : value
+   }));
+   };
 
 
-  ]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFlight((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const getAirportTax = (airportCode, manualValue, classificacao) => {
-    // usa manual se preenchido
-    if (manualValue !== "" && manualValue !== null && typeof manualValue !== "undefined")
-      return parseFloat(manualValue) || 0;
-    const rate = airportRates.find((r) => r.code === (airportCode || "").toUpperCase());
-    if (!rate) return 0;
-    return classificacao === "Nacional" ? rate.nacional : rate.internacional;
-  };
-
-  // total de passageiros (adultos + crianças; bebês não pagam normalmente taxas/milhas) para calculo
-  const totalPax = Number(flight.adultos || 0) + Number(flight.criancas || 0);
+    // Total de passageiros (adultos + crianças; bebês não pagam normalmente taxas/milhas) para calculo
+   const totalPax = Number(flight.adultos || 0) + Number(flight.criancas || 0);
 
   
-  // total de passageiros (adultos + crianças + bebês)
-
-    const totalPaxEx = Number(flight.adultos || 0) + Number(flight.criancas || 0) + Number(flight.bebes || 0) ;
-
+    // Total de passageiros (adultos + crianças + bebês)
+   const totalPaxEx = Number(flight.adultos || 0) + Number(flight.criancas || 0) + Number(flight.bebes || 0) ;
 
 
+   // Bagagens por trecho
+   const totalBagagemIda = Number(flight.bagagemQuantidadeIda || 0) * Number(flight.bagagemPrecoIda || 0);
+   const totalBagagemVolta = Number(flight.bagagemQuantidadeVolta || 0) * Number(flight.bagagemPrecoVolta || 0);
 
+  function getAirportTax(airportCode, classificacao) {
 
+  if (!airportCode) return 0;
 
-  // bagagens por trecho
-  const totalBagagemIda = Number(flight.bagagemQuantidadeIda || 0) * Number(flight.bagagemPrecoIda || 0);
-  const totalBagagemVolta = Number(flight.bagagemQuantidadeVolta || 0) * Number(flight.bagagemPrecoVolta || 0);
+  const code = airportCode.toUpperCase();
 
-  // taxas (manual ou automática via aeroporto)
-  const taxaIda = getAirportTax(flight.idaAeroporto, flight.idaTaxaManual, flight.classificacao);
+  const rate = airportRates.find(a => a.aeroporto === code);
+
+  if (!rate) return 0;
+
+  if (classificacao === "Internacional") {
+    return Number(rate.internacional || 0);
+  }
+
+  return Number(rate.nacional || 0);
+  }
+
+  // Taxas de embarque de "taxas.embarque" (automáticas)
+  const taxaIda = getAirportTax(flight.idaAeroporto, flight.classificacao);
+
   const taxaVolta =
     flight.tipoviagem === "Ida e Volta"
-      ? getAirportTax(flight.voltaAeroporto, flight.voltaTaxaManual, flight.classificacao)
+      ? getAirportTax(flight.voltaAeroporto, flight.classificacao)
       : 0;
 
-  // ===== CÁLCULOS DAS MILHAS (USANDO MILHEIRO: /1000 * precoMilheiro * pax) =====
-  
+  // Cálculos das milhas (milheiro: /1000 * precoMilheiro * pax) 
   const valorMilhasIda =
     (Number(flight.milhasPorPassageiroIda || 0)) * Number(flight.precoMilheiroIda || 0) * totalPax;
 
@@ -171,7 +158,7 @@ const [pdfFields, setPdfFields] = useState({});
         totalPax
       : 0;
 
-  // totais por trecho
+   // Totais por trecho
   const totalIda = valorMilhasIda  + Number(taxaIda * totalPax|| 0) + Number(totalBagagemIda || 0) ;
 
   const totalVolta =
@@ -180,7 +167,6 @@ const [pdfFields, setPdfFields] = useState({});
   const totalGeral = totalIda + totalVolta;
 
   // Sempre salva o total (para rápido acesso)
-
   useEffect(() => {
     try {
       localStorage.setItem("valorTotal", String(totalGeral));
@@ -203,6 +189,12 @@ const [pdfFields, setPdfFields] = useState({});
 
   setLoaded(true);
 
+
+    const savedRates = localStorage.getItem("airportRates");
+  if (savedRates) {
+    setAirportRates(JSON.parse(savedRates));
+  }
+
   setUserLogo(localStorage.getItem("agencia_logo") || null);
   setNomeAgencia(localStorage.getItem("agencia_nome") || "");
   setTelefoneAgencia(localStorage.getItem("agencia_telefone") || "");
@@ -215,12 +207,12 @@ const [pdfFields, setPdfFields] = useState({});
     setPdfFields(JSON.parse(savedFields));
   }
 
-}, []);
+  }, []);
 
 
-  // Salva os dados do voo sempre que mudar, mas SOMENTE após carregar primeiro
+  // Salva os dados do voo sempre que mudar, SÓ depois de carregar 
   useEffect(() => {
-    if (!loaded) return; // evita sobrescrever com vazio ao iniciar
+    if (!loaded) return; // Evita sobrescrever com vazio ao iniciar
     try {
       localStorage.setItem("flightData", JSON.stringify(flight));
     } catch (e) {
@@ -228,28 +220,30 @@ const [pdfFields, setPdfFields] = useState({});
     }
   }, [flight, loaded]);
 
-  // ========================
-  // Helpers para o PDF
-  // ========================
 
+    // Helpers para o PDF
     const toBase64 = async (path) => {
       if (!path) return null;
       const url = path;
-     const res = await fetch(url);
-     const blob = await res.blob();
-    return await new Promise((resolve, reject) => {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      return await new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onerror = reject;
       reader.onloadend = () => resolve(reader.result);
       reader.readAsDataURL(blob);
-    });
-  };
+      });
+     };
 
      
-
-
+    // PDF
     const gerarPDF = async () => {
-  try {
+
+      const taxaIdaTotal = (taxaIda ?? 0) * totalPax;
+      const taxaVoltaTotal = (taxaVolta ?? 0) * totalPax;
+
+
+    try {
     const doc = new jsPDF({ unit: "pt", format: "a4" });
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
@@ -268,8 +262,23 @@ const [pdfFields, setPdfFields] = useState({});
 
      let y = margin;
 
-    // logo 
 
+    // Número de série
+     const currentYear = new Date().getFullYear();
+     const serialKey = `serie_pdf_${currentYear}`;
+     let stored = Number(localStorage.getItem(serialKey));
+     stored = stored && stored >= 999 ? stored : 999;
+     const serial = stored + 1;
+    localStorage.setItem(serialKey, serial);
+     const serialFormatted = `${String(serial).padStart(4, "0")}/${currentYear}`;
+
+     doc.setFontSize(11);
+     doc.setFont("helvetica", "normal");
+     doc.text(`Número de série: `, margin, y);
+     doc.setFont("helvetica", "bold");
+     doc.text(serialFormatted, margin + 90, y);
+
+    // logo 
      let logoBase64 = null;
 
      if (pdfFields.logo) {
@@ -280,41 +289,31 @@ const [pdfFields, setPdfFields] = useState({});
     if (logoBase64) {
       const w = 70, h = 60;
       doc.addImage(logoBase64, "PNG", (pageWidth - w) / 2, y, w, h);
-      y += h + 14;
+      y += h;
     }
 
-    y += 10
-
-    // -- Título --
+    // Título
+    y += 18;
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(16);
+    doc.setFontSize(14);
     doc.text("Orçamento e Informações da Viagem", pageWidth / 2, y, { align: "center" });
-    y += 30;
+    y += 8;
 
-    // -- Número de série --
-    const currentYear = new Date().getFullYear();
-    const serialKey = `serie_pdf_${currentYear}`;
-    let stored = Number(localStorage.getItem(serialKey));
-    stored = stored && stored >= 999 ? stored : 999;
-    const serial = stored + 1;
-    localStorage.setItem(serialKey, serial);
-
-    const serialFormatted = `${String(serial).padStart(4, "0")}/${currentYear}`;
-
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.text(`Número de série: `, margin, y);
-    doc.setFont("helvetica", "bold");
-    doc.text(serialFormatted, margin + 80, y);
-    y += 20;
-
-    //  Função padrão para escrita organizada
-    const write = (label, value) => {
+     // Função padrão para escrita organizada 
+     const separator = () => {
+    
+    doc.setDrawColor(185);
+    doc.setLineWidth(0.4);
+    doc.line(margin, y, pageWidth - margin, y);
+    y += 15;
+   };
+     const write = (label, value) => {
       const labelX = margin;
       const valueX = margin + 150;
       const maxWidth = pageWidth - valueX - margin;
 
-      doc.setFontSize(10);
+    
+      doc.setFontSize(9);
       doc.setFont("helvetica", "normal");
       doc.text(`${label}:`, labelX, y);
 
@@ -329,8 +328,8 @@ const [pdfFields, setPdfFields] = useState({});
       }
     };
 
-    //  Dados gerais
-    y += 10;
+    // Dados gerais
+    separator ();
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
     doc.text("Informações gerais do Voo", margin, y);
@@ -338,13 +337,15 @@ const [pdfFields, setPdfFields] = useState({});
 
     write("Classificação", flight.classificacao);
     write("Tipo de viagem", flight.tipoviagem);
+    write("Classe", flight.classe);
     write("Adultos", flight.adultos);
     write("Crianças", flight.criancas);
     write("Bebês", flight.bebes);
 
     y += 10;
 
-    //  IDA
+    // IDA
+    separator();
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
     doc.text("Trecho: IDA", margin, y);
@@ -355,7 +356,7 @@ const [pdfFields, setPdfFields] = useState({});
       let escalasIdaTexto = "Voo direto";
 
     if (Number(flight.idaEscalas) === 1) {
-  escalasIdaTexto = formatarEscala(
+    escalasIdaTexto = formatarEscala(
     flight.idaEscala1Cidade,
     flight.idaEscala1Chegada,
     flight.idaEscala1Partida
@@ -380,17 +381,19 @@ const [pdfFields, setPdfFields] = useState({});
    
     write("Horário do embarque", flight.idaEmbarqueHora);
     write("Horário da chegada", flight.idaChegadaHora);
+    write("Companhia aérea", flight.companhiaAereaIda?.toUpperCase())
     write("Aeroporto de origem", flight.idaAeroporto?.toUpperCase());
     write("Escalas", escalasIdaTexto);
     write("Aeroporto de destino", flight.idaChegadaAeroporto?.toUpperCase());
-    write("Taxa de embarque (R$)", Number(taxaIda || 0).toFixed(2));
-    write("Bagagens", `${flight.bagagemQuantidadeIda} x R$ ${Number(flight.bagagemPrecoIda || 0).toFixed(2)}`);
+    write("Taxa de embarque (R$)", Number(taxaIdaTotal || 0).toFixed(2));
+    write("Bagagens", `${flight.bagagemQuantidadeIda} x R$ ${Number(flight.bagagemPrecoIda || 0).toFixed(2)} =  R$ ${Number(totalBagagemIda || 0).toFixed(2)}  || ${flight.idaTipoBagagens}`);
     write("Preço da passagem (R$)", valorMilhasIda.toFixed(2));
     write("Total (R$)", totalIda.toFixed(2));
 
-    //  VOLTA
+    // VOLTA
     if (flight.tipoviagem === "Ida e Volta") {
-      y += 10;
+
+      separator();
       doc.setFont("helvetica", "bold");
       doc.setFontSize(12);
       doc.text("Trecho: VOLTA", margin, y);
@@ -426,22 +429,25 @@ const [pdfFields, setPdfFields] = useState({});
      
       write("Horário do embarque", flight.voltaEmbarqueHora);
       write("Horário da chegada", flight.voltaChegadaHora);
+      write("Companhia aérea", flight.companhiaAereaVolta?.toUpperCase());
       write("Aeroporto de origem", flight.voltaAeroporto?.toUpperCase());
       write("Escalas", escalasVoltaTexto);
       write("Aeroporto de destino", flight.voltaChegadaAeroporto?.toUpperCase());
-      write("Taxa de embarque (R$)", Number(taxaVolta || 0).toFixed(2));
-      write("Bagagens", `${flight.bagagemQuantidadeVolta} x R$ ${Number(flight.bagagemPrecoVolta || 0).toFixed(2)}`);
+      write("Taxa de embarque (R$)", Number(taxaVoltaTotal || 0).toFixed(2));
+      write("Bagagens", `${flight.bagagemQuantidadeVolta} x  x R$ ${Number(flight.bagagemPrecoVolta || 0).toFixed(2)} =  R$ ${totalBagagemVolta}  || ${flight.voltaTipoBagagens}`);
       write("Preço da passagem (R$)", valorMilhasVolta.toFixed(2));
       write("Total (R$)", totalVolta.toFixed(2));
     }
 
-    //  Total geral
-    y += 20;
-    doc.setFontSize(18);
+    // Total geral
+
+     y += 10;
+
+    doc.setFontSize(13);
     doc.setFont("helvetica", "bold");
     doc.text(`TOTAL GERAL: R$ ${totalGeral.toFixed(2)}`, pageWidth / 2, y, { align: "center" });
 
-    y += 20;
+    y += 25;
 
   doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
@@ -449,16 +455,16 @@ const [pdfFields, setPdfFields] = useState({});
       align: "center",
     });
 
-    //  Observações
-    y += 15;
-    doc.setFontSize(9);
+    // Observações
+    y += 14;
+    doc.setFontSize(8.5);
     doc.setFont("helvetica", "normal");
     const obs = "Aviso importante sobre preços dinâmicos: Os valores apresentados neste orçamento estão sujeitos à variação de acordo com disponibilidade, demanda, políticas das companhias aéreas e hotéis, além de possíveis alterações cambiais. Como se tratam de preços dinâmicos, o valor final somente será confirmado no momento da emissão da passagem aérea ou da reserva da hospedagem. Recomenda-se confirmar a compra o quanto antes para garantir as tarifas informadas.";
     const obsLines = doc.splitTextToSize(obs, pageWidth - margin * 2);
     doc.text(obsLines, margin, y);
 
     
-     y += 55;
+     y += 45;
 
     const agenciaInfo = [];
 
@@ -486,7 +492,7 @@ const [pdfFields, setPdfFields] = useState({});
   doc.setFontSize(8.5);
   doc.setFont("helvetica", "bold");
 
-  // Junta os itens com separador visual
+  // Juntar as informações da empresa com separador geral
   const textoFinal = agenciaInfo.join("  |  ");
 
   const textWidth = doc.getTextWidth(textoFinal);
@@ -501,26 +507,26 @@ const [pdfFields, setPdfFields] = useState({});
 
     doc.save(`informacoes.orcamento_${serialFormatted}.pdf`);
 
-    // **Salvar histórico**
+    // Salvar histórico
     const historico = JSON.parse(localStorage.getItem("historicoCotacoes")) || [];
 
     const registro = {
       id: serialFormatted,
       data: new Date().toLocaleString("pt-BR"),
       classificacao: flight.classificacao,
-      tipo: flight.tipoviagem,
+      tipo: flight.tipoviagem, 
       passageiros: totalPaxEx,
-      total: Number(totalGeral.toFixed(2)),
+      total: Number(totalGeral.toFixed(2)), 
       flightData: flight
     };
 
-    historico.unshift(registro); // mais recente primeiro
+    historico.unshift(registro); // Mais recente primeiro
     localStorage.setItem("historicoCotacoes", JSON.stringify(historico));
 
-  } catch (err) {
+    } catch (err) {
     console.error("Erro ao gerar PDF:", err);
-  }
-};
+    }
+   };
 
   
 
@@ -528,7 +534,7 @@ const [pdfFields, setPdfFields] = useState({});
   return (
 
 
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-4xl  space-y-8">
         
       <style jsx>{`
         /* Remove as setas dos inputs numéricos */
@@ -543,12 +549,11 @@ const [pdfFields, setPdfFields] = useState({});
       `}</style>
 
       {/* Passageiros e Trecho */}
-
-          <div>
+      <div>
       <h1 className="text-4xl font-extrabold text-center mb-10">Orçamento de Viagem</h1>
     </div>
 
-    <div className="p-6 rounded-xl shadow-md space-y-6">
+    <div className= "rounded-xl shadow-md space-y-6">
  
     
   <h2 className="text-2xl font-extrabold text-center">
@@ -581,6 +586,20 @@ const [pdfFields, setPdfFields] = useState({});
       >
         <option className="bg-gray-400 text-gray-900 font-semibold" value="Ida">Somente ida</option>
         <option className="bg-gray-400 text-gray-900 font-semibold" value="Ida e Volta">Ida e volta</option>
+      </select>
+    </label>
+
+
+        <label className="flex flex-col text-lg font-semibold">
+      Classe:
+      <select
+        name="classe"
+        value={flight.classe}
+        onChange={handleChange}
+        className="mt-1 p-2 rounded border text-center"
+      >
+        <option className="bg-gray-400 text-gray-900 font-semibold" value="Econômica">Econômica</option>
+        <option className="bg-gray-400 text-gray-900 font-semibold" value="Executiva">Executiva</option>
       </select>
     </label>
 
@@ -638,7 +657,7 @@ const [pdfFields, setPdfFields] = useState({});
 
   </div>
 
-  {/* TOTAL DE PASSAGEIROS */}
+  {/* Total de passageiros */}
   <div className="p-4 rounded-lg flex flex-col items-center">
     <span className="text-lg font-semibold">
       Total de passageiros:
@@ -652,15 +671,14 @@ const [pdfFields, setPdfFields] = useState({});
 </div>
 
 
-      {/* Ida */}
-
-       <div className="p-6 rounded-xl shadow-md space-y-6">
+  {/* Ida */}
+  <div className="p-6 rounded-xl shadow-md space-y-6">
 
   <h2 className="text-2xl font-extrabold text-center">
      Dados do voo – Ida
   </h2>
 
-  {/* ESCALAS */}
+  {/* Escalas*/}
   <div className="p-4 rounded-lg space-y-4">
   <label className="flex flex-col text-lg font-bold">
     Escalas
@@ -672,7 +690,7 @@ const [pdfFields, setPdfFields] = useState({});
     >
       <option  className="bg-gray-400 text-gray-900 font-semibold text-lg" value={0}>Voo direto</option>
       <option  className="bg-gray-400 text-gray-900 font-semibold text-lg" value={1}>1 escala</option>
-      <option   className="bg-gray-400 text-gray-900 font-semibold text-lg" value={2}>2 escalas</option>
+      <option  className="bg-gray-400 text-gray-900 font-semibold text-lg" value={2}>2 escalas</option>
     </select>
   </label>
 </div>
@@ -764,9 +782,22 @@ const [pdfFields, setPdfFields] = useState({});
    )}
 
 
+    <div className="p-4  rounded-lg">
+   <label className="flex flex-col text-lg font-bold">
+   Companhia aérea
+   <input
+    type="text"
+    name="companhiaAereaIda"
+    value={flight.companhiaAereaIda}
+    onChange={handleChange}
+    placeholder="Ex: LATAM"
+    className="mt-1 p-2 rounded text-center border uppercase"
+    />
+   </label>
+   </div>
 
 
-  {/* HORÁRIOS */}
+  {/* Horários */}
   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 rounded-lg">
     <label className="flex flex-col text-lg font-bold">
       Data:
@@ -802,7 +833,7 @@ const [pdfFields, setPdfFields] = useState({});
     </label>
   </div>
 
-  {/* AEROPORTOS */}
+  {/* Aeroportos */}
   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-lg">
     <label className="flex flex-col text-lg font-bold">
       Aeroporto origem:
@@ -831,29 +862,57 @@ const [pdfFields, setPdfFields] = useState({});
     </label>
   </div>
 
-  {/* TAXA */}
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-lg items-center">
+  {/* Taxa */}
+  <div className="flex justify-center">
 
-     <label className="flex flex-col text-lg font-bold">
-      Taxa de embarque (manual):
-      <input
-        type="number"
-        name="idaTaxaManual"
-        value={flight.idaTaxaManual}
-        onChange={handleChange}
-        className="mt-1 p-2 rounded text-center border"
-      />
-    </label>
+  <div className="text-lg font-bold text-center">
 
-    <div className="text-lg font-bold text-center">
-      Taxa de embarque (automática):
-      <div className="text-2xl font-extrabold">
-        R$ {getAirportTax(flight.idaAeroporto, "", flight.classificacao).toFixed(2)}
+    Taxa de embarque (automática):
+
+    {!flight.idaAeroporto ? (
+
+      <div className="text-lg mt-2 font-medium">
+        Informe o aeroporto para calcular a taxa
       </div>
-    </div>
+
+    ) : taxaIda === 0 ? (
+
+      <div className="mt-2 text-xl font-bold">
+
+        Aeroporto não cadastrado
+
+        <div className="mt-2">
+          <Button
+            onClick={() => router.push("/taxas.embarque")}
+            className="text-lg font-bold p-5"
+          >
+            Clique aqui para cadastrar
+          </Button>
+        </div>
+
+      </div>
+
+    ) : (
+
+      <div className="text-2xl font-extrabold">
+
+        R$ {(taxaIda * totalPax).toFixed(2)}
+
+        {totalPax > 1 && (
+          <div className="text-lg font-semibold mt-1">
+            ({totalPax} passageiros × R$ {taxaIda.toFixed(2)})
+          </div>
+        )}
+
+      </div>
+
+    )}
+
   </div>
 
-  {/* BAGAGENS */}
+   </div>
+
+  {/* Bagagens */}
   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 rounded-lg">
 
     <label className="flex flex-col text-lg font-bold">
@@ -877,21 +936,37 @@ const [pdfFields, setPdfFields] = useState({});
       <input
         type="number"
         name="bagagemPrecoIda"
-        value={flight.bagagemPrecoIda}
+        value={flight.bagagemPrecoIda || ""}
         onChange={handleChange}
         placeholder="Ex: 100,00"
         className="mt-1 p-2 rounded border text-center"
       />
     </label>
 
-    <div className="flex flex-col justify-center items-center text-lg font-bold">
-      Total bagagens:
-      <span className="text-2xl font-extrabold">
-        R$ {totalBagagemIda.toFixed(2)}
-      </span>
-    </div>
+   <label className="flex flex-col text-lg font-bold">
+    Tipo de bagagem:
+    <select
+      name="idaTipoBagagens"
+      value={flight.idaTipoBagagens}
+      onChange={handleChange}
+      className="mt-2 p-2 rounded border text-center">
 
+     <option className="bg-gray-400 text-gray-900 font-semibold text-lg" value="Sem bagagem">Sem bagagem</option>
+     <option className="bg-gray-400 text-gray-900 font-semibold text-lg" value="Bagagem de mão">Bagagem de mão</option>
+     <option className="bg-gray-400 text-gray-900 font-semibold text-lg" value="Bagagem despachada (23 kg)">Bagagem despachada (23 kg)</option>
+     <option className="bg-gray-400 text-gray-900 font-semibold text-lg" value="Item pessoal (mochila)">Item pessoal (mochila)</option>
+    </select>
+    </label>
+       
   </div>
+
+
+  <div className="flex flex-col mt-5 justify-center items-center text-lg font-bold">
+  Total bagagens:
+  <span className="text-2xl font-extrabold">
+    R$ {totalBagagemIda.toFixed(2)}
+  </span>
+   </div>
 
 
 
@@ -901,7 +976,7 @@ const [pdfFields, setPdfFields] = useState({});
   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 rounded-lg">
 
     <label className="flex flex-col text-lg font-bold">
-      Programa:
+      Programa milheiro:
       <select
         name="programaIda"
         value={flight.programaIda}
@@ -930,7 +1005,7 @@ const [pdfFields, setPdfFields] = useState({});
         type="number"
         step="1"
         name="milhasPorPassageiroIda"
-        value={flight.milhasPorPassageiroIda}
+        value={flight.milhasPorPassageiroIda || ""}
         onChange={handleChange}
         placeholder="Ex: 200,00"
         className="mt-1 p-2 rounded border text-center"
@@ -943,7 +1018,7 @@ const [pdfFields, setPdfFields] = useState({});
         type="number"
         step="0.01"
         name="precoMilheiroIda"
-        value={flight.precoMilheiroIda}
+        value={flight.precoMilheiroIda || ""}
         onChange={handleChange}
         placeholder="Ex: 30,00"
         className="mt-1 p-2 rounded border text-center"
@@ -951,24 +1026,23 @@ const [pdfFields, setPdfFields] = useState({});
     </label>
 
 
-  </div>
+   </div>
 
-  {/* TOTAL EM DESTAQUE */}
+  {/* Total (em destaque) */}
   <div className="p-4 rounded-lg flex flex-col items-center justify-center">
     <span className="text-lg font-bold">Total do trecho:</span>
 
     <span className="sm:text-3xl text-2xl font-extrabold">
       R$ {totalIda.toFixed(2)}
     </span>
-  </div>
+   </div>
 
-</div>
+   </div>
 
 
          
         
-       {/* Volta */}
-       
+   {/* Volta */}  
    {flight.tipoviagem === "Ida e Volta" && (
 
    <div className="p-6 rounded-xl shadow-md space-y-6">
@@ -977,10 +1051,9 @@ const [pdfFields, setPdfFields] = useState({});
      Dados do voo – Volta
    </h2>
 
-   {/* ESCALAS */}
-  
-             <div className="p-4 rounded-lg space-y-4">
-  <label className="flex flex-col text-lg font-bold">
+   {/* Escalas */}
+    <div className="p-4 rounded-lg space-y-4">
+   <label className="flex flex-col text-lg font-bold">
     Escalas
     <select
       name="voltaEscalas"
@@ -988,12 +1061,12 @@ const [pdfFields, setPdfFields] = useState({});
       onChange={handleChange}
       className="mt-2 p-2 rounded border text-center"
     >
-      <option  className="bg-gray-400 text-gray-900 font-semibold text-lg" value={0}>Voo direto</option>
-      <option  className="bg-gray-400 text-gray-900 font-semibold text-lg" value={1}>1 escala</option>
-      <option   className="bg-gray-400 text-gray-900 font-semibold text-lg" value={2}>2 escalas</option>
+      <option className="bg-gray-400 text-gray-900 font-semibold text-lg" value={0}>Voo direto</option>
+      <option className="bg-gray-400 text-gray-900 font-semibold text-lg" value={1}>1 escala</option>
+      <option className="bg-gray-400 text-gray-900 font-semibold text-lg" value={2}>2 escalas</option>
     </select>
-  </label>
-</div>
+    </label>
+   </div>
   
 
   {Number(flight.voltaEscalas) >= 1 && (
@@ -1077,15 +1150,28 @@ const [pdfFields, setPdfFields] = useState({});
           className="mt-1 p-2 rounded border text-center"
         />
       </label>
+      </div>
      </div>
-    </div>
-   )}
+     )}
+ 
+
+      <div className="p-4  rounded-lg">
+    <label className="flex flex-col text-lg font-bold">
+   Companhia aérea
+   <input
+    type="text"
+    name="companhiaAereaVolta"
+    value={flight.companhiaAereaVolta}
+    onChange={handleChange}
+    placeholder="Ex: LATAM"
+    className="mt-1 p-2 rounded text-center border uppercase"
+    />
+   </label>
+   </div>
 
 
-
-
-  {/* HORÁRIOS */}
-  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 rounded-lg">
+    {/* Horários */}
+   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 rounded-lg">
     <label className="flex flex-col text-lg font-bold">
       Data:
       <input
@@ -1120,8 +1206,8 @@ const [pdfFields, setPdfFields] = useState({});
     </label>
   </div>
 
-  {/* AEROPORTOS */}
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-lg">
+    {/* Aeroportos */}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-lg">
     <label className="flex flex-col text-lg font-bold">
       Aeroporto origem:
       <input
@@ -1149,30 +1235,57 @@ const [pdfFields, setPdfFields] = useState({});
     </label>
   </div>
 
-  {/* TAXA */}
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-lg items-center">
+    {/* Taxa */}
+   <div className="flex justify-center">
 
-         <label className="flex flex-col text-lg font-bold">
-      Taxa de embarque (manual):
-      <input
-        type="number"
-        name="voltaTaxaManual"
-        value={flight.voltaTaxaManual}
-        onChange={handleChange}
-        className="mt-1 p-2 rounded text-center border"
-      />
-    </label>
+   <div className="text-lg font-bold text-center">
 
-    <div className="text-lg font-bold text-center">
-      Taxa de embarque (automática):
-      <div className="text-2xl font-extrabold">
-        R$ {getAirportTax(flight.voltaAeroporto, "", flight.classificacao).toFixed(2)}
+    Taxa de embarque (automática):
+
+    {!flight.voltaAeroporto ? (
+
+      <div className="text-lg mt-2 font-medium">
+        Informe o aeroporto para calcular a taxa
       </div>
-    </div>
-  </div>
 
-  {/* BAGAGENS */}
-  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 rounded-lg">
+    ) : taxaIda === 0 ? (
+
+      <div className="mt-2 text-xl font-bold">
+
+        Aeroporto não cadastrado
+
+        <div className="mt-2">
+          <Button
+            onClick={() => router.push("/taxas.embarque")}
+            className="text-lg font-bold p-5"
+          >
+            Clique aqui para cadastrar
+          </Button>
+        </div>
+
+      </div>
+
+    ) : (
+
+      <div className="text-2xl font-extrabold">
+
+        R$ {(taxaVolta * totalPax).toFixed(2)}
+
+        {totalPax > 1 && (
+          <div className="text-lg font-semibold mt-1">
+            ({totalPax} passageiros × R$ {taxaVolta.toFixed(2)})
+          </div>
+        )}
+
+      </div>
+
+    )}
+
+   </div>
+   </div>
+
+    {/* Bagagens */}
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 rounded-lg">
 
     <label className="flex flex-col text-lg font-bold">
       Quantidade de bagagens:
@@ -1195,12 +1308,29 @@ const [pdfFields, setPdfFields] = useState({});
       <input
         type="number"
         name="bagagemPrecoVolta"
-        value={flight.bagagemPrecoVolta}
+        value={flight.bagagemPrecoVolta || ""}
         onChange={handleChange}
         placeholder="Ex: 100,00"
         className="mt-1 p-2 rounded border text-center"
       />
     </label>
+
+
+     <label className="flex flex-col text-lg font-bold">
+      Tipo de bagagem:
+     <select
+      name="voltaTipoBagagens"
+      value={flight.voltaTipoBagagens}
+      onChange={handleChange}
+      className="mt-2 p-2 rounded border text-center">
+
+     <option className="bg-gray-400 text-gray-900 font-semibold text-lg" value="Sem bagagem">Sem bagagem</option>
+     <option className="bg-gray-400 text-gray-900 font-semibold text-lg" value="Bagagem de mão">Bagagem de mão</option>
+     <option className="bg-gray-400 text-gray-900 font-semibold text-lg" value="Bagagem despachada (23 kg)">Bagagem despachada (23 kg)</option>
+     <option className="bg-gray-400 text-gray-900 font-semibold text-lg" value="Item pessoal (mochila)">Item pessoal (mochila)</option>
+    </select>
+    </label>
+     </div>
 
     <div className="flex flex-col justify-center items-center text-lg font-bold">
       Total bagagens:
@@ -1209,7 +1339,7 @@ const [pdfFields, setPdfFields] = useState({});
       </span>
     </div>
 
-  </div>
+ 
 
   {/* Programa / Milhas - VOLTA */}
   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 rounded-lg">
@@ -1244,7 +1374,7 @@ const [pdfFields, setPdfFields] = useState({});
         type="number"
         step="1"
         name="milhasPorPassageiroVolta"
-        value={flight.milhasPorPassageiroVolta}
+        value={flight.milhasPorPassageiroVolta || ""}
         onChange={handleChange}
         placeholder="Ex: 200,00"
         className="mt-1 p-2 rounded border text-center"
@@ -1257,7 +1387,7 @@ const [pdfFields, setPdfFields] = useState({});
         type="number"
         step="0.01"
         name="precoMilheiroVolta"
-        value={flight.precoMilheiroVolta}
+        value={flight.precoMilheiroVolta || ""}
         onChange={handleChange}
         placeholder="Ex: 30,00"
         className="mt-1 p-2 rounded border text-center"
@@ -1266,7 +1396,7 @@ const [pdfFields, setPdfFields] = useState({});
 
   </div>
 
-  {/* TOTAL EM DESTAQUE */}
+  {/* Total (em destaque) */}
   <div className="p-4 rounded-lg flex flex-col items-center justify-center">
     <span className="text-lg font-bold">Total do trecho:</span>
 

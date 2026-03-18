@@ -1,33 +1,25 @@
-"use client";
+ "use client";
 
-import { useEffect, useState } from "react";
-import jsPDF from "jspdf";
-import { Button } from "../components/ui/button.jsx";
-import logo from "../../../public/logo.png";
+  // Importações
+  import { useEffect, useState } from "react";
+  import jsPDF from "jspdf";
+  import { Button } from "../components/ui/button.jsx";
+  import logo from "../../../public/logo.png";
+  import { useRouter } from "next/navigation";
 
 
   export default function ParcelamentoPage() {
-  // Taxas tabela
-  const taxas = [
-    { p: 1, link: 4.39, maquina: 3.26 },
-    { p: 2, link: 6.49, maquina: 5.70 },
-    { p: 3, link: 7.54, maquina: 6.52 },
-    { p: 4, link: 8.60, maquina: 7.36 },
-    { p: 5, link: 9.66, maquina: 8.20 },
-    { p: 6, link: 10.71, maquina: 9.03 },
-    { p: 7, link: 14.40, maquina: 9.88 },
-    { p: 8, link: 15.50, maquina: 10.73 },
-    { p: 9, link: 16.62, maquina: 11.59 },
-    { p: 10, link: 17.74, maquina: 12.44 },
-    { p: 11, link: 18.87, maquina: 13.30 },
-    { p: 12, link: 20.00, maquina: 14.16 },
-  ];
 
+  const router = useRouter();
+
+  // Use States
+  const [bancos, setBancos] = useState([]);
+  const [bancoSelecionado, setBancoSelecionado] = useState("");
+  const [taxas, setTaxas] = useState([]);
   const [metodo, setMetodo] = useState("link");
   const [parcelas, setParcelas] = useState(1);
   const [flight, setFlight] = useState(null);
   const [total, setTotal] = useState(0);
-
   const [nomeAgencia, setNomeAgencia] = useState("");
   const [telefoneAgencia, setTelefoneAgencia] = useState("");
   const [redesAgencia, setRedesAgencia] = useState("");
@@ -37,12 +29,12 @@ import logo from "../../../public/logo.png";
   const [pdfFields, setPdfFields] = useState({});
 
 
-
-  // Carrega flightData e valorTotal ao abrir
-
+  // Carregar dados iniciais
   useEffect(() => {
+
   const savedFlight = localStorage.getItem("flightData");
   const savedTotal = localStorage.getItem("valorTotal");
+  const savedTaxas = localStorage.getItem("parcelamentoTaxas");
 
   if (savedFlight) {
     try {
@@ -56,7 +48,24 @@ import logo from "../../../public/logo.png";
     setTotal(parseFloat(savedTotal));
   }
 
-  // CARREGAR CAMPOS DA AGÊNCIA
+  // Carregar bancos e taxas
+  if (savedTaxas) {
+
+    const bancosData = JSON.parse(savedTaxas);
+
+    setBancos(bancosData);
+  if (savedTaxas) {
+  const bancosData = JSON.parse(savedTaxas);
+  setBancos(bancosData);
+
+  // Começa sem banco selecionado
+  setBancoSelecionado("");
+  setTaxas([]);
+  }
+
+  }
+
+  // Dados da agência
   setNomeAgencia(localStorage.getItem("agencia_nome") || "");
   setTelefoneAgencia(localStorage.getItem("agencia_telefone") || "");
   setRedesAgencia(localStorage.getItem("agencia_redes") || "");
@@ -64,17 +73,47 @@ import logo from "../../../public/logo.png";
   setCnpj(localStorage.getItem("agencia_cnpj") || "");
   setCadastur(localStorage.getItem("agencia_cadastur") || "");
 
-  // CHECKBOXES (perfil)
   const savedFields = localStorage.getItem("agencia_pdf_fields");
+
   if (savedFields) {
     setPdfFields(JSON.parse(savedFields));
   }
-}, []);
+
+  }, []);
+
+  useEffect(() => {
+
+  if (!bancoSelecionado) {
+    setTaxas([]);
+    return;
+  }
+
+  const bancoAtual = bancos.find(
+    (b) => b.banco === bancoSelecionado
+  );
+
+  if (bancoAtual) {
+    setTaxas(bancoAtual.taxas);
+  }
+
+}, [bancoSelecionado, bancos]);
 
 
-    // calcula percentuais a partir das taxas
-  const taxaSelecionada = taxas.find((t) => t.p === parcelas);
-  const percentual = taxaSelecionada ? taxaSelecionada[metodo] : 0;
+  // Calcula percentuais a partir das taxas
+  const taxaSelecionada = taxas.find((t) => Number(t.parcelas) === parcelas);
+
+   let percentual = null;
+
+  if (
+  taxaSelecionada &&
+  taxaSelecionada[metodo] !== undefined &&
+  taxaSelecionada[metodo] !== "" &&
+  Number(taxaSelecionada[metodo]) > 0
+  ) {
+  percentual = Number(taxaSelecionada[metodo]);
+ }
+
+  const taxaNaoExiste = percentual === null;
   const valorComTaxa = total + (total * percentual) / 100;
   const valorParcela = parcelas > 0 ? valorComTaxa / parcelas : valorComTaxa;
 
@@ -92,89 +131,89 @@ import logo from "../../../public/logo.png";
   };
 
 
-
-
-  // função que calcula valores detalhados novamente (garante consistência)
-  const computeDetails = (f) => {
+  // Função que calcula valores detalhados novamente (garante consistência)
+    const computeDetails = (f) => {
     if (!f) return null;
-    const totalPax = Number(f.adultos || 0) + Number(f.criancas || 0);
 
-    // bagagens
-    const totalBagagemIda = Number(f.bagagemQuantidadeIda || 0) * Number(f.bagagemPrecoIda || 0);
-    const totalBagagemVolta = Number(f.bagagemQuantidadeVolta || 0) * Number(f.bagagemPrecoVolta || 0);
+  const totalPax = Number(f.adultos || 0) + Number(f.criancas || 0);
 
-    // airportRates same as on IdaVoltaPage (kept small reproduce)
-    const airportRates = [
-    
-  { code: "BEL", nacional: 25, internacional: 90 },
-  { code: "BSB", nacional: 35, internacional: 110 },
-  { code: "CDG", nacional: 0, internacional: 320 },
-  { code: "CGB", nacional: 20, internacional: 80 },
-  { code: "CGH", nacional: 60.62, internacional: 120 },
-  { code: "CNF", nacional: 33.56, internacional: 120 },
-  { code: "CWB", nacional: 25, internacional: 90 },
-  { code: "DXB", nacional: 0, internacional: 400 },
-  { code: "EZE", nacional: 0, internacional: 270 },
-  { code: "FLN", nacional: 20, internacional: 80 },
-  { code: "FOR", nacional: 56.88, internacional: 305.58 },
-  { code: "FRA", nacional: 0, internacional: 330 },
-  { code: "GIG", nacional: 40, internacional: 120 },
-  { code: "GRU", nacional: 33.64, internacional: 59.54 },
-  { code: "HND", nacional: 0, internacional: 380 },
-  { code: "IGU", nacional: 42.10, internacional: 120 },
-  { code: "JFK", nacional: 0, internacional: 300 },
-  { code: "JOI", nacional: 20, internacional: 80 },
-  { code: "LHR", nacional: 0, internacional: 350 },
-  { code: "MAD", nacional: 0, internacional: 310 },
-  { code: "MAO", nacional: 20, internacional: 80 },
-  { code: "MCZ", nacional: 20, internacional: 80 },
-  { code: "MIA", nacional: 0, internacional: 300 },
-  { code: "NAT", nacional: 46.20, internacional: 294.74 },
-  { code: "POA", nacional: 25, internacional: 90 },
-  { code: "REC", nacional: 30, internacional: 100 },
-  { code: "SDU", nacional: 30, internacional: 100 },
-  { code: "SFO", nacional: 0, internacional: 300 },
-  { code: "SIN", nacional: 0, internacional: 380 },
-  { code: "SSA", nacional: 30, internacional: 100 },
-  { code: "VCP", nacional: 40, internacional: 120 },
-  { code: "VIX", nacional: 20, internacional: 80 },
-  { code: "YYZ", nacional: 0, internacional: 290 }
+  const totalBagagemIda =
+    Number(f.bagagemQuantidadeIda || 0) *
+    Number(f.bagagemPrecoIda || 0);
 
-    ];
+  const totalBagagemVolta =
+    Number(f.bagagemQuantidadeVolta || 0) *
+    Number(f.bagagemPrecoVolta || 0);
 
-    const getAirportTax = (airportCode, manualValue, classificacao) => {
-      if (manualValue !== "" && manualValue !== null && typeof manualValue !== "undefined")
-        return parseFloat(manualValue) || 0;
-      const rate = airportRates.find((r) => r.code === (airportCode || "").toUpperCase());
-      if (!rate) return 0;
-      return classificacao === "Nacional" ? rate.nacional : rate.internacional;
-    };
+  // Pegar taxas salvas
+  const airportRates = JSON.parse(localStorage.getItem("airportRates")) || [];
 
-    const taxaIda = getAirportTax(f.idaAeroporto, f.idaTaxaManual, f.classificacao);
-    const taxaVolta = f.tipoviagem === "Ida e Volta" ? getAirportTax(f.voltaAeroporto, f.voltaTaxaManual, f.classificacao) : 0;
+  const getAirportTax = (airportCode, manualValue, classificacao) => {
+    if (manualValue !== "" && manualValue !== null && typeof manualValue !== "undefined")
+      return parseFloat(manualValue) || 0;
 
-    const valorMilhasIda = (Number(f.milhasPorPassageiroIda || 0)) * Number(f.precoMilheiroIda || 0) * totalPax;
-    const valorMilhasVolta = f.tipoviagem === "Ida e Volta" ? (Number(f.milhasPorPassageiroVolta || 0)) * Number(f.precoMilheiroVolta || 0) * totalPax : 0;
+    const rate = airportRates.find(
+      (r) => r.aeroporto === (airportCode || "").toUpperCase()
+    );
 
-    const totalIda = valorMilhasIda + Number(taxaIda || 0) + Number(totalBagagemIda || 0);
-    const totalVolta = f.tipoviagem === "Ida e Volta" ? valorMilhasVolta + Number(taxaVolta || 0) + Number(totalBagagemVolta || 0) : 0;
-    const totalGeral = totalIda + totalVolta;
+    if (!rate) return 0;
 
-    return {
-      totalPax,
-      totalBagagemIda,
-      totalBagagemVolta,
-      taxaIda,
-      taxaVolta,
-      valorMilhasIda,
-      valorMilhasVolta,
-      totalIda,
-      totalVolta,
-      totalGeral,
-    };
+    return classificacao === "Nacional"
+      ? Number(rate.nacional || 0)
+      : Number(rate.internacional || 0);
   };
 
-const gerarPDF = async () => {
+  const taxaIda = getAirportTax(
+    f.idaAeroporto,
+    f.idaTaxaManual,
+    f.classificacao
+  ) * totalPax; 
+
+  const taxaVolta =
+    f.tipoviagem === "Ida e Volta"
+      ? getAirportTax(
+          f.voltaAeroporto,
+          f.voltaTaxaManual,
+          f.classificacao
+        ) * totalPax
+      : 0;
+
+  const valorMilhasIda =
+    Number(f.milhasPorPassageiroIda || 0) *
+    Number(f.precoMilheiroIda || 0) *
+    totalPax;
+
+  const valorMilhasVolta =
+    f.tipoviagem === "Ida e Volta"
+      ? Number(f.milhasPorPassageiroVolta || 0) *
+        Number(f.precoMilheiroVolta || 0) *
+        totalPax
+      : 0;
+
+  const totalIda = valorMilhasIda + taxaIda + totalBagagemIda;
+  const totalVolta =
+    f.tipoviagem === "Ida e Volta"
+      ? valorMilhasVolta + taxaVolta + totalBagagemVolta
+      : 0;
+
+  const totalGeral = totalIda + totalVolta;
+
+  return {
+    totalPax,
+    totalBagagemIda,
+    totalBagagemVolta,
+    taxaIda,
+    taxaVolta,
+    valorMilhasIda,
+    valorMilhasVolta,
+    totalIda,
+    totalVolta,
+    totalGeral,
+  };
+ };
+
+  // PDF
+  const gerarPDF = async () => {
   try {
     const doc = new jsPDF({ unit: "pt", format: "a4" });
     const pageWidth = doc.internal.pageSize.getWidth();
@@ -201,9 +240,7 @@ const gerarPDF = async () => {
 
     const details = computeDetails(flight);
 
-    // =====================
-    // LOGO
-    // =====================
+    // Logo
      let logoBase64 = null;
 
      if (pdfFields.logo) {
@@ -217,9 +254,8 @@ const gerarPDF = async () => {
       y += h + 10;
     }
 
-    // =====================
-    // SERIAL
-    // =====================
+
+    // Serial
     const year = new Date().getFullYear();
     const key = `serie_pdf_${year}`;
     const stored = Number(localStorage.getItem(key)) || 999;
@@ -239,9 +275,7 @@ const gerarPDF = async () => {
 
     y += 10;
 
-    // =====================
-    // CONFIG PADRÃO
-    // =====================
+    // Config. padrão
     const FONT = "helvetica";
     const LABEL_WIDTH = 170;
     const LINE_GAP = 15;
@@ -274,9 +308,8 @@ const gerarPDF = async () => {
       y += LINE_GAP;
     };
 
-    // =====================
-    // TÍTULO PRINCIPAL
-    // =====================
+
+    // Título principal
     y += 10;
 
     doc.setFont(FONT, "bold");
@@ -287,9 +320,8 @@ const gerarPDF = async () => {
 
     y += SECTION_GAP;
 
-    // =====================
-    // INFO GERAIS
-    // =====================
+
+    // Info gerais
     title("Informações gerais do Voo");
 
     y += 5
@@ -300,10 +332,8 @@ const gerarPDF = async () => {
     writeLine("Crianças", flight.criancas);
     writeLine("Bebês", flight.bebes);
 
-    // =====================
-    // TRECHO: IDA
-    // =====================
 
+    // Trecho: Ida
     title("Trecho: IDA");
 
      y += 5
@@ -313,7 +343,7 @@ const gerarPDF = async () => {
     let escalasIdaTexto = "Voo direto";
 
     if (Number(flight.idaEscalas) === 1) {
-  escalasIdaTexto = formatarEscala(
+    escalasIdaTexto = formatarEscala(
     flight.idaEscala1Cidade,
     flight.idaEscala1Chegada,
     flight.idaEscala1Partida
@@ -347,9 +377,8 @@ const gerarPDF = async () => {
       `${flight.bagagemQuantidadeIda} x ${money(flight.bagagemPrecoIda)}`
     );
 
-    // =====================
-    // TRECHO: VOLTA (SE EXISTIR)
-    // =====================
+
+    // Trecho: Volta (se existir)
     if (flight.tipoviagem === "Ida e Volta") {
 
       title("Trecho: VOLTA");
@@ -399,9 +428,8 @@ const gerarPDF = async () => {
       );
     }
 
-    // =====================
-    // RESUMO
-    // =====================
+   
+    // Resumo
     title("Resumo financeiro");
 
     y += 5
@@ -410,10 +438,8 @@ const gerarPDF = async () => {
     writeLine("Parcelas", `${parcelas}x`);
     writeLine("Valor por Parcela (R$)", money(valorParcela));
 
-    // =====================
+   
     // OBS
-    // =====================
-
     y += 45
 
   doc.setFont(FONT, "bold");
@@ -469,27 +495,25 @@ if (pdfFields.cadastur && cadastur) {
   y += LINE_GAP;
 }
 
-    // =====================
-    // SALVAR
-    // =====================
+    // Salvar PDF
     const fileName = `informacoes.orcamento_${serialFormatted}.pdf`;
     doc.save(fileName);
 
-      // **Salvar histórico**
-    const historico = JSON.parse(localStorage.getItem("historicoCotacoes")) || [];
+    // Salvar histórico
+   const historico = JSON.parse(localStorage.getItem("historicoCotacoes")) || [];
 
     const registro = {
-  id: serialFormatted,
-  data: new Date().toLocaleString("pt-BR"),
-  classificacao: flight.classificacao,
-  tipo: flight.tipoviagem,
-  passageiros: details?.totalPax || 
+    id: serialFormatted,
+    data: new Date().toLocaleString("pt-BR"),
+    classificacao: flight.classificacao,
+    tipo: flight.tipoviagem,
+    passageiros: details?.totalPax || 
     Number(flight.adultos || 0) +
     Number(flight.criancas || 0) +
     Number(flight.bebes || 0),
-  total: Number(valorComTaxa || 0),
-  flightData: flight
- };
+    total: Number(valorComTaxa || 0),
+    flightData: flight
+    };
 
 
     historico.unshift(registro); 
@@ -500,9 +524,10 @@ if (pdfFields.cadastur && cadastur) {
   }
 };
 
-
+   // Página Percelamneto
   return (
-   <div className="p-10 w-full mx-auto rounded-xl space-y-5">
+
+ <div className="w-full mx-auto rounded-xl space-y-5">
   <h2 className="text-4xl font-extrabold text-center mb-15">Parcelamento</h2>
 
   <div className="p-6 w-full mx-auto space-y-8 rounded-xl shadow-lg">
@@ -515,75 +540,150 @@ if (pdfFields.cadastur && cadastur) {
     </div>
 
     <div className="space-y-4 mt-10">
-      <label className="text-xl font-semibold block">
-        Método de pagamento:
-      </label>
+  <label className="text-xl font-semibold block">
+    Banco:
+  </label>
 
-      <select
-        className="p-2 text-2xl font-extrabold rounded"
-        value={metodo}
-        onChange={(e) => setMetodo(e.target.value)}
+  <select
+    className="text-xl w-full p-2 font-extrabold rounded"
+    value={bancoSelecionado}
+    onChange={(e) => setBancoSelecionado(e.target.value)}
+  >
+
+    <option value="" className="bg-gray-400 mr-5 text-gray-900 text-lg font-bold">Escolher banco</option>
+    
+    {bancos.map((b) => (
+      <option
+        key={b.banco}
+        value={b.banco}
+        className="bg-gray-400 text-gray-900 text-lg font-bold"
       >
-        <option className="bg-gray-400 text-gray-900 text-lg font-bold" value="link">
-          Link
-        </option>
-        <option className="bg-gray-400 text-gray-900 text-lg font-bold" value="maquina">
-          Maquininha
-        </option>
-      </select>
-    </div>
+        {b.banco}
+      </option>
+    ))}
+  </select>
+   </div>
+
+   {bancoSelecionado && (
+
+    <>
 
     <div className="space-y-4 mt-10">
-      <label className="text-xl font-semibold block">
-        Parcelas:
-      </label>
+    <label className="text-xl font-semibold block">
+    Método de pagamento:
+    </label>
 
-      <select
-        className="p-2 text-2xl font-extrabold rounded"
-        value={parcelas}
-        onChange={(e) => setParcelas(Number(e.target.value))}
-      >
-        {taxas.map((t) => (
-          <option
-            className="bg-gray-400 text-gray-900 text-lg font-bold"
-            key={t.p}
-            value={t.p}
-          >
-            {t.p}x
-          </option>
-        ))}
-      </select>
-    </div>
+     <select
+     className="p-2 text-xl font-extrabold rounded"
+     value={metodo}
+     onChange={(e) => setMetodo(e.target.value)}>
 
-    <div className="border p-4 rounded space-y-8">
-      <div>
-        <p className="text-xl font-semibold">Taxa:</p>
-        <strong className="text-2xl font-extrabold block mt-1">
-          {percentual}%
-        </strong>
-      </div>
+    <option
+    className="bg-gray-400 text-gray-900 text-lg font-bold"
+    value="link">
+     Link
+    </option>
 
-      <div>
-        <p className="text-xl font-semibold">Total com taxa:</p>
-        <strong className="text-2xl font-extrabold block mt-1">
-          R$ {valorComTaxa.toFixed(2)}
-        </strong>
-      </div>
+   <option
+   className="bg-gray-400 text-gray-900 text-lg font-bold"
+   value="maquina">
+   Maquininha
+  </option>
 
-      <div>
-        <p className="text-xl font-semibold">Parcela escolhida:</p>
-        <strong className="text-2xl font-extrabold block mt-1">
-          R$ {valorParcela.toFixed(2)}
-        </strong>
-      </div>
-    </div>
+  </select>
+   </div>
 
+   <div className="space-y-4 mt-10">
+
+  <label className="text-xl font-semibold block">
+   Parcelas:
+   </label>
+
+   <select
+   className="p-2 text-xl font-extrabold rounded"
+   value={parcelas}
+   onChange={(e) => setParcelas(Number(e.target.value))}
+   >
+
+  {taxas.map((t) => (
+
+   <option
+   key={t.parcelas}
+   value={t.parcelas}
+   className="bg-gray-400 text-gray-900 text-lg font-bold">
+  {t.parcelas}x
+  </option>
+
+  ))}
+
+  </select>
   </div>
 
-  <Button className="mt-10 p-7" onClick={gerarPDF}>
-    <p className="font-extrabold text-xl">Gerar PDF</p>
+   <div className="border p-2 rounded space-y-8">
+
+    {taxaNaoExiste ? (
+
+  <div>
+  <p className="text-xl font-semibold m-2">Taxa não cadastrada para esse banco</p>
+
+  <Button 
+   onClick={() => router.push("/taxas.parcelamento")}
+   className="text-lg p-8 mb-2 w-full font-extrabold">
+   Clique aqui <br></br> e cadastre
   </Button>
   </div>
 
-  );
-}
+  ) : (
+
+    <>
+
+  <div className="ml-2 mt-2">
+  <p className="text-xl font-semibold">Taxa:</p>
+
+  <strong className="text-2xl font-extrabold block mt-1">
+  {percentual}%
+  </strong>
+  </div>
+
+    <div className="ml-2">
+    <p className="text-xl font-semibold">Total com taxa:</p>
+
+  <strong className="text-2xl font-extrabold block mt-1">
+  R$ {valorComTaxa.toFixed(2)}
+  </strong>
+  </div>
+
+  <div className="ml-2 mb-2">
+  <p className="text-xl font-semibold">
+  Valor por parcela:
+  </p>
+
+  <strong className="text-2xl font-extrabold block mt-1">
+  R$ {valorParcela.toFixed(2)}
+  </strong>
+  </div>
+
+  </>
+
+  )}
+
+  </div>
+
+
+ {!taxaNaoExiste && (
+  <Button 
+    className="mt-10 p-7"
+    onClick={gerarPDF}
+  >
+    <p className="font-extrabold text-xl">Gerar PDF</p>
+  </Button>
+ )}
+
+  </>
+
+ )}
+
+ </div>
+ </div>
+
+  )};

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "../components/ui/button";
-import { Separator } from "../components/ui/separator";
 import { SidebarTrigger } from "../components/ui/sidebar";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
@@ -37,7 +36,7 @@ export function SiteHeader() {
   {/* Área central */}
    <div className="flex-1 flex justify-center">
   <Link href="/" className="m-5 text-center leading-tight">
-    <h1 className="text-5xl font-extrabold">
+    <h1 className="text-2xl sm:text-5xl font-extrabold">
       <span className="block mr-25">.Sky</span>
       <span className="block ml-10">Counter.</span>
     </h1>

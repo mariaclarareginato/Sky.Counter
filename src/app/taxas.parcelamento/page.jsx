@@ -5,21 +5,28 @@
    import { Button } from "../components/ui/button.jsx";
    import { Pencil, Trash2 } from "lucide-react";
 
-  export default function TaxasParcelamentoPage() {
+   export default function TaxasParcelamentoPage() {
 
-  const [banco, setBanco] = useState("");
-  const [parcelaSelecionada, setParcelaSelecionada] = useState(0);
+   const [banco, setBanco] = useState("");
+   const [busca, setBusca] = useState("");
+   const [parcelaSelecionada, setParcelaSelecionada] = useState(0);
 
-  const [taxas, setTaxas] = useState(
-  Array.from({ length: 24 }, (_, i) => ({
-  parcelas: i + 1,
-  link: "",
-  maquina: ""
+   const [taxas, setTaxas] = useState(
+   Array.from({ length: 24 }, (_, i) => ({
+   parcelas: i + 1,
+   link: "",
+   maquina: ""
    }))
    );
 
   const [listaBancos, setListaBancos] = useState([]);
   const [editIndex, setEditIndex] = useState(null);
+
+
+  // Busca bancos
+  const bancosFiltrados = listaBancos.filter((b) =>
+  b.banco.toLowerCase().includes(busca.toLowerCase())
+  );
 
   useEffect(() => {
 
@@ -136,13 +143,18 @@
    Taxas de Parcelamento
    </h1>
 
+      <p className="text-center text-lg font-semibold">
+        Cadastre ou edite as taxas de cada banco para parcelamentos do preço total das cotações.
+      </p>
+
+
 
   {/* Banco */}
 
    <div className="space-y-3">
 
-   <label className="font-extrabold text-lg">
-   Banco / Operadora
+   <label className="font-bold text-lg">
+   Banco
    </label>
 
   <input
@@ -244,18 +256,29 @@
   Bancos cadastrados
   </h2>
 
+   {listaBancos.length  >=  4 && (
+   <input
+    type="text"
+    placeholder="Pesquisar banco (Ex: Itaú)"
+    value={busca}
+    onChange={(e) => setBusca(e.target.value)}
+    className="border p-2 rounded w-full text-m font-bold"
+   />
+   )}
 
    {listaBancos.length === 0 && (
-   <p className="text-lg font-semibold">
+   <p className="text-lg text-center font-semibold">
     Nenhum banco cadastrado ainda.
    </p>
    )}
 
 
-   {listaBancos.map((b, i)=>(
+   {bancosFiltrados.map((b, i)=>(
+    
+
    <div
    key={i}
-   className="flex flex-col sm:flex-row sm:justify-between sm:items-center border p-4 rounded gap-3"
+   className="flex flex-col sm:flex-row sm:justify-between sm:items-center shadow-sm p-4 rounded gap-3"
    >
 
    <span className="font-bold text-lg">

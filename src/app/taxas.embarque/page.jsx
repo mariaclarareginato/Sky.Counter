@@ -7,12 +7,19 @@ import { Pencil, Trash2 } from "lucide-react";
 
 export default function TaxasAeroportos() {
 
-  // Use States
+   // Use States
   const [airportRates, setAirportRates] = useState([]);
   const [aeroporto, setAeroporto] = useState("");
   const [nacional, setNacional] = useState("");
   const [internacional, setInternacional] = useState("");
   const [editingAeroporto, setEditingAeroporto] = useState(null);
+  const [busca, setBusca] = useState("");
+
+  // Buscar taxas
+  const taxasFiltradas = airportRates.filter((a) =>
+  a.aeroporto.toUpperCase().includes(busca.toUpperCase())
+  );
+
 
   // Carregar taxas salvas
   useEffect(() => {
@@ -137,7 +144,28 @@ export default function TaxasAeroportos() {
       {/* Lista */}
       <div className="space-y-4">
 
-        {airportRates.map((a, i) => (
+
+   <h2 className="text-2xl font-bold">
+   Taxas de embarque cadastradas
+   </h2>
+
+    {airportRates.length  >=  4 && (
+  <input
+  type="text"
+  placeholder={"Pesquisar taxa (Ex: FOR)"}
+  value={busca}
+  onChange={(e) => setBusca(e.target.value)}
+  className="border p-2 rounded w-full text-m font-bold"
+   />
+   )}
+
+   {airportRates.length === 0 && (
+   <p className="text-lg text-center font-semibold">
+    Nenhuma taxa de embarque cadastrada ainda.
+   </p>
+   )}
+
+        {taxasFiltradas.map((a, i) => (
 
           <div
             key={(a.aeroporto || "item") + i}

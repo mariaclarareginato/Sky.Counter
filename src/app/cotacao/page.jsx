@@ -216,9 +216,8 @@
     try {
       localStorage.setItem("flightData", JSON.stringify(flight));
     } catch (e) {
-      // ignore
     }
-  }, [flight, loaded]);
+    }, [flight, loaded]);
 
 
     // Helpers para o PDF
@@ -293,20 +292,20 @@
     }
 
     // Título
-    y += 18;
+    y += 15;
     doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
+    y += 15;
     doc.text("Orçamento e Informações da Viagem", pageWidth / 2, y, { align: "center" });
-    y += 8;
+    y += 15;
 
-     // Função padrão para escrita organizada 
-     const separator = () => {
-    
+    // Função padrão para escrita organizada 
+    const separator = () => {
     doc.setDrawColor(185);
     doc.setLineWidth(0.4);
     doc.line(margin, y, pageWidth - margin, y);
     y += 15;
-   };
+    };
      const write = (label, value) => {
       const labelX = margin;
       const valueX = margin + 150;
@@ -329,11 +328,13 @@
     };
 
     // Dados gerais
-    separator ();
+     y += 10;
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
-    doc.text("Informações gerais do Voo", margin, y);
-    y += 18;
+    doc.text("Informações gerais do voo", margin, y);
+    y += 10;
+    separator();
+    y += 5;
 
     write("Classificação", flight.classificacao);
     write("Tipo de viagem", flight.tipoviagem);
@@ -341,19 +342,20 @@
     write("Adultos", flight.adultos);
     write("Crianças", flight.criancas);
     write("Bebês", flight.bebes);
-
-    y += 10;
+    
 
     // IDA
-    separator();
+    y += 5;
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
     doc.text("Trecho: IDA", margin, y);
-    y += 18;
+    y += 10;
+    separator();
+    y += 5;
 
     write("Data", flight.idaData ? flight.idaData.split("-").reverse().join("/") : "-");
 
-      let escalasIdaTexto = "Voo direto";
+    let escalasIdaTexto = "Voo direto";
 
     if (Number(flight.idaEscalas) === 1) {
     escalasIdaTexto = formatarEscala(
@@ -364,7 +366,7 @@
     }
 
     if (Number(flight.idaEscalas) === 2) {
-  escalasIdaTexto =
+   escalasIdaTexto =
     formatarEscala(
       flight.idaEscala1Cidade,
       flight.idaEscala1Chegada,
@@ -385,26 +387,29 @@
     write("Aeroporto de origem", flight.idaAeroporto?.toUpperCase());
     write("Escalas", escalasIdaTexto);
     write("Aeroporto de destino", flight.idaChegadaAeroporto?.toUpperCase());
-    write("Taxa de embarque (R$)", Number(taxaIdaTotal || 0).toFixed(2));
+    write("Taxas", `R$ ${Number(taxaIdaTotal || 0).toFixed(2)}`);
     write("Bagagens", `${flight.bagagemQuantidadeIda} x R$ ${Number(flight.bagagemPrecoIda || 0).toFixed(2)} =  R$ ${Number(totalBagagemIda || 0).toFixed(2)}  || ${flight.idaTipoBagagens}`);
-    write("Preço da passagem (R$)", valorMilhasIda.toFixed(2));
-    write("Total (R$)", totalIda.toFixed(2));
+    
+
 
     // VOLTA
     if (flight.tipoviagem === "Ida e Volta") {
 
-      separator();
+     
+       y += 5;
       doc.setFont("helvetica", "bold");
       doc.setFontSize(12);
       doc.text("Trecho: VOLTA", margin, y);
-      y += 18;
+      y += 10;
+      separator();
+      y += 5;
 
       write("Data", flight.voltaData ? flight.voltaData.split("-").reverse().join("/") : "-");
 
-         let escalasVoltaTexto = "Voo direto";
+    let escalasVoltaTexto = "Voo direto";
 
     if (Number(flight.voltaEscalas) === 1) {
-  escalasVoltaTexto = formatarEscala(
+    escalasVoltaTexto = formatarEscala(
     flight.voltaEscala1Cidade,
     flight.voltaEscala1Chegada,
     flight.voltaEscala1Partida
@@ -433,42 +438,42 @@
       write("Aeroporto de origem", flight.voltaAeroporto?.toUpperCase());
       write("Escalas", escalasVoltaTexto);
       write("Aeroporto de destino", flight.voltaChegadaAeroporto?.toUpperCase());
-      write("Taxa de embarque (R$)", Number(taxaVoltaTotal || 0).toFixed(2));
-      write("Bagagens", `${flight.bagagemQuantidadeVolta} x  x R$ ${Number(flight.bagagemPrecoVolta || 0).toFixed(2)} =  R$ ${totalBagagemVolta}  || ${flight.voltaTipoBagagens}`);
-      write("Preço da passagem (R$)", valorMilhasVolta.toFixed(2));
-      write("Total (R$)", totalVolta.toFixed(2));
+      write("Taxas", `R$ ${Number(taxaVoltaTotal || 0).toFixed(2)}`);
+      write("Bagagens", `${flight.bagagemQuantidadeVolta} x R$ ${Number(flight.bagagemPrecoVolta || 0).toFixed(2)} =  R$ ${Number(totalBagagemVolta || 0).toFixed(2)}  || ${flight.voltaTipoBagagens}`);
     }
+    
 
     // Total geral
-
-     y += 10;
-
-    doc.setFontSize(13);
+    separator();
+    y += 5;
+    doc.setFontSize(15);
     doc.setFont("helvetica", "bold");
     doc.text(`TOTAL GERAL: R$ ${totalGeral.toFixed(2)}`, pageWidth / 2, y, { align: "center" });
+    y += 10;
+    separator();
 
-    y += 25;
-
-  doc.setFont("helvetica", "bold");
+  // OBS
+     y += 5;
+    doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
-    doc.text("Atenção: Nenhuma emissão foi efetuada até o momento. Este documento é apenas um orçamento.", pageWidth / 2, y, {
+    doc.text("Atenção: nenhuma emissão foi efetuada até o momento. Este documento é apenas um orçamento.", pageWidth / 2, y, {
       align: "center",
     });
 
-    // Observações
-    y += 14;
-    doc.setFontSize(8.5);
+    y += 25;
+
+    doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
-    const obs = "Aviso importante sobre preços dinâmicos: Os valores apresentados neste orçamento estão sujeitos à variação de acordo com disponibilidade, demanda, políticas das companhias aéreas e hotéis, além de possíveis alterações cambiais. Como se tratam de preços dinâmicos, o valor final somente será confirmado no momento da emissão da passagem aérea ou da reserva da hospedagem. Recomenda-se confirmar a compra o quanto antes para garantir as tarifas informadas.";
+    const obs = "Aviso importante sobre preços dinâmicos: os valores apresentados neste orçamento estão sujeitos à variação de acordo com disponibilidade, demanda, políticas das companhias aéreas e hotéis, além de possíveis alterações cambiais. Como se tratam de preços dinâmicos, o valor final somente será confirmado no momento da emissão da passagem aérea ou da reserva da hospedagem. Recomenda-se confirmar a compra o quanto antes para garantir as tarifas informadas.";
     const obsLines = doc.splitTextToSize(obs, pageWidth - margin * 2);
     doc.text(obsLines, margin, y);
 
     
-     y += 45;
+     y += 65;
 
     const agenciaInfo = [];
 
-    if (pdfFields.nome && nomeAgencia) {
+   if (pdfFields.nome && nomeAgencia) {
   agenciaInfo.push(`Agência: ${nomeAgencia}`);
    }
 
@@ -501,7 +506,7 @@
   doc.text(textoFinal, x, y);
 
   y += 10;
-}
+  }
 
 
 
@@ -534,7 +539,7 @@
   return (
 
 
-    <div className="max-w-4xl  space-y-8">
+    <div className="max-w-4xl mx-auto space-y-8">
         
       <style jsx>{`
         /* Remove as setas dos inputs numéricos */
@@ -549,8 +554,8 @@
       `}</style>
 
       {/* Passageiros e Trecho */}
-      <div>
-      <h1 className="text-4xl font-extrabold text-center mb-10">Orçamento de Viagem</h1>
+      <div className="flex items-center">
+      <h1 className="text-4xl w-full font-extrabold text-center w-full mb-10">Orçamento de Viagem</h1>
     </div>
 
     <div className= "rounded-xl shadow-md space-y-6">
@@ -871,7 +876,7 @@
 
     {!flight.idaAeroporto ? (
 
-      <div className="text-lg mt-2 font-medium">
+      <div className="text-lg mt-2 font-semibold">
         Informe o aeroporto para calcular a taxa
       </div>
 
@@ -1244,11 +1249,11 @@
 
     {!flight.voltaAeroporto ? (
 
-      <div className="text-lg mt-2 font-medium">
+      <div className="text-lg mt-2 font-semibold">
         Informe o aeroporto para calcular a taxa
       </div>
 
-    ) : taxaIda === 0 ? (
+    ) : taxaVolta === 0 ? (
 
       <div className="mt-2 text-xl font-bold">
 

@@ -1,102 +1,247 @@
 "use client";
-
+import { Button } from "../components/ui/button";
 import { useEffect, useState } from "react";
-import { Button } from "@/app/components/ui/button";
+import { useRouter } from "next/navigation";
 
-export default function HistoricoPage() {
+export default function HistoricoCotacoes() {
   const [historico, setHistorico] = useState([]);
+  const [mostrarFavoritos, setMostrarFavoritos] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
-    try {
-      const salvo = localStorage.getItem("historicoCotacoes");
-      const data = salvo ? JSON.parse(salvo) : [];
-
-      // Garante que esteja ordenado do mais recente pro mais antigo
-      const ordenado = data.sort((a, b) => {
-        return new Date(b.data) - new Date(a.data);
-      });
-
-      setHistorico(ordenado);
-    } catch (e) {
-      console.error("Erro ao carregar histórico:", e);
-      setHistorico([]);
-    }
+    const data = JSON.parse(localStorage.getItem("historicoCotacoes")) || [];
+    setHistorico(data);
   }, []);
 
-  const excluir = (id) => {
-    if (!confirm("Deseja realmente excluir esta cotação?")) return;
+  const formatMoney = (value) =>
+    `R$ ${Number(value || 0).toFixed(2)}`;
 
-    const novo = historico.filter((h) => h.id !== id);
+  const formatarData = (data) => {
+    if (!data) return "-";
+    return data.split("-").reverse().join("/");
+  };
+
+  const totalVendido = historico.reduce(
+    (acc, item) => acc + Number(item.total || 0),
+    0
+  );
+
+  const toggleFavorito = (id) => {
+    const novo = historico.map((item) =>
+      item.id === id
+        ? { ...item, favorito: !item.favorito }
+        : item
+    );
+
     setHistorico(novo);
     localStorage.setItem("historicoCotacoes", JSON.stringify(novo));
   };
 
-  const reabrirCotacao = (flightData) => {
-    localStorage.setItem("flightData", JSON.stringify(flightData));
-    window.location.href = "/cotacao";
+  const limparHistorico = () => {
+    if (!confirm("Tem certeza que deseja apagar todo o histórico?")) return;
+
+    localStorage.removeItem("historicoCotacoes");
+    setHistorico([]);
   };
 
-  const formatarTotal = (valor) => {
-    return Number(valor || 0).toFixed(2);
-  };
+  const listaFiltrada = mostrarFavoritos
+    ? historico.filter((item) => item.favorito)
+    : historico;
 
-  return (
-    <div className="max-w-5xl mx-auto space-y-6">
-      <h1 className="text-4xl font-extrabold text-center">
+  const renderEscalas = (f, tipo) => {
+    const escalas = Number(f[`${tipo}Escalas`]);
+
+    if (!escalas || escalas === 0) return "Voo direto";
+
+    const lista = [];
+
+    for (let i = 1; i <= escalas; i++) {
+      const cidade = f[`${tipo}Escala${i}Cidade`];
+      const chegada = f[`${tipo}Escala${i}Chegada`];
+      const partida = f[`${tipo}Escala${i}Partida`];
+
+      if (cidade) {
+        lista.push(
+          `${cidade.toUpperCase()} (${chegada} - ${partida})`
+        );
+      }
+    }
+
+   
+
+    return lista.join(" • ");
+     };
+
+     return (
+    <div className="p-6 max-w-6xl mx-auto">
+      <h1 className="text-3xl font-extrabold mb-6 text-center">
         Histórico de Cotações
       </h1>
 
-      <p className="mt-10 text-xl font-bold text-center">
-        A cotação só é salva depois da geração do PDF da mesma.
-      </p>
+      {historico.length > 0 && (
+        <div className="flex justify-between mb-4">
+          <Button
+            onClick={() => setMostrarFavoritos(!mostrarFavoritos)}
+            className="px-4 py-2 rounded-lg text-lg font-bold"
+          >
+            {mostrarFavoritos ? "Mostrar todas" : "Só favoritas"}
+          </Button>
 
-      {historico.length === 0 && (
-        <div className="p-6 max-w-4xl mx-auto space-y-8 rounded-xl shadow-lg">
-          <p className="text-center m-10 font-extrabold text-3xl">
-            Nenhuma cotação salva.
-          </p>
+          <Button
+            onClick={limparHistorico}
+             variant="destructive"
+            className="px-4 py-2 rounded-lg text-lg font-bold"
+          >
+            Limpar histórico
+          </Button>
         </div>
       )}
 
-      <div className="space-y-4">
-        {historico.map((item) => (
-          <div
-            key={item.id}
-            className="p-4 rounded-xl shadow flex flex-col md:flex-row md:items-center md:justify-between gap-4"
-          >
-            <div>
-              <p className="font-bold text-3xl">Cotação #{item.id}</p>
+      {listaFiltrada.length === 0 ? (
+        <p className="text-center font-semibold text-xl mt-20">
+          {mostrarFavoritos
+            ? "Nenhuma cotação favoritada"
+            : "Nenhuma cotação encontrada"}
+        </p>
+      ) : (
+        <>
+          <div className="grid gap-5">
+            {listaFiltrada.map((item) => {
+              const f = item.flightData;
 
-              <p className="text-lg mt-2">Data: {item.data}</p>
+               const renderBagagem = (f, tipo) => {
+    const isIda = tipo === "Ida";
 
-              <p className="text-lg">
-                {item.classificacao} • {item.tipo}
-              </p>
+    const qtd = Number(
+    f?.[isIda ? "bagagemQuantidadeIda" : "bagagemQuantidadeVolta"] || 0
+    );
 
-              <p className="text-lg">
-                Passageiros: {item.passageiros}
-              </p>
+   const tipoBag = f?.[
+    isIda ? "idaTipoBagagens" : "voltaTipoBagagens"
+   ];
 
-              <p className="font-extrabold text-2xl mt-3">
-                R$ {formatarTotal(item.total)}
-              </p>
-            </div>
+   if (!qtd) return "Sem bagagem";
 
-            <div className="flex gap-2">
-              <Button onClick={() => reabrirCotacao(item.flightData)}>
-                <p className="text-lg font-bold">Reabrir</p>
-              </Button>
+   return `${qtd} ${qtd > 1 ? "bagagens" : "bagagem"} • ${
+    tipoBag || "-"
+    }`;
+    };
 
-              <Button
-                variant="destructive"
-                onClick={() => excluir(item.id)}
-              >
-                <p className="text-lg font-bold">Excluir</p>
-              </Button>
-            </div>
+              return (
+                <div
+                  key={item.id}
+                  className="p-6 rounded-2xl shadow-lg space-y-4"
+                >
+                  {/* HEADER */}
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-xl">#{item.id}</span>
+
+                      <span
+                        className={`cursor-pointer text-xl ${
+                          item.favorito ? "text-blue-700" : "text-black-300"
+                        }`}
+                        onClick={() => toggleFavorito(item.id)}
+                      >
+                        ★
+                      </span>
+                    </div>
+                  </div>
+
+                   <div>
+                   <p className="font-semibold text-m">{item.classificacao} || {item.passageiros} Passageiros</p>
+                    </div>
+
+                  {/* IDA */}
+                  <div className="p-4 rounded-xl">
+                    <p className="text-m mb-1">IDA</p>
+
+                    <p className="font-bold text-lg">
+                      {f?.idaAeroporto?.toUpperCase()} → {f?.idaChegadaAeroporto?.toUpperCase()}
+                    </p>
+
+                    <p className="text-m">
+                      {formatarData(f?.idaData)} | das {f?.idaEmbarqueHora} ás {f?.idaChegadaHora}
+                    </p>
+
+                    <p className="text-m mt-2"> Escalas: {renderEscalas(f, "ida")}</p>
+                    <p className="text-m mt-1">{renderBagagem(f, "Ida")}</p>
+                  </div>
+
+
+
+                  {/* VOLTA */}
+                  {f?.tipoviagem === "Ida e Volta" && (
+                    <div className="p-4 rounded-xl">
+                      <p className="text-m mb-1">VOLTA</p>
+
+                      <p className="font-bold text-lg">
+                        {f?.voltaAeroporto?.toUpperCase()} → {f?.voltaChegadaAeroporto?.toUpperCase()}
+                      </p>
+
+                      <p className="text-m">
+                        {formatarData(f?.voltaData)} | das {f?.voltaEmbarqueHora} ás {f?.voltaChegadaHora}
+                      </p>
+
+                      <p className="text-m mt-2">Escalas: {renderEscalas(f, "volta")} </p>
+                      <p className="text-m mt-1">{renderBagagem(f, "Volta")}</p>
+                    </div>
+                  )}
+
+                  {/* INFO EXTRA */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    <div>
+                      <p className="font-semibold text-m">Tipo</p>
+                      <p className="font-bold text-lg">{item.tipo}</p>
+                    </div>
+
+                  
+                    <div>
+                      <p className="font-semibold text-m">Classe</p>
+                      <p className="font-bold text-lg">{item.flightData.classe}</p>
+                    </div>
+
+                    <div>
+                      <p className="font-semibold text-m">Total</p>
+                      <p className="font-bold text-lg">
+                        {formatMoney(item.total)}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* ACTIONS */}
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      className="px-4 py-2 text-lg font-semibold rounded-lg"
+                   onClick={() => {
+                   localStorage.setItem("flightData", JSON.stringify(item.flightData) );
+                   router.push("/cotacao");
+                    }}   
+                    >
+                      Reabrir
+                    </Button>
+
+                    <Button
+                      variant="destructive"
+                      className="px-4 py-2 text-lg font-semibold rounded-lg"
+                      onClick={() => {
+                        const novo = historico.filter((h) => h.id !== item.id);
+                        setHistorico(novo);
+                        localStorage.setItem(
+                          "historicoCotacoes",
+                          JSON.stringify(novo)
+                        );
+                      }}
+                    >
+                      Excluir
+                    </Button>
+                  </div>
+                </div>
+              );
+            })}
           </div>
-        ))}
+         </>
+        )}
       </div>
-    </div>
-  );
-}
+      );
+      }

@@ -139,9 +139,9 @@
 
    <div className="space-y-8">
 
-   <h1 className="text-4xl font-extrabold text-center">
-   Taxas de Parcelamento
-   </h1>
+    <h1 className="text-4xl font-extrabold text-center">
+    Taxas de Parcelamento
+    </h1>
 
       <p className="text-center text-lg font-semibold">
         Cadastre ou edite as taxas de cada banco para parcelamentos do preço total das cotações.
@@ -160,7 +160,7 @@
   <input
   type="text"
   value={banco}
-  placeholder="Ex: Itaú"
+  placeholder="EX: Itaú"
   onChange={(e)=>setBanco(e.target.value)}
   className="border text-base text-lg font-semibold p-2 mt-5 rounded w-full"
   />
@@ -209,7 +209,7 @@
    type="number"
    step="0.01"
    value={taxas[parcelaSelecionada].link}
-   placeholder="Ex: 4.77"
+   placeholder="EX: 4.77"
    onChange={(e)=>handleChange(parcelaSelecionada,"link",e.target.value)}
    className="border mt-3 rounded-md px-2 py-2 w-full text-lg text-center font-semibold"
    />
@@ -226,7 +226,7 @@
   type="number"
   step="0.01"
   value={taxas[parcelaSelecionada].maquina}
-  placeholder="Ex: 3.57"
+  placeholder="EX: 3.57"
   onChange={(e)=>handleChange(parcelaSelecionada,"maquina",e.target.value)}
   className="border mt-3 rounded-md px-2 py-2 w-full text-lg text-center font-semibold"
   />
@@ -238,7 +238,6 @@
   </div>
 
   {/* Botão salvar */}
-
   <Button
   className="w-full p-6 text-xl font-bold"
   onClick={salvarBanco}
@@ -259,7 +258,7 @@
    {listaBancos.length  >=  4 && (
    <input
     type="text"
-    placeholder="Pesquisar banco (Ex: Itaú)"
+    placeholder="Pesquisar banco (EX: Itaú)"
     value={busca}
     onChange={(e) => setBusca(e.target.value)}
     className="border p-2 rounded w-full text-m font-bold"
@@ -287,11 +286,10 @@
 
      <div className="flex gap-2">
 
-  <Button
-  onClick={()=>editarBanco(i)}
-  >
-  <Pencil size={16}/>
-  </Button>
+   <Button
+   onClick={()=>editarBanco(i)}>
+   <Pencil size={16}/>
+   </Button>
 
   <Button
   variant="destructive"

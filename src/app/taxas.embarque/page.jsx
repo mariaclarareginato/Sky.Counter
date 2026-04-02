@@ -95,9 +95,8 @@ export default function TaxasAeroportos() {
 
   };
 
-  return (
-
-    <div className="max-w-3xl mx-auto space-y-8">
+     return (
+     <div className="max-w-3xl mx-auto space-y-8">
 
       <h1 className="text-4xl font-extrabold text-center">
         Cadastro das Taxas de Embarque dos Aeroportos
@@ -111,21 +110,21 @@ export default function TaxasAeroportos() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
         <input
-          placeholder="Aeroporto (Ex: GRU)"
+          placeholder="Aeroporto (EX: GRU)"
           value={aeroporto || ""}
           maxLength={3}
           onChange={(e)=>setAeroporto(e.target.value.toUpperCase())}
           className="uppercase w-full p-2 text-sm font-semibold rounded-lg border"/>
 
         <input
-          placeholder="Nacional (Ex: 3.65)"
+          placeholder="Nacional (EX: 3.65)"
           type="number"
           value={nacional || ""}
           onChange={(e)=>setNacional(e.target.value)}
           className="uppercase w-full p-2 text-sm font-semibold rounded-xl border"/>
 
         <input
-          placeholder="Internacional (Ex: 5.20)"
+          placeholder="Internacional (EX: 5.20)"
           type="number"
           value={internacional || ""}
           onChange={(e)=>setInternacional(e.target.value)}
@@ -150,23 +149,22 @@ export default function TaxasAeroportos() {
    </h2>
 
     {airportRates.length  >=  4 && (
-  <input
-  type="text"
-  placeholder={"Pesquisar taxa (Ex: FOR)"}
-  value={busca}
-  onChange={(e) => setBusca(e.target.value)}
-  className="border p-2 rounded w-full text-m font-bold"
-   />
-   )}
+    <input
+    type="text"
+    placeholder={"Pesquisar taxa (EX: FOR)"}
+    value={busca}
+    onChange={(e) => setBusca(e.target.value)}
+    className="border p-2 rounded w-full text-m font-bold uppercase"
+    />
+    )}
 
-   {airportRates.length === 0 && (
-   <p className="text-lg text-center font-semibold">
-    Nenhuma taxa de embarque cadastrada ainda.
-   </p>
-   )}
+     {airportRates.length === 0 && (
+      <p className="text-lg text-center font-semibold">
+      Nenhuma taxa de embarque cadastrada ainda.
+     </p>
+      )}
 
         {taxasFiltradas.map((a, i) => (
-
           <div
             key={(a.aeroporto || "item") + i}
             className="shadow-lg rounded-xl p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4"

@@ -83,7 +83,7 @@
         Histórico de Cotações
       </h1>
 
-        <p className="text-m m-5 font-semibold text-center">O histórico só é ativado depois da geração do PDF da cotação.</p>
+        <p className="text-m m-5 font-semibold text-lg text-center">O histórico só é ativado depois da geração do PDF da cotação.</p>
 
       {historico.length > 0 && (
         <div className="flex flex-wrap gap-3 justify-center sm:justify-start">

@@ -154,7 +154,7 @@
 
   // Taxa do aeroporto
   // Troque a função getTaxa por esta:
-const getTaxa = (code) => {
+  const getTaxa = (code) => {
   if (!code) return 0;
 
   // Lê sempre direto do localStorage para garantir dados atualizados
@@ -498,7 +498,7 @@ const getTaxa = (code) => {
          
    return (
 
-       <div className="max-w-4xl  space-y-8">
+       <div className="w-full space-y-8">
         
       <style jsx>{`
         /* Remove as setas dos inputs numéricos */
@@ -512,14 +512,14 @@ const getTaxa = (code) => {
         }
       `}</style>
     
-    <div className="max-w-5xl mx-auto p-6 space-y-8">
+    <div className="w-full p-6 space-y-8">
 
       <h1 className="text-4xl font-extrabold text-center">
         Sistema de Orçamentos
       </h1>
 
       {/* Infos. gerais */}
-          <div className= "rounded-xl shadow-md p-5 space-y-6">
+          <div className= "rounded-xl w-full shadow-md p-5 space-y-6">
         
           <h2 className="text-2xl font-extrabold text-center">
           Informações gerais

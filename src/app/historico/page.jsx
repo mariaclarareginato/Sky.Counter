@@ -102,7 +102,7 @@
             Limpar histórico
           </Button>
         </div>
-      )}
+       )}
 
       {listaFiltrada.length === 0 ? (
         <p className="text-center font-semibold text-xl mt-20">
@@ -143,9 +143,13 @@
                 {/* TRECHOS */}
                 {f?.trechos?.slice(0, item.qtdVoos || f?.trechos.length).map((t, index) => (
                   <div key={index} className="p-4 rounded-xl border">
-                    <p className="font-bold text-lg mb-1">
-                      Voo {index + 1}
-                    </p>
+                  <p className="font-bold text-lg mb-1">
+                    {item.qtdVoos === 1
+                    ? "Voo - Ida"
+                    : item.qtdVoos === 2
+                    ? index === 0 ? "Voo - Ida" : "Voo - Volta"
+                    : `Voo ${index + 1}`}
+                  </p>
 
                     <p className="text-m">
                       {t.origem?.toUpperCase() || "-"} →{" "}

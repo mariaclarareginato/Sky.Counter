@@ -299,9 +299,15 @@ export default function ParcelamentoPage() {
           doc.setFont("helvetica", "bold");
           doc.setFontSize(13);
           separator();
-          doc.text(`VOO ${i + 1}`, margin, y);
-          y += 20;
-          let escalasTexto = "Voo direto";
+          const labelVoo =
+          qtdVoos === 1
+          ? "VOO - IDA"
+          : qtdVoos === 2
+          ? i === 0 ? "VOO - IDA" : "VOO - VOLTA"
+          : `VOO ${i + 1}`;
+          doc.text(labelVoo, margin, y);
+           y += 20;
+           let escalasTexto = "Voo direto";
     
           if (Number(t.escalas) === 1) {
             escalasTexto = formatarEscala(

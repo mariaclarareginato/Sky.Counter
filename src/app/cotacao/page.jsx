@@ -154,7 +154,7 @@
 
   // Taxa do aeroporto
   // Troque a função getTaxa por esta:
-const getTaxa = (code) => {
+  const getTaxa = (code) => {
   if (!code) return 0;
 
   // Lê sempre direto do localStorage para garantir dados atualizados
@@ -245,8 +245,8 @@ const getTaxa = (code) => {
 
     const newPageIfNeeded = (space = 20) => {
      if (y + space > maxY) {
-    doc.addPage();
-    y = margin;
+     doc.addPage();
+     y = margin;
      }
      };
 
@@ -289,12 +289,12 @@ const getTaxa = (code) => {
      const serialKey = `serie_pdf_${currentYear}`;
       // Pega o último número salvo
      let stored = Number(localStorage.getItem(serialKey));
-    stored = stored && stored >= 999 ? stored : 999;
+     stored = stored && stored >= 999 ? stored : 999;
      // Incrementa
      const serial = stored + 1;
     // Salva de volta no localStorage
-   localStorage.setItem(serialKey, serial);
-   // Formata para exibição no PDF
+    localStorage.setItem(serialKey, serial);
+    // Formata para exibição no PDF
      const serialFormatted = `${String(serial).padStart(4, "0")}/${currentYear}`;
      doc.setFontSize(11);
      doc.setFont("helvetica", "normal");
@@ -368,7 +368,13 @@ const getTaxa = (code) => {
       doc.setFont("helvetica", "bold");
       doc.setFontSize(13);
       separator();
-      doc.text(`VOO ${i + 1}`, margin, y);
+      const labelVoo =
+      qtdVoos === 1
+      ? "VOO - IDA"
+      : qtdVoos === 2
+      ? i === 0 ? "VOO - IDA" : "VOO - VOLTA"
+      : `VOO ${i + 1}`;
+      doc.text(labelVoo, margin, y);
       y += 20;
       let escalasTexto = "Voo direto";
 
@@ -526,15 +532,15 @@ const getTaxa = (code) => {
           </h2>
       
          <label className="flex flex-col text-lg font-bold">
-         Quantidade de voos:
+         Viagem:
          <select
           value={qtdVoos}
           onChange={(e) => setQtdVoos(Number(e.target.value))}
           className="p-2 border font-medium rounded" >
-          <option className="bg-gray-400 text-gray-800 text-lg font-semibold" value={1}>1 Voo</option>
-          <option className="bg-gray-400 text-gray-800 text-lg font-semibold" value={2}>2 Voos</option>
-          <option className="bg-gray-400 text-gray-800 text-lg font-semibold" value={3}>3 Voos</option>
-          <option className="bg-gray-400 text-gray-800 text-lg font-semibold" value={4}>4 Voos</option>
+          <option className="bg-gray-400 text-gray-800 text-lg font-semibold" value={1}>Somente Ida</option>
+          <option className="bg-gray-400 text-gray-800 text-lg font-semibold" value={2}>Ida e Volta</option>
+          <option className="bg-gray-400 text-gray-800 text-lg font-semibold" value={3}>Multitrechos (3 Voos)</option>
+          <option className="bg-gray-400 text-gray-800 text-lg font-semibold" value={4}>Multitrechos (4 Voos)</option>
         </select>
         </label>
 
@@ -620,12 +626,16 @@ const getTaxa = (code) => {
 
     <div key={i} className="p-6 rounded-2xl shadow-xl space-y-6">
 
-    <h2 className="text-2xl font-extrabold text-center">
-      Dados do voo {i + 1}
-    </h2>
+     <h2 className="text-2xl font-extrabold text-center">
+      {qtdVoos === 1
+     ? "Dados Voo - Ida"
+     : qtdVoos === 2
+     ? i === 0 ? "Dados Voo - Ida" : "Dados Voo - Volta"
+     : `Dados do voo ${i + 1}`}
+      </h2>
 
-    {/* Companhia */}
-    <div>
+     {/* Companhia */}
+     <div>
       <label className="flex flex-col text-lg font-bold">
         Companhia aérea:
         <input
@@ -636,7 +646,7 @@ const getTaxa = (code) => {
           className="mt-2 p-2 rounded border text-center uppercase"
         />
       </label>
-    </div>
+     </div>
 
     {/* Classe */}
     <div>
@@ -651,10 +661,10 @@ const getTaxa = (code) => {
           <option className="bg-gray-400 text-gray-800 text-lg font-semibold">Executiva</option>
         </select>
       </label>
-    </div>
+     </div>
 
-    {/* Horários */}
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+     {/* Horários */}
+     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       <label className="flex text-lg flex-col font-bold">
         Data:
         <input

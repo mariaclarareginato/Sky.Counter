@@ -1,11 +1,11 @@
-"use client";
+ "use client";
 
-// Importações
-import { useEffect, useState } from "react";
-import { Button } from "../components/ui/button.jsx";
-import { Pencil, Trash2 } from "lucide-react";
+ // Importações
+ import { useEffect, useState } from "react";
+ import { Button } from "../components/ui/button.jsx";
+ import { Pencil, Trash2 } from "lucide-react";
 
-export default function TaxasAeroportos() {
+ export default function TaxasAeroportos() {
 
    // Use States
   const [airportRates, setAirportRates] = useState([]);
@@ -15,37 +15,32 @@ export default function TaxasAeroportos() {
   const [editingAeroporto, setEditingAeroporto] = useState(null);
   const [busca, setBusca] = useState("");
 
-  // Buscar taxas
-  const taxasFiltradas = airportRates.filter((a) =>
-  a.aeroporto.toUpperCase().includes(busca.toUpperCase())
-  );
+   // Buscar taxas
+   const taxasFiltradas = airportRates.filter((a) =>
+   a.aeroporto.toUpperCase().includes(busca.toUpperCase())
+   );
 
 
-  // Carregar taxas salvas
-  useEffect(() => {
+   // Carregar taxas salvas
+   useEffect(() => {
 
     const saved = localStorage.getItem("airportRates");
 
     if (saved) {
-
       const data = JSON.parse(saved);
-
       setAirportRates(data || []);
-
     }
+    }, []);
 
-  }, []);
-
-  // Salvar no localStorage
-  const salvarTaxas = (data) => {
+   // Salvar no localStorage
+   const salvarTaxas = (data) => {
     setAirportRates(data);
     localStorage.setItem("airportRates", JSON.stringify(data));
-  };
+   };
 
-  // Adicionar 
-  const adicionar = () => {
-
-    if (!aeroporto) return;
+   // Adicionar 
+   const adicionar = () => {
+   if (!aeroporto) return;
 
     const novo = {
       aeroporto: aeroporto.toUpperCase(),
@@ -62,38 +57,30 @@ export default function TaxasAeroportos() {
       );
 
     } else {
-
       lista = [...airportRates.filter(a => a.aeroporto !== novo.aeroporto), novo];
-
     }
 
     salvarTaxas(lista);
-
     setAeroporto("");
     setNacional("");
     setInternacional("");
     setEditingAeroporto(null);
+   };
 
-  };
-
-  // Editar
-  const editar = (aeroporto) => {
-
+   // Editar
+   const editar = (aeroporto) => {
     setAeroporto(aeroporto.aeroporto || "");
     setNacional(aeroporto.nacional || "");
     setInternacional(aeroporto.internacional || "");
-
     setEditingAeroporto(aeroporto.aeroporto);
+   };
 
-  };
+   // Remover
+   const remover = (aeroporto) => {
 
-  // Remover
-  const remover = (aeroporto) => {
-
-    const lista = airportRates.filter(a => a.aeroporto !== aeroporto);
-    salvarTaxas(lista);
-
-  };
+   const lista = airportRates.filter(a => a.aeroporto !== aeroporto);
+   salvarTaxas(lista);
+   };
 
      return (
      <div className="max-w-3xl mx-auto space-y-8">
@@ -144,31 +131,30 @@ export default function TaxasAeroportos() {
       <div className="space-y-4">
 
 
-   <h2 className="text-2xl font-bold">
-   Taxas de embarque cadastradas
-   </h2>
+     <h2 className="text-2xl font-bold">
+     Taxas de embarque cadastradas
+     </h2>
 
     {airportRates.length  >=  4 && (
     <input
     type="text"
     placeholder={"Pesquisar taxa (EX: FOR)"}
     value={busca}
-    onChange={(e) => setBusca(e.target.value)}
-    className="border p-2 rounded w-full text-m font-bold uppercase"
+    onChange={(e) => setBusca(e.target.value.toUpperCase())}
+    className="border p-2 rounded w-full text-m font-bold"
     />
     )}
 
      {airportRates.length === 0 && (
-      <p className="text-lg text-center font-semibold">
+      <p className="text-lg text-center font-medium text-italic">
       Nenhuma taxa de embarque cadastrada ainda.
-     </p>
+      </p>
       )}
 
         {taxasFiltradas.map((a, i) => (
           <div
             key={(a.aeroporto || "item") + i}
-            className="shadow-lg rounded-xl p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
-          >
+            className="shadow-lg rounded-xl p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
 
             {/* Informações */}
             <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6">
@@ -184,36 +170,27 @@ export default function TaxasAeroportos() {
               <span className="text-lg font-semibold">
                 Internacional: <span className="text-xl font-bold">R$ {a.internacional}</span>
               </span>
-
-            </div>
+              </div>
 
             {/* Botões */}
             <div className="flex gap-2">
 
               <Button
                 className="text-sm md:text-base font-semibold px-4 py-2"
-                onClick={() => editar(a)}
-              >
+                onClick={() => editar(a)}>
                 <Pencil size={16} />
               </Button>
 
               <Button
                 className="text-sm md:text-base font-semibold px-4 py-2"
                 variant="destructive"
-                onClick={() => remover(a.aeroporto)}
-              >
+                onClick={() => remover(a.aeroporto)}>
                 <Trash2 size={16}/>
               </Button>
-
             </div>
-
+            </div>
+           ))}
           </div>
-
-        ))}
-
-      </div>
-
-    </div>
-
-  );
-}
+          </div>
+          );
+          }

@@ -78,7 +78,7 @@
     };
 
      return (
-    <div className="w-full">
+     <div className="w-full">
       <h1 className="text-3xl font-extrabold mb-6 text-center">
         Histórico de Cotações
       </h1>
@@ -120,110 +120,162 @@
                 key={item.id}
                 className="p-6 rounded-2xl mt-5 shadow-lg space-y-4"
               >
-                {/* HEADER */}
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-xl">#{item.id}</span>
+            {/* Header */}
+            <div className="flex justify-between items-center">
+            <div className="flex items-center gap-2">
+            <span className="font-extrabold text-2xl">#{item.id}</span>
 
-                    <span
-                      className={`cursor-pointer text-xl ${
-                        item.favorito ? "text-blue-700" : "text-black-300"
-                      }`}
-                      onClick={() => toggleFavorito(item.id)}
-                    >
-                      ★
-                    </span>
-                  </div>
-                </div>
+           <span
+           className={`cursor-pointer text-2xl ${
+           item.favorito ? "text-blue-700" : "text-black-300"
+           }`}
+            onClick={() => toggleFavorito(item.id)}
+            >
+           ★
+           </span>
+            </div>
+          </div>
 
-                <p className="font-semibold text-m">
-                  {item.classificacao} • {item.passageiros} passageiros
-                </p>
+         <p className="font-semibold text-lg">
+         {item.classificacao} • {item.passageiros} passageiros
+         </p>
+                
+       <p className="mt-5 font-semibold text-lg">
+        {f.cliente}
+       </p>
 
-                {/* TRECHOS */}
-                {f?.trechos?.slice(0, item.qtdVoos || f?.trechos.length).map((t, index) => (
-                  <div key={index} className="p-4 rounded-xl border">
-                  <p className="font-bold text-lg mb-1">
-                    {item.qtdVoos === 1
-                    ? "Voo - Ida"
-                    : item.qtdVoos === 2
-                    ? index === 0 ? "Voo - Ida" : "Voo - Volta"
-                    : `Voo ${index + 1}`}
-                  </p>
+              
+      {/* Trechos */}
+      {f?.trechos?.slice(0, item.qtdVoos || f?.trechos.length).map((t, index) => (
+      <div key={index} className="p-4 rounded-xl border space-y-3">
+    
+     {/* Label do voo */}
+     <p className="font-extrabold text-xl border-b pb-2">
+      {item.qtdVoos === 1
+        ? "Voo - Ida"
+        : item.qtdVoos === 2
+        ? index === 0 ? "Voo - Ida" : "Voo - Volta"
+        : `Voo ${index + 1}`}
+     </p>
 
-                    <p className="text-m">
-                      {t.origem?.toUpperCase() || "-"} →{" "}
-                      {t.destino?.toUpperCase() || "-"}
-                    </p>
+    {/* Rota + horários */}
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+      <div>
+        <p className="text-m font-medium uppercase">Rota:</p>
+        <p className="font-semibold text-lg">
+          {t.origem?.toUpperCase() || "-"} → {t.destino?.toUpperCase() || "-"}
+        </p>
+      </div>
 
-                  
-                    <p className="text-m">
-                      {formatarData(t.data)} | {t.embarque || "-"} → {t.chegada || "-"}
-                    </p>
+      <div>
+        <p className="text-m font-medium uppercase">Data:</p>
+        <p className="font-semibold text-lg">{formatarData(t.data)}</p>
+      </div>
 
+      <div>
+        <p className="text-m font-medium uppercase">Horários:</p>
+        <p className="font-semibold text-lg">{t.embarque || "-"} → {t.chegada || "-"}</p>
+      </div>
 
-                    <p className="text-m mt-1">
-                    Classe: {t.classe || "-"}
-                    </p>
+      <div>
+        <p className="text-m font-medium uppercase">Classe:</p>
+        <p className="font-semibold text-lg">{t.classe || "-"}</p>
+      </div>
+     </div>
 
+     {/* Escalas */}
+     <div>
+      <p className="text-m font-medium uppercase mb-1">Escalas:</p>
+      {Number(t.escalas) === 0 || !t.escalas ? (
+        <span className="text-lg font-bold px-2 py-1 rounded-full">
+          Voo direto
+        </span>
+       ) : (
+        <div className="flex flex-col gap-3">
+          {Number(t.escalas) >= 1 && t.escala1Cidade && (
+            <div className="text-m font-medium px-3 py-3 rounded-lg border">
+              {t.escala1Cidade.toUpperCase()}
+              {t.escala1Chegada && t.escala1Partida && (
+                <span  className="font-medium text-m font-semibold"> <br></br>  {t.escala1Chegada} às {t.escala1Partida}</span>
+              )}
+            </div>
+          )}
+          {Number(t.escalas) === 2 && t.escala2Cidade && (
+            <div className="text-m font-medium px-3 py-3 rounded-lg border">
+              {t.escala2Cidade.toUpperCase()}
+              {t.escala2Chegada && t.escala2Partida && (
+                <span className="font-medium text-m font-semibold"> <br></br> {t.escala2Chegada} às {t.escala2Partida}</span>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+      </div>
 
-                    <p className="text-m mt-2">
-                      Escalas: {renderEscalas(t)}
-                    </p>
+     {/* Bagagens */}
+     <div>
+      <p className="text-m uppercase mb-1">Bagagens:</p>
+      {!Number(t.bagagemQtd) ? (
+        <span className="text-lg font-semibold px-2 py-1 rounded-full">
+          Sem bagagem
+        </span>
+       ) : (
+        <div className="text-m font-semibold px-3 py-1 rounded-lg border inline-flex gap-18 items-center">
+          {t.bagagemQtd} {Number(t.bagagemQtd) > 1 ? "bagagens" : "bagagem"}
+          <span className="font-semibold"> • {t.tipoBagagem || "-"}</span>
+        </div>
+       )}
+       </div>
+       </div>
+       ))}
 
-                    <p className="text-m mt-1">
-                      {renderBagagem(t)}
-                    </p>
-                  </div>
-                ))}
+         {/* Info extra */}
+          <div className="space-y-1 mt-2">
+           <p className="font-semibold text-lg">Total final:</p>
+           <p className="font-extrabold text-2xl">{formatMoney(item.total)}</p>
+          </div>
 
-                    {/* INFO EXTRA */}
-                <div className="space-y-1 mt-2">
-                  <p className="font-semibold text-lg">Total final:</p>
-                  <p className="font-bold text-2xl">{formatMoney(item.total)}</p>
-                </div>
-
-                {/* BOTÕES */}
-                <div className="flex justify-end gap-2">
-                  <Button
-                    className="px-4 py-2 text-lg font-semibold rounded-lg"
-                         onClick={() => {
+              {/* Botões */}
+              <div className="flex justify-end gap-2">
+              <Button
+              className="px-4 py-2 text-lg font-semibold rounded-lg"
+              onClick={() => {
               localStorage.setItem(
               "voosProData",
               JSON.stringify({
               flight: item.flightData,
               qtdVoos: item.qtdVoos, 
               taxasAdicionais: item.taxasAdicionais || "",
-                })
-                );
-                router.push("/cotacao");
-                }}
-                  >
-                    Reabrir
-                  </Button>
+             })
+              );
+             router.push("/cotacao");
+              }}
+               >
+              Reabrir
+              </Button>
 
-                  <Button
-                    variant="destructive"
-                    className="px-4 py-2 text-lg font-semibold rounded-lg"
-                    onClick={() => {
-                      const novo = historico.filter(
-                        (h) => h.id !== item.id
-                      );
-                      setHistorico(novo);
-                      localStorage.setItem(
-                        "historicoCotacoes",
-                        JSON.stringify(novo)
-                      );
-                    }}
-                  >
-                    Excluir
-                  </Button>
-                </div>
-              </div>
-            );
+               <Button
+               variant="destructive"
+               className="px-4 py-2 text-lg font-semibold rounded-lg"
+                onClick={() => {
+               const novo = historico.filter(
+               (h) => h.id !== item.id
+              );
+              setHistorico(novo);
+              localStorage.setItem(
+              "historicoCotacoes",
+              JSON.stringify(novo)
+             );
+            }}
+            >
+            Excluir
+          </Button>
+          </div>
+          </div>
+           );
           })}
         </div>
-        )}
+         )}
         </div>
-        );
-        }
+         );
+         }

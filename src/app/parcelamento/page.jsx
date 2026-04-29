@@ -1,10 +1,10 @@
-"use client";
+ "use client";
 
-import { useEffect, useState } from "react";
-import jsPDF from "jspdf";
-import { Button } from "../components/ui/button.jsx";
+ import { useEffect, useState } from "react";
+ import jsPDF from "jspdf";
+ import { Button } from "../components/ui/button.jsx";
 
-export default function ParcelamentoPage() {
+ export default function ParcelamentoPage() {
   // Use States
   const [bancos, setBancos] = useState([]);
   const [bancoSelecionado, setBancoSelecionado] = useState("");
@@ -26,8 +26,8 @@ export default function ParcelamentoPage() {
   const [pdfFields, setPdfFields] = useState({});
   const [loaded, setLoaded] = useState(false);
 
-  // Load
-  useEffect(() => {
+   // Load
+   useEffect(() => {
     try {
       const savedVoos = localStorage.getItem("voosProData");
       if (savedVoos) {
@@ -66,13 +66,13 @@ export default function ParcelamentoPage() {
     } finally {
       setLoaded(true);
     }
-  }, []);
+    }, []);
 
   // Helpers PDF
   const formatar = (valor) =>
     Number(valor || 0).toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL",
+    style: "currency",
+    currency: "BRL",
     });
 
   const bancoObj = bancos.find((b) => b.banco === bancoSelecionado);
@@ -139,18 +139,18 @@ export default function ParcelamentoPage() {
     : 0;
 
         // Helpers para o PDF
-        const toBase64 = async (path) => {
-          if (!path) return null;
-          const url = path;
-          const res = await fetch(url);
-          const blob = await res.blob();
-          return await new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onerror = reject;
-          reader.onloadend = () => resolve(reader.result);
-          reader.readAsDataURL(blob);
-          });
-         };
+     const toBase64 = async (path) => {
+        if (!path) return null;
+        const url = path;
+        const res = await fetch(url);
+        const blob = await res.blob();
+        return await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = reject;
+        reader.onloadend = () => resolve(reader.result);
+        reader.readAsDataURL(blob);
+       });
+       };
     
          
         // PDF
@@ -166,7 +166,7 @@ export default function ParcelamentoPage() {
     
          let texto = cidade.toUpperCase();
     
-        if (chegada) texto += ` - das ${chegada}`;
+        if (chegada) texto += ` das ${chegada}`;
         if (partida) texto += ` às ${partida}`;
     
         return texto;
@@ -186,10 +186,10 @@ export default function ParcelamentoPage() {
         const img = new Image();
         img.src = base64;
     
-        img.onload = () => {
+         img.onload = () => {
           const canvas = document.createElement("canvas");
           const ctx = canvas.getContext("2d");
-    
+
           const width = 200;
           const height = 150;
           const radius = 20; 
@@ -207,9 +207,7 @@ export default function ParcelamentoPage() {
           ctx.quadraticCurveTo(0, 0, radius, 0);
           ctx.closePath();
           ctx.clip();
-    
           ctx.drawImage(img, 0, 0, width, height);
-    
           resolve(canvas.toDataURL("image/png"));
         };
         });
@@ -285,15 +283,15 @@ export default function ParcelamentoPage() {
         // Info. Geral
         doc.setFont("helvetica", "bold");
         doc.setFontSize(12);
-    
         separator();
         doc.text("INFORMAÇÕES GERAIS", margin, y);
         y += 20;
+        write("Cliente", flight.cliente);
         write("Classificação", flight.classificacao);
         write("Total passageiros", totalPaxEx);
         
     
-         // Trechos
+          // Trechos
           flight.trechos.slice(0, qtdVoos).forEach((t, i) => {
           newPageIfNeeded(180);
           doc.setFont("helvetica", "bold");
@@ -307,8 +305,8 @@ export default function ParcelamentoPage() {
           : `VOO ${i + 1}`;
           doc.text(labelVoo, margin, y);
            y += 20;
-           let escalasTexto = "Voo direto";
-    
+
+          let escalasTexto = "Voo direto";
           if (Number(t.escalas) === 1) {
             escalasTexto = formatarEscala(
               t.escala1Cidade,
@@ -324,7 +322,7 @@ export default function ParcelamentoPage() {
                 t.escala1Chegada,
                 t.escala1Partida
               ) +
-              " || " +
+              " e " +
               formatarEscala(
                 t.escala2Cidade,
                 t.escala2Chegada,
@@ -344,7 +342,7 @@ export default function ParcelamentoPage() {
           });
     
     
-        // ====== TOTAL FINAL ======
+        // Total final
         doc.setFontSize(13);
         doc.setFont("helvetica", "bold");
         separator();
@@ -353,7 +351,6 @@ export default function ParcelamentoPage() {
         doc.text(`${parcelas} X de ${formatar(valorParcela)}`, pageWidth / 2, y, { align: "center" });
         y += 10;
         separator();
-    
         y += 5;
         doc.setFont("helvetica", "bold");
         doc.setFontSize(10);
@@ -369,9 +366,9 @@ export default function ParcelamentoPage() {
         const obsLines = doc.splitTextToSize(obs, pageWidth - margin * 2);
         doc.text(obsLines, margin, y);
         
-         y += 55;
+        y += 55;
     
-        const agenciaInfo = [];
+       const agenciaInfo = [];
     
        if (pdfFields.nome && nomeAgencia) {
         agenciaInfo.push(`Agência: ${nomeAgencia}`);
@@ -450,7 +447,7 @@ export default function ParcelamentoPage() {
             setBancoSelecionado(e.target.value);
             setParcelas(1);
           }}
-        >
+          >
           <option className="bg-gray-400 text-lg font-semibold text-gray-900" value="">Selecione um banco</option>
           {bancos.map((b) => (
             <option className="bg-gray-400 text-lg font-semibold text-gray-900" key={b.banco} value={b.banco}>
@@ -532,6 +529,6 @@ export default function ParcelamentoPage() {
           )}
         </>
       )}
-    </div>
-    );
-    }
+     </div>
+     );
+     }

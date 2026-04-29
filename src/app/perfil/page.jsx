@@ -21,17 +21,16 @@ export default function PerfilAgencia() {
   cnpj: false,
   cadastur: false,
   logo: true,
-});
+ });
 
 
   const togglePdfField = (field) => {
    const updated = { ...pdfFields, [field]: !pdfFields[field] };
    setPdfFields(updated);
    localStorage.setItem("agencia_pdf_fields", JSON.stringify(updated));
-    };
+  };
 
-useEffect(() => {
-
+  useEffect(() => {
   setLogo(localStorage.getItem("agencia_logo") || null);
   setNome(localStorage.getItem("agencia_nome") || "");
   setTelefone(localStorage.getItem("agencia_telefone") || "");
@@ -105,7 +104,7 @@ const handleLogoUpload = (e) => {
         alt="Logo da agência"
       />
     </div>
-  )}
+   )}
 
   {/* Botão único: alterna entre enviar e remover */}
   {logo ? (
@@ -119,113 +118,95 @@ const handleLogoUpload = (e) => {
     >
       Remover logo
     </Button>
-  ) : (
+    ) : (
     <label
       htmlFor="logoUpload"
       className="cursor-pointer font-bold text-lg border px-6 py-2 rounded text-center"
     >
       Enviar logo (230 x 170)
     </label>
-  )}
+   )}
+  </div>
 
-</div>
 
-
-<div className="space-y-5">
- <input
-  placeholder="Nome da agência | Ex: Tur10"
+  <div className="space-y-5">
+  <input
+  placeholder="Nome da agência | EX: Tur10"
   value={nome}
   onChange={(e) => {
-    setNome(e.target.value);
-    localStorage.setItem("agencia_nome", e.target.value);
+  setNome(e.target.value);
+  localStorage.setItem("agencia_nome", e.target.value);
   }}
-  className="w-full p-4 text-lg font-semibold rounded-xl border border-darkblue-300 
-             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
-             transition-all"
-/>
+  className="w-full p-4 text-m sm:text-lg font-semibold rounded-xl border border-darkblue-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"/>
 
-<input
-  placeholder="Telefone | Ex: (11) 91111-1111"
+  <input
+  placeholder="Telefone | EX: (11) 91111-1111"
   value={telefone}
   onChange={(e) => {
     setTelefone(e.target.value);
     localStorage.setItem("agencia_telefone", e.target.value);
-  }}
-  className="w-full p-4 text-lg font-semibold rounded-xl border border-darkblue-300 
-             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
-             transition-all"
-/>
+   }}
+   className="w-full p-4 text-m sm:text-lg font-semibold rounded-xl border border-darkblue-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"/>
 
-<input
-  placeholder="Redes sociais | Ex: @tur10.oficial"
+  <input
+  placeholder="Redes sociais | EX: @tur10.ofc"
   value={redes}
   onChange={(e) => {
     setRedes(e.target.value);
     localStorage.setItem("agencia_redes", e.target.value);
   }}
-  className="w-full p-4 text-lg font-semibold rounded-xl border border-darkblue-300 
-             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
-             transition-all"
-/>
+  className="w-full p-4 text-m sm:text-lg font-semibold rounded-xl border border-darkblue-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"/>
 
-<input
-  placeholder="CNPJ | Ex: 11.111.111/1111-11"
+  <input
+  placeholder="CNPJ | EX: 11.111.111/1111-11"
   value={cnpj}
   onChange={(e) => {
     setCnpj(e.target.value);
     localStorage.setItem("agencia_cnpj", e.target.value);
-  }}
-  className="w-full p-4 text-lg font-semibold rounded-xl border border-darkblue-300 
-             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
-             transition-all"
-/>
+   }}
+   className="w-full p-4 text-m sm:text-lg font-semibold rounded-xl border border-darkblue-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"/>
 
-<input
-  placeholder="Cadastur | Ex: 11.111.111/1111-11"
-  value={cadastur}
-  onChange={(e) => {
+   <input
+   placeholder="Cadastur | EX: 11.111.111/1111-11"
+   value={cadastur}
+   onChange={(e) => {
     setCadastur(e.target.value);
     localStorage.setItem("agencia_cadastur", e.target.value);
-  }}
-  className="w-full p-4 text-lg font-semibold rounded-xl border border-darkblue-300 
-             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
-             transition-all"
-/>
-
-</div>
+   }}
+   className="w-full pb-4 pt-4 px-2 text-m sm:text-lg font-semibold rounded-xl border border-darkblue-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"/>
+   </div>
 
 
   {sucesso && (
   <div className="text-green-900 dark:text-green-500 mt-10 rounded text-center text-xl font-semibold">
     Perfil salvo com sucesso!
   </div>
-)}
+  )}
 
-  <div className="flex justify-center">
+   <div className="flex justify-center">
     <Button onClick={salvarPerfil} className="px-8 py-8 mt-1 text-xl font-bold">
       Salvar perfil
     </Button>
-  </div>
+   </div>
   
  
-<div className="rounded-lg p-4 space-y-3 shadow-lg">
-  <p className="font-bold text-xl">
-   As informações da sua agência serão usadas nos PDFs das cotações.
-   Selecione abaixo quais dados você deseja exibir nos documentos:
-  </p>
+  <div className="rounded-lg p-4 space-y-3 text-center shadow-lg">
+   <p className="font-bold text-xl">
+   As informações da sua agência serão usadas nos PDFs das cotações.</p>
 
-  {[
+   <p className="font-medium text-lg text-italy mb-5"> Selecione abaixo quais dados você deseja exibir nos documentos:</p>
+
+   {[
     ["logo", "Logo"],
     ["nome", "Nome"],
     ["telefone", "Telefone"],
     ["redes", "Redes sociais"],
     ["cnpj", "CNPJ"],
     ["cadastur", "Cadastur"],
-  ].map(([key, label]) => (
+    ].map(([key, label]) => (
     <label
       key={key}
-      className="flex items-center gap-3 text-lg font-semibold cursor-pointer"
-    >
+      className="flex items-center gap-3 text-lg font-semibold cursor-pointer">
       <input
         type="checkbox"
         checked={pdfFields[key]}
@@ -235,8 +216,7 @@ const handleLogoUpload = (e) => {
       {label}
     </label>
   ))}
-</div>
-</div>
-
-  );
-}
+   </div>
+   </div>
+   );
+   }

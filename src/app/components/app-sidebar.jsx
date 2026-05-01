@@ -1,16 +1,16 @@
-"use client"
+ "use client"
 
-// Importações
-import { useEffect, useState } from "react"
-import { NavMain } from "../components/nav-main"
+  // Importações
+  import { useEffect, useState } from "react"
+  import { NavMain } from "../components/nav-main"
 
-import {
+  import {
   Sidebar,
   SidebarContent,
   SidebarHeader,
-} from "../components/ui/sidebar"
+  } from "../components/ui/sidebar"
 
-export function AppSidebar({ ...props }) {
+  export function AppSidebar({ ...props }) {
   const [setUser] = useState({ name: "", email: "" })
 
   useEffect(() => {
@@ -18,7 +18,7 @@ export function AppSidebar({ ...props }) {
     if (userData) {
       setUser(JSON.parse(userData))
     }
-  }, [])
+    }, [])
   
   // Links
   const data = {
@@ -30,9 +30,9 @@ export function AppSidebar({ ...props }) {
       { name: "Taxas de Embarque", url: "/taxas.embarque" },
       { name: "Taxas de Parcelamento", url: "/taxas.parcelamento" },
     ],
-  }
+    }
 
-  return ( 
+   return ( 
     <Sidebar collapsible="offcanvas" {...props}>
       {/* Header */}
       <SidebarHeader className="hover:bg-transparent transition-none">
@@ -41,8 +41,7 @@ export function AppSidebar({ ...props }) {
          <img
       className="h-40 w-[170px] rounded-[20px]"
       src="/logo.png"
-      alt="Logo"
-    />
+      alt="Logo"/>
         </div>
         </SidebarHeader>
       </SidebarHeader>
@@ -52,5 +51,5 @@ export function AppSidebar({ ...props }) {
         <NavMain  items={data.navegacao} />
       </SidebarContent>
     </Sidebar>
-  )
-}
+    )
+    }

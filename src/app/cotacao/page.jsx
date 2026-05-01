@@ -1,5 +1,6 @@
    "use client";
 
+    // Importações
    import { useEffect, useState } from "react";
    import jsPDF from "jspdf";
    import { Button } from "../../app/components/ui/button";
@@ -15,9 +16,9 @@
     const [airportRates, setAirportRates] = useState([]);
 
     const [flight, setFlight] = useState({
-     cliente: "",
-     classificacao: "Nacional",
-     tipoviagem: "",
+      cliente: "",
+      classificacao: "Nacional",
+      tipoviagem: "",
 
       adultos: 0,
       criancas: 0,
@@ -61,7 +62,7 @@
     const [cadastur, setCadastur] = useState("");
     const [pdfFields, setPdfFields] = useState({});
 
-      // CARREGAR TODOS OS DADOS
+      // Carregar todos os dados
       useEffect(() => {
       try {
       const savedData = localStorage.getItem("voosProData");
@@ -225,7 +226,7 @@
       reader.onloadend = () => resolve(reader.result);
       reader.readAsDataURL(blob);
       });
-     };
+      };
 
      
     // PDF
@@ -292,7 +293,7 @@
     // Número de série
      const currentYear = new Date().getFullYear();
      const serialKey = `serie_pdf_${currentYear}`;
-      // Pega o último número salvo
+    // Pega o último número salvo
      let stored = Number(localStorage.getItem(serialKey));
      stored = stored && stored >= 999 ? stored : 999;
      // Incrementa
@@ -419,7 +420,7 @@
     });
 
 
-    // ====== TOTAL FINAL ======
+    // Total final
     doc.setFontSize(13);
     doc.setFont("helvetica", "bold");
     separator();
@@ -435,13 +436,12 @@
     });
 
     // Observações
-    y += 14;
+     y += 14;
     doc.setFontSize(8.5);
     doc.setFont("helvetica", "normal");
     const obs = "Aviso importante sobre preços dinâmicos: Os valores apresentados neste orçamento estão sujeitos à variação de acordo com disponibilidade, demanda, políticas das companhias aéreas e hotéis, além de possíveis alterações cambiais. Como se tratam de preços dinâmicos, o valor final somente será confirmado no momento da emissão da passagem aérea ou da reserva da hospedagem. Recomenda-se confirmar a compra o quanto antes para garantir as tarifas informadas.";
     const obsLines = doc.splitTextToSize(obs, pageWidth - margin * 2);
     doc.text(obsLines, margin, y);
-    
      y += 50;
 
     const agenciaInfo = [];
@@ -611,7 +611,7 @@
   
      
 
-      {/* PASSAGEIROS */}
+      {/* Passageiros */}
       <div className="text-center font-bold text-2xl mt-10">
       Passageiros: {totalPaxEx}
       </div>
@@ -739,13 +739,13 @@
         {grupo && (
           <ul className="absolute top-full left-0 right-0 z-50 border rounded-xl shadow-lg overflow-hidden mt-1">
             {grupo.map((a) => (
-              <li
-                key={a.codigo}
-                onMouseDown={() => updateTrecho(i, field, a.codigo)}
-                className="flex items-center justify-between px-4 py-3 dark:bg-gray-900 bg-gray-400 transition-opacity hover:brightness-90">
-                <span className="text-lg font-extrabold">{a.codigo}</span>
-                <span className="text-m font-semibold">{a.nome}</span>
-              </li>
+            <li
+            key={a.codigo}
+            onMouseDown={() => updateTrecho(i, field, a.codigo)}
+            className="flex items-center justify-between px-4 py-3 dark:bg-gray-900 bg-gray-400 transition-opacity hover:brightness-90">
+            <span className="text-lg font-extrabold">{a.codigo}</span>
+            <span className="text-m font-semibold">{a.nome}</span>
+            </li>
             ))}
           </ul>
         )}

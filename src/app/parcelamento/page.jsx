@@ -1,33 +1,35 @@
- "use client";
+   "use client";
 
- import { useEffect, useState } from "react";
- import jsPDF from "jspdf";
- import { Button } from "../components/ui/button.jsx";
+   // Importações
+   import { useEffect, useState } from "react";
+   import jsPDF from "jspdf";
+   import { Button } from "../components/ui/button.jsx";
 
- export default function ParcelamentoPage() {
-  // Use States
-  const [bancos, setBancos] = useState([]);
-  const [bancoSelecionado, setBancoSelecionado] = useState("");
-  const [parcelas, setParcelas] = useState(1);
-  const [tipoTaxa, setTipoTaxa] = useState("link");
+   export default function ParcelamentoPage() {
 
-  const [flight, setFlight] = useState(null);
-  const [qtdVoos, setQtdVoos] = useState(0);
-  const [taxasAdicionais, setTaxasAdicionais] = useState(0);
-  const [airportRates, setAirportRates] = useState([]);
-  const [totalFinal, setTotalFinal] = useState(0);
+   // Use States
+   const [bancos, setBancos] = useState([]);
+   const [bancoSelecionado, setBancoSelecionado] = useState("");
+   const [parcelas, setParcelas] = useState(1);
+   const [tipoTaxa, setTipoTaxa] = useState("link");
 
-  const [userLogo, setUserLogo] = useState(null);
-  const [nomeAgencia, setNomeAgencia] = useState("");
-  const [telefoneAgencia, setTelefoneAgencia] = useState("");
-  const [redesAgencia, setRedesAgencia] = useState("");
-  const [cnpj, setCnpj] = useState("");
-  const [cadastur, setCadastur] = useState("");
-  const [pdfFields, setPdfFields] = useState({});
-  const [loaded, setLoaded] = useState(false);
+   const [flight, setFlight] = useState(null);
+   const [qtdVoos, setQtdVoos] = useState(0);
+   const [taxasAdicionais, setTaxasAdicionais] = useState(0);
+   const [airportRates, setAirportRates] = useState([]);
+   const [totalFinal, setTotalFinal] = useState(0);
 
-   // Load
-   useEffect(() => {
+   const [userLogo, setUserLogo] = useState(null);
+   const [nomeAgencia, setNomeAgencia] = useState("");
+   const [telefoneAgencia, setTelefoneAgencia] = useState("");
+   const [redesAgencia, setRedesAgencia] = useState("");
+   const [cnpj, setCnpj] = useState("");
+   const [cadastur, setCadastur] = useState("");
+   const [pdfFields, setPdfFields] = useState({});
+   const [loaded, setLoaded] = useState(false);
+
+    // Load
+    useEffect(() => {
     try {
       const savedVoos = localStorage.getItem("voosProData");
       if (savedVoos) {
@@ -96,7 +98,7 @@
     ? valorComTaxa / parcelas
     : valorComTaxa;
 
-    //  Funções Auxiliares do PDF 
+    //  Funções auxiliares do PDF 
     const getTaxa = (code) => {
     if (!code) return 0;
 

@@ -1,10 +1,10 @@
-"use client";
+ "use client";
 
-import { useEffect, useState } from "react";
-import { Button } from "../components/ui/button.jsx";
-import { Input } from "../components/ui/input.jsx";
+ import { useEffect, useState } from "react";
+ import { Button } from "../components/ui/button.jsx";
+ import { Input } from "../components/ui/input.jsx";
 
-export default function PerfilAgencia() {
+  export default function PerfilAgencia() {
 
   const [nome, setNome] = useState("");
   const [telefone, setTelefone] = useState("");
@@ -14,17 +14,17 @@ export default function PerfilAgencia() {
   const [cadastur, setCadastur] = useState("");
   const [sucesso, setSucesso] = useState(false);
 
-   const [pdfFields, setPdfFields] = useState({
+  const [pdfFields, setPdfFields] = useState({
   nome: true,
   telefone: true,
   redes: true,
   cnpj: false,
   cadastur: false,
   logo: true,
- });
+  });
 
 
-  const togglePdfField = (field) => {
+   const togglePdfField = (field) => {
    const updated = { ...pdfFields, [field]: !pdfFields[field] };
    setPdfFields(updated);
    localStorage.setItem("agencia_pdf_fields", JSON.stringify(updated));
@@ -38,15 +38,14 @@ export default function PerfilAgencia() {
   setCnpj(localStorage.getItem("agencia_cnpj") || "");
   setCadastur(localStorage.getItem("agencia_cadastur") || "");
 
-  const savedFields = localStorage.getItem("agencia_pdf_fields");
-  if (savedFields) {
+   const savedFields = localStorage.getItem("agencia_pdf_fields");
+   if (savedFields) {
     setPdfFields(JSON.parse(savedFields));
-  }
+   }
+   }, []);
 
-}, []);
 
-
-const salvarPerfil = () => {
+  const salvarPerfil = () => {
   localStorage.setItem("agencia_nome", nome);
   localStorage.setItem("agencia_telefone", telefone);
   localStorage.setItem("agencia_redes", redes);
@@ -55,10 +54,10 @@ const salvarPerfil = () => {
 
   setSucesso(true);
   setTimeout(() => setSucesso(false), 3000);
-};
+  };
 
 
-const handleLogoUpload = (e) => {
+  const handleLogoUpload = (e) => {
   const file = e.target.files[0];
 
   if (!file) return;
@@ -69,7 +68,7 @@ const handleLogoUpload = (e) => {
     localStorage.setItem("agencia_logo", reader.result);
   };
   reader.readAsDataURL(file);
-};
+  };
 
 
   return (
@@ -111,8 +110,8 @@ const handleLogoUpload = (e) => {
     <Button
       variant="destructive"
       onClick={() => {
-        setLogo(null);
-        localStorage.removeItem("agencia_logo");
+      setLogo(null);
+      localStorage.removeItem("agencia_logo");
       }}
       className="font-bold text-lg"
     >
@@ -215,7 +214,7 @@ const handleLogoUpload = (e) => {
       />
       {label}
     </label>
-  ))}
+   ))}
    </div>
    </div>
    );

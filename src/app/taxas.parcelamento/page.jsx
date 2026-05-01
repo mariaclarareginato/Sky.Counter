@@ -19,8 +19,8 @@
    }))
    );
 
-  const [listaBancos, setListaBancos] = useState([]);
-  const [editIndex, setEditIndex] = useState(null);
+   const [listaBancos, setListaBancos] = useState([]);
+   const [editIndex, setEditIndex] = useState(null);
 
 
   // Busca bancos
@@ -29,148 +29,117 @@
   );
 
   useEffect(() => {
-
   const saved = localStorage.getItem("parcelamentoTaxas");
-
   if (saved) {
   setListaBancos(JSON.parse(saved));
    }
-
    }, []);
 
 
   // Editar valores tabela
   const handleChange = (index, field, value) => {
-
   const copy = [...taxas];
   copy[index][field] = value;
-
   setTaxas(copy);
-
    };
 
 
   // Salvar banco e taxa
    const salvarBanco = () => {
 
-  if (!banco) {
-  alert("Informe o nome do banco");
-  return;
-  }
+   if (!banco) {
+   alert("Informe o nome do banco");
+   return;
+   }
 
   const novo = {
-  banco,
-  taxas
-  };
+   banco,
+   taxas
+   };
 
   let updated;
-
   if (editIndex !== null) {
 
-  updated = [...listaBancos];
-  updated[editIndex] = novo;
-  setEditIndex(null);
-
+   updated = [...listaBancos];
+   updated[editIndex] = novo;
+   setEditIndex(null);
    } else {
+   updated = [...listaBancos, novo];
+   }
 
-  updated = [...listaBancos, novo];
-
-  }
-
- setListaBancos(updated);
-
-  localStorage.setItem(
-  "parcelamentoTaxas",
+   setListaBancos(updated);
+   localStorage.setItem(
+   "parcelamentoTaxas",
    JSON.stringify(updated)
-  );
+   );
 
-  setBanco("");
-
-  setTaxas(
-  Array.from({ length: 24 }, (_, i) => ({
-  parcelas: i + 1,
-  link: "",
-  maquina: ""
-  }))
-  );
-
-  alert("Banco salvo com sucesso!");
-
-  };
+   setBanco("");
+   setTaxas(
+   Array.from({ length: 24 }, (_, i) => ({
+   parcelas: i + 1,
+   link: "",
+   maquina: ""
+   }))
+   );
+   alert("Banco salvo com sucesso!");
+   };
 
 
-  // Editar banco
-  const editarBanco = (index) => {
-
-  const bancoEdit = listaBancos[index];
-
+   // Editar banco
+   const editarBanco = (index) => {
+   const bancoEdit = listaBancos[index];
    setBanco(bancoEdit.banco);
-
    setTaxas(bancoEdit.taxas);
-
    setEditIndex(index);
-
-  window.scrollTo({
-  top: 0,
-  behavior: "smooth"
-  });
-
-  };
+   window.scrollTo({
+   top: 0,
+   behavior: "smooth"
+   });
+   };
 
 
    // Remover banco
   const removerBanco = (index) => {
-
   const updated = [...listaBancos];
-
   updated.splice(index, 1);
-
   setListaBancos(updated);
-
   localStorage.setItem(
   "parcelamentoTaxas",
   JSON.stringify(updated)
   );
-
   };
 
 
    return (
 
    <div className="space-y-8">
-
     <h1 className="text-4xl font-extrabold text-center">
-    Taxas de Parcelamento
+     Taxas de Parcelamento
     </h1>
 
-      <p className="text-center text-lg font-semibold">
-        Cadastre ou edite as taxas de cada banco para parcelamentos do preço total das cotações.
-      </p>
+    <p className="text-center text-lg font-semibold">
+     Cadastre ou edite as taxas de cada banco para parcelamentos do preço total das cotações.
+    </p>
 
 
 
-  {/* Banco */}
-
+   {/* Banco */}
    <div className="space-y-3">
-
    <label className="font-bold text-lg">
    Banco
    </label>
 
-  <input
-  type="text"
-  value={banco}
-  placeholder="EX: Itaú"
-  onChange={(e)=>setBanco(e.target.value)}
-  className="border text-base text-lg font-semibold p-2 mt-5 rounded w-full"
-  />
-
+   <input
+   type="text"
+   value={banco}
+   placeholder="EX: Itaú"
+   onChange={(e)=>setBanco(e.target.value)}
+   className="border text-base text-lg font-semibold p-2 mt-5 rounded w-full"/>
    </div>
 
 
 
   {/* Tabela */}
-
   <div className="space-y-3">
 
   <label className="font-bold text-lg">
@@ -182,16 +151,15 @@
   <select
   value={parcelaSelecionada}
   onChange={(e)=>setParcelaSelecionada(Number(e.target.value))}
-  className="border text-base text-lg font-bold p-2 mt-5 rounded"
-  >
+  className="border text-base text-lg font-bold p-2 mt-5 rounded">
 
 
   {taxas.map((t,i)=>(
   <option key={i} value={i}
   className="text-lg bg-gray-400 text-gray-900 font-semibold">
   {t.parcelas}x
-  </option>
-  ))}
+   </option>
+   ))}
 
   </select>
 
@@ -200,8 +168,7 @@
   <div className="grid grid-cols-2 gap-4">
 
   <div className="space-y-2 mt-5">
-
-  <label className="font-bold text-lg">
+   <label className="font-bold text-lg">
    Link-%
    </label>
 
@@ -211,49 +178,39 @@
    value={taxas[parcelaSelecionada].link}
    placeholder="EX: 4.77"
    onChange={(e)=>handleChange(parcelaSelecionada,"link",e.target.value)}
-   className="border mt-3 rounded-md px-2 py-2 w-full text-lg text-center font-semibold"
-   />
+   className="border mt-3 rounded-md px-2 py-2 w-full text-lg text-center font-semibold"/>
+   </div>
 
-  </div>
+   <div className="mt-5">
+   <label className="font-bold text-lg">
+   Maquininha-%
+   </label>
 
-  <div className="mt-5">
-
-  <label className="font-bold text-lg">
-  Maquininha-%
-  </label>
-
-  <input
-  type="number"
-  step="0.01"
-  value={taxas[parcelaSelecionada].maquina}
-  placeholder="EX: 3.57"
-  onChange={(e)=>handleChange(parcelaSelecionada,"maquina",e.target.value)}
-  className="border mt-3 rounded-md px-2 py-2 w-full text-lg text-center font-semibold"
-  />
-
-  </div>
-
-  </div>
-
-  </div>
+   <input
+   type="number"
+   step="0.01"
+   value={taxas[parcelaSelecionada].maquina}
+   placeholder="EX: 3.57"
+   onChange={(e)=>handleChange(parcelaSelecionada,"maquina",e.target.value)}
+   className="border mt-3 rounded-md px-2 py-2 w-full text-lg text-center font-semibold"/>
+   </div>
+   </div>
+   </div>
 
   {/* Botão salvar */}
-  <Button
-  className="w-full p-6 text-xl font-bold"
-  onClick={salvarBanco}
-  >
-  {editIndex !== null ? "Atualizar taxas banco" : "Salvar taxas banco"}
+   <Button
+   className="w-full p-6 text-xl font-bold"
+   onClick={salvarBanco}>
+   {editIndex !== null ? "Atualizar taxas banco" : "Salvar taxas banco"}
    </Button>
 
 
 
   {/* Bancos cadastrados */}
-
   <div className="space-y-4">
-
-  <h2 className="text-2xl font-bold">
-  Bancos cadastrados
-  </h2>
+   <h2 className="text-2xl font-bold">
+   Bancos cadastrados
+   </h2>
 
    {listaBancos.length  >=  4 && (
    <input
@@ -262,50 +219,40 @@
     value={busca}
     onChange={(e) => setBusca(e.target.value)}
     className="border p-2 rounded w-full text-m font-bold"
-   />
-   )}
+    />
+    )}
 
-   {listaBancos.length === 0 && (
-   <p className="text-lg text-center font-semibold">
+    {listaBancos.length === 0 && (
+    <p className="text-lg text-center font-semibold">
     Nenhum banco cadastrado ainda.
-   </p>
-   )}
+    </p>
+    )}
 
 
-   {bancosFiltrados.map((b, i)=>(
-    
+    {bancosFiltrados.map((b, i)=>(
+    <div
+    key={i}
+    className="flex flex-col sm:flex-row sm:justify-between sm:items-center shadow-sm p-4 rounded gap-3">
 
-   <div
-   key={i}
-   className="flex flex-col sm:flex-row sm:justify-between sm:items-center shadow-sm p-4 rounded gap-3"
-   >
+    <span className="font-bold text-lg">
+    {b.banco}
+    </span>
 
-   <span className="font-bold text-lg">
-   {b.banco}
-   </span>
+    <div className="flex gap-2">
+    <Button
+    onClick={()=>editarBanco(i)}>
+    <Pencil size={16}/>
+    </Button>
 
-     <div className="flex gap-2">
-
-   <Button
-   onClick={()=>editarBanco(i)}>
-   <Pencil size={16}/>
-   </Button>
-
-  <Button
-  variant="destructive"
-  onClick={()=>removerBanco(i)}
-  >
-
-  <Trash2 size={16}/>
-  </Button>
-
-   </div>
-
-   </div>
+    <Button
+    variant="destructive"
+    onClick={()=>removerBanco(i)}>
+    <Trash2 size={16}/>
+    </Button>
+    </div>
+    </div>
     ))}
-
-  </div>
-  </div>
-
+    </div>
+    </div>
     );
-   }
+    }

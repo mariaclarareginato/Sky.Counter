@@ -15,7 +15,7 @@
   DropdownMenuTrigger,
  } from "../components/ui/dropdown-menu";
 
-export function SiteHeader() {
+  export function SiteHeader() {
   const { theme, setTheme, systemTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -64,8 +64,7 @@ export function SiteHeader() {
         <DropdownMenuItem className="font-bold text-lg" onClick={() => setTheme("system")}>Sistema</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  </div>
- </header>
-
-  );
-  }
+   </div>
+   </header>
+   );
+   }

@@ -1,19 +1,19 @@
 
-// Importações
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import { ThemeProvider } from "next-themes";
+ // Importações
+ import { Geist, Geist_Mono } from "next/font/google";
+ import "./globals.css";
+ import { ThemeProvider } from "next-themes";
 
 
- const geistSans = Geist({
+  const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
- });
+  });
 
   const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
- });
+  });
 
   export const metadata = {
   title: "Sky Counter",

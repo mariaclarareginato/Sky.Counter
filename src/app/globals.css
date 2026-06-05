@@ -1,21 +1,21 @@
-@import "tailwindcss";
-@import "tw-animate-css";
-
-@custom-variant dark (&:is(.dark *));
-
+    @import "tailwindcss";
+    @import "tw-animate-css";
+ 
+   @custom-variant dark (&:is(.dark *));
+ 
   video::-webkit-media-controls {
   display: none !important;
-}
-
-video::-webkit-media-controls-enclosure {
+  }
+ 
+ video::-webkit-media-controls-enclosure {
   display: none !important;
-}
-
-video::-webkit-media-controls-panel {
+ }
+ 
+ video::-webkit-media-controls-panel {
   display: none !important;
-}
-
-@keyframes fadeInUp {
+ }
+ 
+  @keyframes fadeInUp {
   from {
     opacity: 0;
     transform: translateY(20px);
@@ -24,26 +24,27 @@ video::-webkit-media-controls-panel {
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-.animate-fade-in {
+  }
+ 
+ .animate-fade-in {
   animation: fadeInUp 1s ease-out forwards;
-}
-
-.animate-fade-in-delay {
+  }
+ 
+ .animate-fade-in-delay {
   opacity: 0;
   animation: fadeInUp 1s ease-out forwards;
   animation-delay: 0.3s;
-}
-
-.animate-fade-in-delay-2 {
+  }
+ 
+ .animate-fade-in-delay-2 {
   opacity: 0;
   animation: fadeInUp 1s ease-out forwards;
   animation-delay: 0.6s;
-}
-
-
-@theme inline {
+  }
+ 
+ 
+ 
+  @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: Roboto, sans-serif;
@@ -106,9 +107,9 @@ video::-webkit-media-controls-panel {
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-}
-
-:root {
+  }
+ 
+ :root {
   --radius: 0.625rem;
   --background: oklch(78.154% 0.10578 252.559);
   --foreground: oklch(13.918% 0.0434 281.992);
@@ -162,9 +163,9 @@ video::-webkit-media-controls-panel {
   --shadow-xl: 2px 2px 4px 0px hsl(255 86% 66% / 0.20), 2px 8px 10px -1px hsl(255 86% 66% / 0.20);
   --shadow-2xl: 2px 2px 4px 0px hsl(255 86% 66% / 0.50);
   --tracking-normal: 0em;
-}
-
-.dark {
+  }
+ 
+  .dark {
   --background: oklch(0.2077 0.0398 265.7549);
   --foreground: oklch(0.9299 0.0334 272.7879);
   --card: oklch(0.2573 0.0861 281.2883);
@@ -217,9 +218,9 @@ video::-webkit-media-controls-panel {
   --shadow-lg: 2px 2px 4px 0px hsl(255 86% 66% / 0.20), 2px 4px 6px -1px hsl(255 86% 66% / 0.20);
   --shadow-xl: 2px 2px 4px 0px hsl(255 86% 66% / 0.20), 2px 8px 10px -1px hsl(255 86% 66% / 0.20);
   --shadow-2xl: 2px 2px 4px 0px hsl(255 86% 66% / 0.50);
-}
-
-@layer base {
+  }
+ 
+  @layer base {
   * {
     @apply border-border outline-ring/50;
   }
@@ -227,7 +228,16 @@ video::-webkit-media-controls-panel {
     @apply bg-background text-foreground;
     letter-spacing: var(--tracking-normal);
   }
-
-
-
-}
+ 
+  /* Remove setas dos inputs numéricos */
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  
+   }
+  
+ 
+     
+   

@@ -544,22 +544,57 @@
     { codigo: "PLU", nome: "Pampulha" },
     ],
     };
+
+    const getErrosTrecho = (t, i) => {
+  const erros = [];
+
+  // Embarque não pode ser depois da chegada (no mesmo dia)
+  if (t.embarque && t.chegada && t.embarque >= t.chegada) {
+    erros.push("Hora de embarque deve ser antes da hora de chegada.");
+  }
+
+  // Escala 1: chegada deve ser depois do embarque do voo
+  if (Number(t.escalas) >= 1 && t.escala1Chegada && t.embarque) {
+    if (t.escala1Chegada <= t.embarque) {
+      erros.push("Hora de chegada na Escala 1 deve ser depois do embarque.");
+    }
+  }
+
+  // Escala 1: partida deve ser depois da chegada
+  if (Number(t.escalas) >= 1 && t.escala1Chegada && t.escala1Partida) {
+    if (t.escala1Partida <= t.escala1Chegada) {
+      erros.push("Hora de partida da Escala 1 deve ser depois da chegada.");
+    }
+  }
+
+  // Escala 2: chegada deve ser depois da partida da escala 1
+  if (Number(t.escalas) === 2 && t.escala1Partida && t.escala2Chegada) {
+    if (t.escala2Chegada <= t.escala1Partida) {
+      erros.push("Hora de chegada na Escala 2 deve ser depois da partida da Escala 1.");
+    }
+   }
+
+  // Escala 2: partida deve ser depois da chegada
+  if (Number(t.escalas) === 2 && t.escala2Chegada && t.escala2Partida) {
+    if (t.escala2Partida <= t.escala2Chegada) {
+      erros.push("Hora de partida da Escala 2 deve ser depois da chegada.");
+    }
+   }
+
+  // Datas entre trechos: cada trecho não pode ser antes do anterior
+  if (i > 0) {
+    const anterior = flight.trechos[i - 1];
+    if (t.data && anterior.data && t.data < anterior.data) {
+      erros.push("A data deste voo não pode ser anterior ao voo anterior.");
+    }
+   }
+
+   return erros;
+   };
+
          
     return (
-       <div className="w-full space-y-8">
-        
-      <style jsx>{`
-        /* Remove as setas dos inputs numéricos */
-        input[type="number"]::-webkit-inner-spin-button,
-        input[type="number"]::-webkit-outer-spin-button {
-          -webkit-appearance: none;
-          margin: 0;
-        }
-        input[type="number"] {
-          -moz-appearance: textfield;
-        }
-      `}</style>
-    
+     <div className="w-full space-y-8">
      <div className="w-full">
 
       <h1 className="text-4xl mb-10 mt-5 font-extrabold text-center">
@@ -572,9 +607,9 @@
       Informações gerais
       </h2>
 
-        <div className="flex flex-col md:flex-row gap-3">
-        <label className="flex flex-col text-lg font-bold flex-1">
-         Nome do cliente:
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <label className="flex flex-col text-lg font-bold gap-2">
+         Cliente:
         <input
           type="text"
           value={flight.cliente}
@@ -584,7 +619,7 @@
         />
        </label>
      
-      <label className="flex flex-col text-lg font-bold flex-1">
+      <label className="flex flex-col text-lg font-bold flex-1 gap-2">
       Viagem:
       <select
         value={qtdVoos}
@@ -597,7 +632,7 @@
       </select>
       </label>
 
-      <label className="flex flex-col text-lg font-semibold flex-1">
+      <label className="flex flex-col text-lg font-semibold flex-1 gap-2">
       Tipo de viagem:
       <select
         value={flight.classificacao}
@@ -612,33 +647,38 @@
      
 
       {/* Passageiros */}
-      <div className="text-center font-bold text-2xl mt-10">
-      Passageiros: {totalPaxEx}
-      </div>
+    <div className="text-center font-bold text-2xl mt-10">
+    Passageiros: {totalPaxEx}
+    </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      {[
-      { key: "adultos", label: "Adultos:" },
-      { key: "criancas", label: "Crianças (2-11):" },
-      { key: "bebes", label: "Bebês (não pagam):" },
-      ].map(({ key, label }) => (
-
-     <label key={key} className="flex flex-col text-lg font-bold">
+   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    {[
+    { key: "adultos", label: "Adultos:" },
+    { key: "criancas", label: "Crianças (2-11):" },
+    { key: "bebes", label: "Bebês (não pagam):" },
+    ].map(({ key, label }) => (
+    <label key={key} className="flex flex-col text-lg font-bold">
       {label}
       <input
-        type="number"
-        placeholder={`Ex: 1`}
-        value={flight[key] ?? ""}
-        onChange={(e) =>
-         setFlight({
-         ...flight,
-        [key]: e.target.value === "" ? "" : Number(e.target.value)
-          })
-        }
-      className="mt-2 p-2 border rounded text-center uppercase"/>
-      </label>
-       ))}
-      </div>
+        type="text"
+        inputMode="numeric"
+        placeholder="Ex: 1"
+        value={flight[key] === 0 ? "" : flight[key]}
+        onChange={(e) => {
+          const val = e.target.value;
+          if (val === "" || /^\d*$/.test(val)) {
+            setFlight({ ...flight, [key]: val === "" ? 0 : val });
+          }
+        }}
+        onBlur={(e) => {
+          const val = parseInt(e.target.value);
+          setFlight({ ...flight, [key]: isNaN(val) ? 0 : val });
+        }}
+        className="mt-2 p-2 border rounded text-center"
+      />
+     </label>
+     ))}
+     </div>
      </div>
      </div>
 
@@ -654,6 +694,13 @@
      ? i === 0 ? "Dados Voo - Ida" : "Dados Voo - Volta"
      : `Dados do voo ${i + 1}`}
       </h2>
+
+          {getErrosTrecho(t, i).map((erro, idx) => (
+      <div key={idx} className="text-red-500 font-semibold text-base bg-red-50 border border-red-200 rounded-lg px-4 py-2">
+        ⚠️ {erro}
+      </div>
+     ))}
+      
 
       {/* Companhia */}
       <div className="flex flex-col md:flex-row gap-5">
@@ -713,7 +760,7 @@
           onChange={(e)=>updateTrecho(i,"chegada",e.target.value)}
           className="mt-1 p-2 rounded border text-center"/>
       </label>
-    </div>
+     </div>
 
      {/* Aeroportos */}
      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">  
@@ -749,12 +796,12 @@
             ))}
           </ul>
         )}
-      </div>
-      );
-      })}
-      </div>
+       </div>
+       );
+       })}
+       </div>
 
-     {/* Escalas */}
+      {/* Escalas */}
       <div>
       <label className="flex text-lg flex-col font-bold">
         Escalas:
@@ -767,7 +814,7 @@
           <option className="bg-gray-400 text-gray-800 text-lg font-semibold" value={2}>2 escalas</option>
         </select>
       </label>
-     </div>
+      </div>
 
      {/* Escala 1 */}
      {Number(t.escalas) >= 1 && (
@@ -843,34 +890,51 @@
         )}
 
 
-     {/* Bagagens */}
-     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-     
-     <label className="flex flex-col text-lg font-bold">
-      Quantidade de bagagens:
-     <input
-     type="number"
-     placeholder="Ex: 1"
-     value={t.bagagemQtd ?? ""}
-     onChange={(e)=>
-     updateTrecho(i, "bagagemQtd", e.target.value === "" ? "" : Number(e.target.value))
-      }
-      className="p-2 border rounded text-center uppercase"/>
+      {/* Bagagens */}
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <label className="flex flex-col text-lg font-bold gap-2">
+    Quantidade de bagagens:
+    <input
+      type="text"
+      inputMode="numeric"
+      placeholder="Ex: 1"
+      value={t.bagagemQtd === 0 ? "" : t.bagagemQtd}
+      onChange={(e) => {
+        const val = e.target.value;
+        if (val === "" || /^\d*$/.test(val)) {
+          updateTrecho(i, "bagagemQtd", val === "" ? 0 : val);
+        }
+      }}
+      onBlur={(e) => {
+        const val = parseInt(e.target.value);
+        updateTrecho(i, "bagagemQtd", isNaN(val) ? 0 : val);
+      }}
+      className="p-2 border rounded text-center"
+    />
+    </label>
+
+    <label className="flex flex-col text-lg font-bold gap-2">
+    Valor unitário:
+    <input
+      type="text"
+      inputMode="decimal"
+      placeholder="Ex: 100,00"
+      value={t.bagagemPreco === 0 ? "" : t.bagagemPreco}
+      onChange={(e) => {
+        const val = e.target.value.replace(",", ".");
+        if (val === "" || /^\d*\.?\d*$/.test(val)) {
+          updateTrecho(i, "bagagemPreco", val === "" ? 0 : val);
+        }
+      }}
+      onBlur={(e) => {
+        const val = parseFloat(e.target.value.replace(",", "."));
+        updateTrecho(i, "bagagemPreco", isNaN(val) ? 0 : val);
+      }}
+      className="p-2 border rounded text-center"
+     />
      </label>
 
-
-     <label className="flex flex-col text-lg font-bold">
-      Valor unitário:
-     <input
-     type="number"
-     placeholder="Ex: 100.00"
-     value={t.bagagemPreco ?? ""}
-     onChange={(e)=>
-     updateTrecho(i, "bagagemPreco", e.target.value === "" ? "" : Number(e.target.value))
-      }
-      className="p-2 border rounded text-center uppercase"/>
-      </label>
-     <label className="flex flex-col text-lg font-bold">
+     <label className="flex flex-col text-lg font-bold gap-2">
      Tipo de bagagem:
      <select
      value={t.tipoBagagem || "Sem bagagem"}
@@ -889,18 +953,18 @@
     <option className="bg-gray-400 text-gray-900 font-semibold text-lg">
       Item pessoal
     </option>
-   </select>
+    </select>
     </label>
     </div>
 
-    {/* Total bagagem */}
-    <div className="text-center text-m sm:text-xl font-bold">
+     {/* Total bagagem */}
+     <div className="text-center text-m sm:text-xl font-bold">
         Total bagagens: R$ {(t.bagagemQtd * t.bagagemPreco).toFixed(2)}
-    </div>
+     </div>
 
-     {/* Progama / Milhas */}
-     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <label className="flex flex-col text-lg font-bold">
+      {/* Progama / Milhas */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <label className="flex flex-col text-lg font-bold gap-2">
       Programa:
       <select
         value={t.programa || "Latam"}
@@ -916,31 +980,55 @@
         ].map(p=>(
           <option className="bg-gray-400 text-gray-800 text-lg font-semibold" key={p}>{p}</option>
         ))}
-      </select>
-      </label>
+       </select>
+       </label>
 
 
-      <label className="flex flex-col text-lg font-bold">
-      Milhas por passageiro:
-      <input
-        type="number"
-        placeholder="Ex: 21.00"
-        value={t.milhas || ""}
-        onChange={(e)=>updateTrecho(i,"milhas",Number(e.target.value))}
-        className="p-2 border rounded text-cente uppercase text-center"/>
-      </label>
+    
+    {/* Milhas por passageiro */}
+    <label className="flex flex-col text-lg font-bold gap-2">
+    Milhas por passageiro:
+   <input
+    type="text"
+    inputMode="decimal"
+    placeholder="Ex: 21,00"
+    value={t.milhas === 0 ? "" : t.milhas}
+    onChange={(e) => {
+      const val = e.target.value.replace(",", ".");
+      if (val === "" || /^\d*\.?\d*$/.test(val)) {
+        updateTrecho(i, "milhas", val === "" ? 0 : val);
+      }
+    }}
+    onBlur={(e) => {
+      const val = parseFloat(e.target.value.replace(",", "."));
+      updateTrecho(i, "milhas", isNaN(val) ? 0 : val);
+    }}
+    className="p-2 border rounded text-center"
+   />
+   </label>
 
-
-     <label className="flex flex-col text-lg font-bold">
-      Preço do milheiro:
-      <input
-        type="number"
-        placeholder="Ex: 30.00"
-        value={t.precoMilheiro || ""}
-        onChange={(e)=>updateTrecho(i,"precoMilheiro",Number(e.target.value))}
-        className="p-2 border rounded text-center uppercase"/>
-      </label>
-      </div>
+   {/* Preço do milheiro */}
+   <label className="flex flex-col text-lg font-bold gap-2">
+   Preço do milheiro:
+   <input
+    type="text"
+    inputMode="decimal"
+    placeholder="Ex: 30,00"
+    value={t.precoMilheiro === 0 ? "" : t.precoMilheiro}
+    onChange={(e) => {
+      const val = e.target.value.replace(",", ".");
+      if (val === "" || /^\d*\.?\d*$/.test(val)) {
+        updateTrecho(i, "precoMilheiro", val === "" ? 0 : val);
+      }
+     }}
+    onBlur={(e) => {
+      const val = parseFloat(e.target.value.replace(",", "."));
+      updateTrecho(i, "precoMilheiro", isNaN(val) ? 0 : val);
+    }}
+    className="p-2 border rounded text-center"
+    />
+   </label>
+    </div>
 
      {/* Total trecho */}
      <div className="text-center">
@@ -1000,7 +1088,7 @@
           </>
           )}
 
-        {temTaxa && (
+         {temTaxa && (
           <>
             <div className="text-lg font-medium">
               {taxa.origem.toUpperCase()}
@@ -1015,9 +1103,9 @@
             )}
           </>
         )}
-      </div>
-      );
-      })}
+       </div>
+       );
+       })}
     
  
      {/* Resumo de taxas */}
@@ -1033,18 +1121,29 @@
 
      <hr className="opacity-20"/>
 
-      {/* Taxa adicional */}
-      <div className="flex flex-col gap-1 items-center">
-      <span className="text-m sm:text-lg font-bold">Taxa adicional:</span>
-      <input
-        type="number"
-        placeholder="EX: R$ 5.00"
-        value={taxasAdicionais}
-        onChange={(e) => setTaxasAdicionais(e.target.value)}
-        className="border p-2 rounded text-lg font-bold text-center w-35"/>
-      </div>
 
-     <hr className="opacity-20" />
+    {/* Taxa adicional */}
+    <div className="flex flex-col gap-1 items-center">
+    <span className="text-m sm:text-lg font-bold">Taxa adicional:</span>
+    <input
+    type="text"
+    inputMode="decimal"
+    placeholder="Ex: 5,00"
+    value={taxasAdicionais === 0 ? "" : taxasAdicionais}
+    onChange={(e) => {
+      const val = e.target.value.replace(",", ".");
+      if (val === "" || /^\d*\.?\d*$/.test(val)) {
+        setTaxasAdicionais(val === "" ? 0 : val);
+      }
+     }}
+     onBlur={(e) => {
+      const val = parseFloat(e.target.value.replace(",", "."));
+      setTaxasAdicionais(isNaN(val) ? 0 : val);
+    }}
+    className="border p-2 rounded text-lg font-bold text-center w-35"/>
+    </div>
+
+    <hr className="opacity-20" />
 
     {/* Total final das taxas */}
     <div className="flex flex-col gap-1 items-center">

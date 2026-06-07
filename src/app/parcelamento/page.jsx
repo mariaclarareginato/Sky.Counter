@@ -332,8 +332,9 @@
               );
           }
     
-          write("Data", t.data ? t.data.split("-").reverse().join("/") : "");
+          write("Data", t.dataEmbarque ? t.dataEmbarque.split("-").reverse().join("/") : "");
           write("Horário embarque", t.embarque);
+          write("Data", t.dataChegada ? t.dataChegada.split("-").reverse().join("/") : "");
           write("Horário chegada", t.chegada);
           write("Companhia", t.companhia?.toUpperCase());
           write("Classe", t.classe);

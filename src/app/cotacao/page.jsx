@@ -25,7 +25,8 @@
       bebes: 0,
 
       trechos: Array.from({ length: 4 }, () => ({
-      data: "",
+      dataEmbarque: "",
+      dataChegada: "",
       embarque: "",
       chegada: "",
       origem: "",
@@ -407,9 +408,10 @@
         );
        }
 
-      write("Data", t.data ? t.data.split("-").reverse().join("/") : "");
-      write("Horário embarque", t.embarque);
-      write("Horário chegada", t.chegada);
+      write("Data de embarque", t.dataEmbarque ? t.dataEmbarque.split("-").reverse().join("/") : "");
+      write("Horário de embarque", t.embarque);
+      write("Data de chegada", t.dataChegada ? t.dataChegada.split("-").reverse().join("/") : "");
+      write("Horário de chegada", t.chegada);
       write("Companhia", t.companhia?.toUpperCase());
       write("Classe", t.classe);
       write("Aeroporto embarque", t.origem?.toUpperCase());
@@ -417,7 +419,7 @@
       write("Escalas", escalasTexto);
       write("Bagagem",`${Number(t.bagagemQtd || 0)} x R$ ${Number(t.bagagemPreco || 0).toFixed(2)} = R$ ${(Number(t.bagagemQtd || 0) * Number(t.bagagemPreco || 0)).toFixed(2)} || ${t.tipoBagagem}`);
       write("Total do trecho", "R$ " + totalTrecho(t).toFixed(2))
-    });
+     });
 
 
     // Total final
@@ -546,51 +548,57 @@
     };
 
     const getErrosTrecho = (t, i) => {
-  const erros = [];
+    const erros = [];
 
-  // Embarque não pode ser depois da chegada (no mesmo dia)
-  if (t.embarque && t.chegada && t.embarque >= t.chegada) {
-    erros.push("Hora de embarque deve ser antes da hora de chegada.");
-  }
+    // Embarque não pode ser depois da chegada 
+    if (t.embarque && t.chegada) {
+    const dataEmbarque = t.dataEmbarque || "";
+    const dataChegada = t.dataChegada || "";
 
-  // Escala 1: chegada deve ser depois do embarque do voo
-  if (Number(t.escalas) >= 1 && t.escala1Chegada && t.embarque) {
-    if (t.escala1Chegada <= t.embarque) {
-      erros.push("Hora de chegada na Escala 1 deve ser depois do embarque.");
+    // Se tiver as duas datas, compara datetime completo
+    if (dataEmbarque && dataChegada) {
+    const dtEmbarque = new Date(`${dataEmbarque}T${t.embarque}`);
+    const dtChegada = new Date(`${dataChegada}T${t.chegada}`);
+    if (dtChegada <= dtEmbarque) {
+      erros.push("Data/hora de chegada deve ser depois da data/hora de embarque.");
     }
-  }
+    // Se não tiver datas, só compara horários mesmo
+    } else if (!dataEmbarque && !dataChegada && t.embarque >= t.chegada) {
+    erros.push("Hora de embarque deve ser antes da hora de chegada.");
+    }
+    }
 
-  // Escala 1: partida deve ser depois da chegada
-  if (Number(t.escalas) >= 1 && t.escala1Chegada && t.escala1Partida) {
+    // Escala 1: partida deve ser depois da chegada
+    if (Number(t.escalas) >= 1 && t.escala1Chegada && t.escala1Partida) {
     if (t.escala1Partida <= t.escala1Chegada) {
       erros.push("Hora de partida da Escala 1 deve ser depois da chegada.");
     }
-  }
+    }
 
-  // Escala 2: chegada deve ser depois da partida da escala 1
-  if (Number(t.escalas) === 2 && t.escala1Partida && t.escala2Chegada) {
+    // Escala 2: chegada deve ser depois da partida da escala 1
+    if (Number(t.escalas) === 2 && t.escala1Partida && t.escala2Chegada) {
     if (t.escala2Chegada <= t.escala1Partida) {
       erros.push("Hora de chegada na Escala 2 deve ser depois da partida da Escala 1.");
     }
    }
 
-  // Escala 2: partida deve ser depois da chegada
-  if (Number(t.escalas) === 2 && t.escala2Chegada && t.escala2Partida) {
+    // Escala 2: partida deve ser depois da chegada
+    if (Number(t.escalas) === 2 && t.escala2Chegada && t.escala2Partida) {
     if (t.escala2Partida <= t.escala2Chegada) {
       erros.push("Hora de partida da Escala 2 deve ser depois da chegada.");
     }
    }
 
-  // Datas entre trechos: cada trecho não pode ser antes do anterior
-  if (i > 0) {
+    // Datas entre trechos: cada trecho não pode ser antes do anterior
+    if (i > 0) {
     const anterior = flight.trechos[i - 1];
     if (t.data && anterior.data && t.data < anterior.data) {
       erros.push("A data deste voo não pode ser anterior ao voo anterior.");
     }
-   }
+    }
 
-   return erros;
-   };
+    return erros;
+    };
 
          
     return (
@@ -733,13 +741,13 @@
      
 
      {/* Horários */}
-     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+     <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
       <label className="flex text-lg flex-col font-bold">
-        Data:
+        Data Embarque:
         <input
           type="date"
-          value={t.data}
-          onChange={(e)=>updateTrecho(i,"data",e.target.value)}
+          value={t.dataEmbarque}
+          onChange={(e)=>updateTrecho(i,"dataEmbarque",e.target.value)}
           className="mt-1 p-2 rounded border text-center"/>
       </label>
 
@@ -751,6 +759,16 @@
           onChange={(e)=>updateTrecho(i,"embarque",e.target.value)}
           className="mt-1 p-2 rounded border text-center"/>
       </label>
+
+       <label className="flex text-lg flex-col font-bold">
+        Data chegada:
+        <input
+          type="date"
+          value={t.dataChegada}
+          onChange={(e)=>updateTrecho(i,"dataChegada",e.target.value)}
+          className="mt-1 p-2 rounded border text-center"/>
+      </label>
+
 
       <label className="flex text-lg flex-col font-bold">
         Hora chegada:
@@ -795,11 +813,11 @@
             </li>
             ))}
           </ul>
-        )}
-       </div>
-       );
-       })}
-       </div>
+         )}
+        </div>
+          );
+        })}
+        </div>
 
       {/* Escalas */}
       <div>

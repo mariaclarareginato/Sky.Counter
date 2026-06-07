@@ -102,21 +102,42 @@
           maxLength={3}
           onChange={(e)=>setAeroporto(e.target.value.toUpperCase())}
           className="uppercase w-full p-2 text-sm font-semibold rounded-lg border"/>
+          
+          <input
+  placeholder="Nacional (Ex: 3,65)"
+  type="text"
+  inputMode="decimal"
+  value={nacional === 0 ? "" : nacional}
+  onChange={(e) => {
+    const val = e.target.value.replace(",", ".");
+    if (val === "" || /^\d*\.?\d*$/.test(val)) {
+      setNacional(val === "" ? 0 : val);
+    }
+   }}
+   onBlur={(e) => {
+    const val = parseFloat(e.target.value.replace(",", "."));
+    setNacional(isNaN(val) ? 0 : val);
+   }}
+   className="uppercase w-full p-2 text-sm font-semibold rounded-xl border"
+    />
 
-        <input
-          placeholder="Nacional (EX: 3.65)"
-          type="number"
-          value={nacional || ""}
-          onChange={(e)=>setNacional(e.target.value)}
-          className="uppercase w-full p-2 text-sm font-semibold rounded-xl border"/>
-
-        <input
-          placeholder="Internacional (EX: 5.20)"
-          type="number"
-          value={internacional || ""}
-          onChange={(e)=>setInternacional(e.target.value)}
-          className="uppercase w-full p-2 text-sm font-semibold rounded-xl border"/>
-
+    <input
+    placeholder="Internacional (Ex: 5,20)"
+    type="text"
+    inputMode="decimal"
+    value={internacional === 0 ? "" : internacional}
+    onChange={(e) => {
+    const val = e.target.value.replace(",", ".");
+    if (val === "" || /^\d*\.?\d*$/.test(val)) {
+      setInternacional(val === "" ? 0 : val);
+    }
+    }}
+     onBlur={(e) => {
+    const val = parseFloat(e.target.value.replace(",", "."));
+    setInternacional(isNaN(val) ? 0 : val);
+     }}
+     className="uppercase w-full p-2 text-sm font-semibold rounded-xl border"
+      />
       </div>
 
       <div className="flex justify-center">

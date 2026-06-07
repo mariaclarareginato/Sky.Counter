@@ -160,39 +160,55 @@
   {t.parcelas}x
    </option>
    ))}
-
   </select>
 
   </div>
 
-  <div className="grid grid-cols-2 gap-4">
-
-  <div className="space-y-2 mt-5">
+   <div className="grid grid-cols-2 gap-4">
+   <div className="space-y-2 mt-5">
    <label className="font-bold text-lg">
-   Link-%
+    Link-%
    </label>
-
-  <input
-   type="number"
-   step="0.01"
-   value={taxas[parcelaSelecionada].link}
-   placeholder="EX: 4.77"
-   onChange={(e)=>handleChange(parcelaSelecionada,"link",e.target.value)}
-   className="border mt-3 rounded-md px-2 py-2 w-full text-lg text-center font-semibold"/>
+   <input
+    type="text"
+    inputMode="decimal"
+    value={taxas[parcelaSelecionada].link === 0 ? "" : taxas[parcelaSelecionada].link}
+    placeholder="Ex: 4,77"
+    onChange={(e) => {
+      const val = e.target.value.replace(",", ".");
+      if (val === "" || /^\d*\.?\d*$/.test(val)) {
+        handleChange(parcelaSelecionada, "link", val === "" ? 0 : val);
+      }
+    }}
+    onBlur={(e) => {
+      const val = parseFloat(e.target.value.replace(",", "."));
+      handleChange(parcelaSelecionada, "link", isNaN(val) ? 0 : val);
+    }}
+    className="border mt-3 rounded-md px-2 py-2 w-full text-lg text-center font-semibold"
+    />
    </div>
 
    <div className="mt-5">
    <label className="font-bold text-lg">
-   Maquininha-%
-   </label>
-
-   <input
-   type="number"
-   step="0.01"
-   value={taxas[parcelaSelecionada].maquina}
-   placeholder="EX: 3.57"
-   onChange={(e)=>handleChange(parcelaSelecionada,"maquina",e.target.value)}
-   className="border mt-3 rounded-md px-2 py-2 w-full text-lg text-center font-semibold"/>
+    Maquininha-%
+  </label>
+  <input
+    type="text"
+    inputMode="decimal"
+    value={taxas[parcelaSelecionada].maquina === 0 ? "" : taxas[parcelaSelecionada].maquina}
+    placeholder="Ex: 3,57"
+    onChange={(e) => {
+      const val = e.target.value.replace(",", ".");
+      if (val === "" || /^\d*\.?\d*$/.test(val)) {
+        handleChange(parcelaSelecionada, "maquina", val === "" ? 0 : val);
+      }
+    }}
+    onBlur={(e) => {
+      const val = parseFloat(e.target.value.replace(",", "."));
+      handleChange(parcelaSelecionada, "maquina", isNaN(val) ? 0 : val);
+    }}
+    className="border mt-3 rounded-md px-2 py-2 w-full text-lg text-center font-semibold"
+  />
    </div>
    </div>
    </div>
